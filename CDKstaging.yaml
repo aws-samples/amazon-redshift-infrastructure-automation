@@ -1,0 +1,176 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Amazon Redshift POC resource auto-creation (To be deployed in your AWS account to execute the Redshift POC)'
+
+Parameters:
+  VpcId:
+    Description: Select the VPC to launch the first staging instance in
+    Type: AWS::EC2::VPC::Id
+  SubnetId:
+    Description: Select the subnet to launch the first staging instance in - ensure it is public and public IPs are auto-assigned
+    Type: AWS::EC2::Subnet::Id
+  ConfigurationFile:
+    Description: The location (URI) for the configuration file on S3
+    Type: String
+  EC2InstanceAMI:
+    Description: AMI for the Amazon Linux 2 based EC2 instance. Please don't change this parameter unless needed for some compliance requirement.
+    Type: "AWS::SSM::Parameter::Value<String>"
+    Default: "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
+  KeyPair:
+    Description: Name of Keypair you created in your account. This will be used in case you need to login to the EC2 instance
+    Type: AWS::EC2::KeyPair::KeyName
+  OnPremisesCIDR:
+    Description: IP range (CIDR notation) for your existing infrastructure to access the target and replica Redshift clusters
+    Type: String
+    Default: 10.0.0.0/8
+    MinLength: '9'
+    MaxLength: '18'
+    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+  SourceDBPassword:
+    Description: Password for the source database to be stored as a secret.
+    Type: String
+    NoEcho: 'true'
+
+Resources:
+
+  SQLSecrets:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: 'SourceDBPassword'
+      Description: 'Credentials for source database in Redshift demo'
+      SecretString: !Sub ${SourceDBPassword}
+
+  DMSFullAccessAAA:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: Policy for creating DMS resources
+      Path: /
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "dms:*"
+            Resource: "*"
+
+  RootRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/IAMFullAccess"
+        - "arn:aws:iam::aws:policy/AWSCloudFormationFullAccess"
+        - "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
+        - "arn:aws:iam::aws:policy/AmazonRedshiftFullAccess"
+        - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+        - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+        - "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+        - Ref: DMSFullAccessAAA
+
+  InstanceProfileEC2Instance:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+      - Ref: RootRole
+
+  SecurityGroupEc2:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: 'Launching EC2 security group'
+      SecurityGroupIngress:
+        - CidrIp: !Ref OnPremisesCIDR
+          Description : Allow inbound access for on prem users on SSH port for the launching EC2 instance
+          IpProtocol: tcp
+          FromPort: 22
+          IpProtocol: tcp
+          ToPort:  22
+      VpcId: !Ref VpcId
+
+  SecurityGroupSelfReference:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Self Referencing Rule
+      FromPort: -1
+      IpProtocol: -1
+      GroupId: !GetAtt [SecurityGroupEc2, GroupId]
+      SourceSecurityGroupId: !GetAtt [SecurityGroupEc2, GroupId]
+      ToPort: -1
+
+  StagingEC2Instance:
+    Type: AWS::EC2::Instance
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT45M
+    Properties:
+      KeyName: !Ref KeyPair
+      InstanceType: "t3.micro"
+      IamInstanceProfile: !Ref InstanceProfileEC2Instance
+      Tags:
+      - Key: Name
+        Value:
+          Fn::Join:
+          - "-"
+          - - Ref: AWS::StackName
+            - EC2Instance
+      BlockDeviceMappings:
+      - DeviceName: "/dev/sda1"
+        Ebs:
+          DeleteOnTermination: true
+          VolumeType: gp2
+          VolumeSize: 30
+      ImageId: !Ref EC2InstanceAMI
+      NetworkInterfaces:
+      - DeleteOnTermination: true
+        DeviceIndex: "0"
+        SubnetId: !Ref SubnetId
+        GroupSet:
+        - Ref: SecurityGroupEc2
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -e
+          yum update -y
+          yum -y install git
+          yum -y install python3
+          yum -y install python3-pip
+          yum -y install aws-cfn-bootstrap
+          yum -y install gcc gcc-c++ python3 python3-devel unixODBC unixODBC-devel
+          mkdir /root/.aws
+          echo "[default]" > /root/.aws/config
+          echo "region = ${AWS::Region}" >> /root/.aws/config
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+          . /.nvm/nvm.sh
+          nvm install node
+          npm install -g aws-cdk
+          git clone -b master https://github.com/aws-samples/amazon-redshift-infrastructure-automation.git
+          cd RedshiftPOCAutomation
+          python3 -m venv .env
+          source .env/bin/activate
+          pip install -r requirements.txt
+          pip install aws_cdk.aws_dms
+          pip install aws_cdk.aws_redshift
+          pip install boto3
+          pip install aws_cdk.aws_cloudformation
+          pip install aws_cdk.custom_resources
+          pip install aws_cdk.aws_glue
+          aws s3 cp ${ConfigurationFile} ./user-config.json
+          #
+          # Run CDK App
+          #
+          export STACK_NAME=${AWS::StackName}
+          cdk deploy --all --require-approval never
+          deactivate
+          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource StagingEC2Instance --region ${AWS::Region}
+
+Outputs:
+  SourceAccountNumber:
+    Description: "Extract Source Account Number"
+    Value: !Ref AWS::AccountId
