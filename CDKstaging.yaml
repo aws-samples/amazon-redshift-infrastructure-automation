@@ -150,7 +150,7 @@ Resources:
           . /.nvm/nvm.sh
           nvm install node
           npm install -g aws-cdk
-          git clone -b master https://github.com/aws-samples/amazon-redshift-infrastructure-automation.git
+          git clone -b main https://github.com/aws-samples/amazon-redshift-infrastructure-automation.git
           cd RedshiftPOCAutomation
           python3 -m venv .env
           source .env/bin/activate
