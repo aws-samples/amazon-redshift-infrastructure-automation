@@ -27,10 +27,10 @@ vpc_config = config.get('vpc')
 redshift_endpoint = config.get('redshift_endpoint')
 redshift_config = config.get('redshift')
 
-redshift_bootstrap_script_s3_path = config.get('redshift_bootstrap_script_s3_path')
+redshift_bootstrap_script_s3_path = 'N/A'
 
-redshift_what_if = config.get('redshift_what_if')
-redshift_what_if_config = config.get('redshift_what_if_config')
+redshift_what_if = 'N/A'
+redshift_what_if_config = 'N/A'
 
 dms_instance_private_endpoint = config.get('dms_instance_private_endpoint')
 
@@ -39,8 +39,8 @@ sct_on_prem_to_redshift_target = config.get('sct_on_prem_to_redshift_target')
 dms_on_prem_to_redshift_config = config.get('dms_on_prem_to_redshift')
 sct_on_prem_to_redshift_config = config.get('sct_on_prem_to_redshift')
 
-glue_crawler_s3_target = config.get('glue_crawler_s3_target')
-glue_crawler_s3_config = config.get('glue_crawler_s3')
+glue_crawler_s3_target = 'N/A'
+glue_crawler_s3_config = 'N/A'
 
 stackname = os.getenv('STACK_NAME')
 # VPC Stack for hosting secure API & other resources
