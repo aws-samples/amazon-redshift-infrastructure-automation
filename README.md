@@ -41,7 +41,7 @@ If these are complete, continue to [deployment steps](#deployment-steps).
 
 An option for provisioning the VPC is to use the [VPC Launch Wizard console](https://console.aws.amazon.com/vpc/#wizardSelector:) -- you can see the details of the infrastructure launched using this wizard [here](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario1.html).
 1. Open the VPC Launch Wizard console linked above and press **Select** for creating a VPC with a single public subnet 
-2. Configure your desired VPC size, VPC name, subnet size, and subnet name -- other values can be kept as default.
+2. Configure your desired VPC size, VPC name, subnet size, and subnet name -- other values can be kept as default
 3. Press **Create VPC**
 
 These resources will be sufficient for the staging infrastructure. If a manually provisioned VPC is preferred, having at minimum a public subnet is required.
