@@ -25,7 +25,7 @@
     "source_engine": "sqlserver",
     "source_schema": "dbo",
     "source_host": "ec2-00-000-000-00.compute-1.amazonaws.com",
-    "source_user": "awssct",
+    "source_user": "admin",
     "source_port": 1433,
     "migration_type": "full-load"
   },
