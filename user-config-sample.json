@@ -27,7 +27,7 @@
     "source_host": "ec2-00-000-000-00.compute-1.amazonaws.com",
     "source_user": "awssct",
     "source_port": 1433,
-    "migration_type": "cdc"
+    "migration_type": "full-load"
   },
   "sct_on_prem_to_redshift": {
     "key_name": "key_pair",
