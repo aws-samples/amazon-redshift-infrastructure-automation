@@ -26,8 +26,7 @@
     "source_schema": "__",
     "source_host": "__",
     "source_user": "__",
-    "source_pwd": "__",
-    "source_port": "__",
+    "source_port": 000,
     "migration_type": "__"
   },
   "sct_on_prem_to_redshift": {

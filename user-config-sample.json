@@ -1,0 +1,36 @@
+{
+  "vpc_id": "CREATE",
+  "redshift_endpoint": "CREATE",
+  "dms_instance_private_endpoint": "CREATE",
+  "dms_on_prem_to_redshift_target": "CREATE",
+  "sct_on_prem_to_redshift_target": "CREATE",
+
+
+  "vpc": {
+    "on_prem_cidr": "18.206.107.24/29",
+    "vpc_cidr": "10.1.0.0/16",
+    "number_of_az": "2",
+    "cidr_mask": "24"
+  },
+  "redshift": {
+    "cluster_identifier": "target-cluster",
+    "database_name": "dev",
+    "node_type": "ra3.4xlarge",
+    "number_of_nodes": "2",
+    "master_user_name": "awsuser",
+    "subnet_type": "PUBLIC"
+  },
+  "dms_on_prem_to_redshift": {
+    "source_db": "dms_sample",
+    "source_engine": "sqlserver",
+    "source_schema": "dbo",
+    "source_host": "ec2-00-000-000-00.compute-1.amazonaws.com",
+    "source_user": "awssct",
+    "source_port": 1433,
+    "migration_type": "cdc"
+  },
+  "sct_on_prem_to_redshift": {
+    "key_name": "key_pair",
+    "s3_bucket_output": "s3://s3bucketname/"
+  }
+}
