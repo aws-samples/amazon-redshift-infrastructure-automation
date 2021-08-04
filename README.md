@@ -122,6 +122,7 @@ In the case that the template stall, logs of CloudFormation/CDK events and error
 	1. In the case that you choose to connect using the browser-based EC2 Instance Connect console, update the EC2 instance security group to allow for traffic from the source CIDR for [AWS IP address ranges](https://docs.aws.amazon.com/general/latest/gr/aws-ip-ranges.html#aws-ip-release-notes) associated to EC2 in the region you are using:
 		
 		Mac: `$ curl -s https://ip-ranges.amazonaws.com/ip-ranges.json| jq -r '.prefixes[] | select(.region=="us-east-1") | select(.service=="EC2_INSTANCE_CONNECT") | .ip_prefix'`
+		
 		Windows: `PS C:\> Get-AWSPublicIpAddressRange -Region us-east-1 -ServiceKey EC2_INSTANCE_CONNECT | select IpPrefix`
 		
 		Replace "us-east-1" with the region you intend on using.
