@@ -1,11 +1,44 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'Amazon Redshift POC resource auto-creation (To be deployed in your AWS account to execute the Redshift POC)'
 
+Metadata: 
+  AWS::CloudFormation::Interface: 
+    ParameterGroups: 
+      - 
+        Label: 
+          default: "Target Infrastructure"
+        Parameters: 
+          - ConfigurationFile
+      - 
+        Label: 
+          default: "Staging Infrastructure"
+        Parameters: 
+          - EC2InstanceAMI
+          - KeyPair
+          - OnPremisesCIDR
+          - SubnetID
+      -
+        Label:
+          default: "Secret input"
+        Parameters:
+          - SourceDBPassword
+    ParameterLabels: 
+      ConfigurationFile: 
+        default: "Configuration File"
+      EC2InstanceAMI:
+        default: "EC2 AMI"
+      KeyPair:
+        default: "Key Pair"
+      OnPremisesCIDR: 
+        default: "On Prem CIDR"
+      SubnetID:
+        default: "Subnet ID"
+      SourceDBPassword: 
+        default: "Source Database Password"
+
+
 Parameters:
-  VpcId:
-    Description: Select the VPC to launch the first staging instance in
-    Type: AWS::EC2::VPC::Id
-  SubnetId:
+  SubnetID:
     Description: Select the subnet to launch the first staging instance in - ensure it is public and public IPs are auto-assigned
     Type: AWS::EC2::Subnet::Id
   ConfigurationFile:
@@ -16,10 +49,10 @@ Parameters:
     Type: "AWS::SSM::Parameter::Value<String>"
     Default: "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
   KeyPair:
-    Description: Name of Keypair you created in your account. This will be used in case you need to login to the EC2 instance
+    Description: Name of the keypair created in your account to be used in case you need to login to the EC2 instance
     Type: AWS::EC2::KeyPair::KeyName
   OnPremisesCIDR:
-    Description: IP range (CIDR notation) for your existing infrastructure to access the target and replica Redshift clusters
+    Description: IP range (CIDR notation) of the infrastructure which needs to access the staging EC2
     Type: String
     Default: 10.0.0.0/8
     MinLength: '9'
@@ -39,6 +72,112 @@ Resources:
       Name: 'SourceDBPassword'
       Description: 'Credentials for source database in Redshift demo'
       SecretString: !Sub ${SourceDBPassword}
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+      - PolicyName: root
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource: arn:aws:logs:*:*:*
+          - Effect: Allow
+            Action:
+            - ec2:DescribeSubnets
+            - ec2:DescribeVpcs
+            Resource: "*"
+
+# NOTE: Pay special attention to the indentatiion in the Python code below.
+# Lines that appear blank are likely not blank, but have leading spaces.
+
+  GetAttFromParam:
+    Type: AWS::Lambda::Function
+    Properties: 
+      Description: Look up info from a VPC or subnet ID 
+      Handler: index.handler
+      MemorySize: 128
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: "python3.6"
+      Timeout: 30
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          import cfnresponse
+          import logging
+          
+          def handler(event, context):
+            logger = logging.getLogger()
+            logger.setLevel(logging.INFO)
+            
+            # initialize our responses, assume failure by default
+            
+            response_data = {}
+            response_status = cfnresponse.FAILED
+            
+            logger.info('Received event: {}'.format(json.dumps(event)))
+            
+            if event['RequestType'] == 'Delete':
+              response_status = cfnresponse.SUCCESS
+              cfnresponse.send(event, context, response_status, response_data)
+            
+            try:
+              ec2=boto3.client('ec2')
+            except Exception as e:
+              logger.info('boto3.client failure: {}'.format(e))
+              cfnresponse.send(event, context, response_status, response_data)
+            
+            name_filter = event['ResourceProperties']['NameFilter']
+            name_filter_parts = name_filter.split('-')
+            resource_type=name_filter_parts[0]
+
+            try:
+                subnets = ec2.describe_subnets(SubnetIds=[name_filter])
+            except Exception as e:
+              logger.info('ec2.describe_subnets failure: {}'.format(e))
+              cfnresponse.send(event, context, response_status, response_data)
+              
+            number_of_subnets = len(subnets['Subnets'])
+            logger.info('number of subnets returned: {}'.format(number_of_subnets))
+              
+            if number_of_subnets == 1:
+              VpcId = subnets['Subnets'][0]['VpcId']
+              response_data['VpcId'] = VpcId
+                
+              logger.info('subnet VpcId {}'.format(VpcId))
+                
+              response_status = cfnresponse.SUCCESS
+              cfnresponse.send(event, context, response_status, response_data)
+                
+            elif number_of_subnets == 0:
+              logger.info('no matching subnet for filter {}'.format(name_filter))
+              cfnresponse.send(event, context, response_status, response_data)
+                
+            else:
+              logger.info('multiple matching subnets for filter {}'.format(name_filter))
+              cfnresponse.send(event, context, response_status, response_data)
+
+  SubnetInfo:
+    Type: Custom::SubnetInfo
+    Properties:
+      ServiceToken: !GetAtt GetAttFromParam.Arn
+      NameFilter: !Ref SubnetID
 
   DMSFullAccessAAA:
     Type: AWS::IAM::ManagedPolicy
@@ -93,7 +232,7 @@ Resources:
           FromPort: 22
           IpProtocol: tcp
           ToPort:  22
-      VpcId: !Ref VpcId
+      VpcId: !GetAtt SubnetInfo.VpcId
 
   SecurityGroupSelfReference:
     Type: AWS::EC2::SecurityGroupIngress
@@ -131,7 +270,7 @@ Resources:
       NetworkInterfaces:
       - DeleteOnTermination: true
         DeviceIndex: "0"
-        SubnetId: !Ref SubnetId
+        SubnetId: !Ref SubnetID
         GroupSet:
         - Ref: SecurityGroupEc2
       UserData:
@@ -174,3 +313,6 @@ Outputs:
   SourceAccountNumber:
     Description: "Extract Source Account Number"
     Value: !Ref AWS::AccountId
+  VPC:
+    Description: "VPC used"
+    Value: !GetAtt SubnetInfo.VpcId
