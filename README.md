@@ -99,7 +99,7 @@ Once all appropriate Launch Values and Configurations have been defined, upload 
 	| Key Pair | Select the key pair in your account to be used to SSH into the staging instance |
 	| On Prem CIDR | The CIDR to be used to SSH into the staging instance |
 	| Subnet ID | Select the public subnet with IPv4 auto-assign enabled from the prerequisites |
-	| Source Database Password | Password of the source database |
+	| Source Password | Password of the source database |
 	
 	An example:
 
