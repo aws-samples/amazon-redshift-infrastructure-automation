@@ -119,7 +119,7 @@ In the case that the template stall, logs of CloudFormation/CDK events and error
 2. In the top right corner, press **Connect**
 3. Choose the tab corresponding to the preferred connection option and follow the instructions
 
-	1. In the case that you choose to connect using the browser-based EC2 Instance Connect console, update the EC2 instance security group to allow for traffic from the source CIDR for [AWS IP address ranges](https://docs.aws.amazon.com/general/latest/gr/aws-ip-ranges.html#aws-ip-release-notes) associated to EC2 in the region you are using:
+	1. In the case that you choose to connect using the browser-based EC2 Instance Connect console, update the EC2 instance security group to allow for traffic from the source CIDR for [AWS IP address ranges](https://docs.aws.amazon.com/general/latest/gr/aws-ip-ranges.html#filter-json-file) associated to EC2 in the region you are using:
 		
 		Mac: `$ curl -s https://ip-ranges.amazonaws.com/ip-ranges.json| jq -r '.prefixes[] | select(.region=="us-east-1") | select(.service=="EC2_INSTANCE_CONNECT") | .ip_prefix'`
 		
