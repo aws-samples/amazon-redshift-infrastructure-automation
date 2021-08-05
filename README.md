@@ -5,6 +5,8 @@ As analytics solutions have moved away from the one-size-fits-all model to choos
 
 This solution takes advantage of the repeated integrations between different services in common use cases, and leverages the [AWS CDK](https://aws.amazon.com/cdk/) to automate the provisioning of AWS analytics services, primarily Amazon Redshift. Deployment is now customizing a JSON configuration file indicating the resources to be used, and this solution takes those inputs to auto-provision the required infrastructure dynamically.
 
+PLEASE NOTE: This solution is meant for proof of concept or demo use cases, and not for production workloads.
+
 ## Table of Contents
 
 1. [Overview of Deployment](#overview-of-deployment)
@@ -128,6 +130,10 @@ In the case that the template stall, logs of CloudFormation/CDK events and error
 		Replace "us-east-1" with the region you intend on using.
 	
 4. Run `sudo tail -35f /var/log/cloud-init-output.log` to access the logs
+
+## Feedback
+
+Our aim is to make this tool as dynamic and comprehensive as possible, so we’d love to hear your feedback. Let us know your experience deploying the solution, and share any other use cases that the automation solution doesn’t yet support. Please use the [Issues](https://github.com/aws-samples/amazon-redshift-infrastructure-automation/issues) tab under this repo, and we’ll use that to guide our roadmap. 
 
 ## Security
 
