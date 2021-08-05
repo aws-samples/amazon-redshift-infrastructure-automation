@@ -17,6 +17,7 @@ PLEASE NOTE: This solution is meant for proof of concept or demo use cases, and 
 	1. [Configure the config file](#configure-the-config-file)
 	1. [Launch the staging template](#launch-the-staging-template)
 1. [Troubleshooting](#troubleshooting)
+1. [Feedback](#feedback)
 
 ## Overview of Deployment
 
