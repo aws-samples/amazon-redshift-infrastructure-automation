@@ -122,7 +122,7 @@ In the case that the template stall, logs of CloudFormation/CDK events and error
 2. In the top right corner, press **Connect**
 3. Choose the tab corresponding to the preferred connection option and follow the instructions
 
-	1. In the case that you choose to connect using the browser-based EC2 Instance Connect console, please see [this page](https://aws.amazon.com/premiumsupport/knowledge-center/ec2-instance-connect-troubleshooting/) on troubleshooting connections to EC2 Instance Connect for instructions on how to configure IAM permissions and security groups.
+	1. In the case that you choose to connect using the browser-based EC2 Instance Connect console, please see [this page](https://aws.amazon.com/premiumsupport/knowledge-center/ec2-instance-connect-troubleshooting/) about troubleshooting connections to EC2 Instance Connect for instructions on how to configure IAM permissions and security groups.
 	
 4. Run `sudo tail -35f /var/log/cloud-init-output.log` to access the logs
 
