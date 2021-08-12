@@ -12,7 +12,9 @@ class GlobalArgs():
     OWNER = "Redshift POC SSA team"
     ENVIRONMENT = "development"
     REPO_NAME = "redshift-demo"
+    SOURCE_INFO = f"https://github.com/kaklis/RedshiftPOCAutomation"
     VERSION = "2021_03_15"
+    SUPPORT_EMAIL = ["aws-redshift-poc-sa-amer@amazon.com"]
 
 class DmsInstanceStack(core.Stack):
 
@@ -46,12 +48,15 @@ class DmsInstanceStack(core.Stack):
         #       ],
         #       role_name = "dms-vpc-role"
         #   )
+        public_subnets = vpc.get_vpc_public_subnet_ids
+        private_subnets = vpc.get_vpc_private_subnet_ids
+        subnets = public_subnets + private_subnets
 
         dms_subnet_group = aws_dms.CfnReplicationSubnetGroup(
             self,
             "DMSsubnetgroup",
             replication_subnet_group_description="Subnet group for DMS replication instance",
-            subnet_ids=vpc.get_vpc_public_subnet_ids
+            subnet_ids=subnets
          )
 
         security_group_id = vpc.get_vpc_security_group_id
