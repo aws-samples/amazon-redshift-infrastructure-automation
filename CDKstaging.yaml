@@ -36,6 +36,11 @@ Metadata:
       SourceDBPassword: 
         default: "Source Database Password"
 
+Conditions:
+  DBHasValue: !Not
+    - !Equals
+      - !Ref SourceDBPassword
+      - ''
 
 Parameters:
   SubnetID:
@@ -60,14 +65,16 @@ Parameters:
     AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
   SourceDBPassword:
-    Description: Password for the source database to be stored as a secret.
-    Type: String
-    NoEcho: 'true'
+      Description: Password for the source system outside the target infrastructure (Optional -- use when connecting to external database)
+      Default: ''
+      Type: String
+      NoEcho: 'true'
 
 Resources:
 
   SQLSecrets:
     Type: AWS::SecretsManager::Secret
+    Condition: DBHasValue
     Properties:
       Name: 'SourceDBPassword'
       Description: 'Credentials for source database in Redshift demo'
