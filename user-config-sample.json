@@ -1,9 +1,9 @@
 {
   "vpc_id": "CREATE",
   "redshift_endpoint": "CREATE",
-  "dms_instance_private_endpoint": "CREATE",
-  "dms_on_prem_to_redshift_target": "CREATE",
-  "sct_on_prem_to_redshift_target": "CREATE",
+  "dms_instance_private_endpoint": "N/A",
+  "dms_on_prem_to_redshift_target": "N/A",
+  "sct_on_prem_to_redshift_target": "N/A",
 
 
   "vpc": {
@@ -18,19 +18,20 @@
     "node_type": "ra3.4xlarge",
     "number_of_nodes": "2",
     "master_user_name": "awsuser",
-    "subnet_type": "PUBLIC"
+    "subnet_type": "PUBLIC",
+    "encryption": "Y"
   },
   "dms_on_prem_to_redshift": {
     "source_db": "dms_sample",
     "source_engine": "sqlserver",
     "source_schema": "dbo",
-    "source_host": "ec2-00-000-000-00.compute-1.amazonaws.com",
+    "source_host": "ec2-35-175-112-108.compute-1.amazonaws.com",
     "source_user": "admin",
     "source_port": 1433,
     "migration_type": "full-load"
   },
   "sct_on_prem_to_redshift": {
-    "key_name": "key_pair",
-    "s3_bucket_output": "s3://s3bucketname/"
+    "key_name": "cdkstaging2",
+    "s3_bucket_output": "s3://samiruser2-data/"
   }
 }
