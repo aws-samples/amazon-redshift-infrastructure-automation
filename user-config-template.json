@@ -18,7 +18,8 @@
     "node_type": "__",
     "number_of_nodes": "__",
     "master_user_name": "__",
-    "subnet_type": "__"
+    "subnet_type": "__",
+    "encryption": "__"
   },
   "dms_on_prem_to_redshift": {
     "source_db": "__",
