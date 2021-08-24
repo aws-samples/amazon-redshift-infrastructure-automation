@@ -33,6 +33,8 @@ class RedshiftStack(core.Stack):
             number_of_nodes = int(redshift_config.get('number_of_nodes'))
             master_user_name = redshift_config.get('master_user_name')
             subnet_type = redshift_config.get('subnet_type')
+            encryption = redshift_config.get('encryption')
+
 
             # Create Cluster Password  ## MUST FIX EXCLUDE CHARACTERS FEATURE AS IT STILL INCLUDES SINGLE QUOTES SOMETIMES WHICH WILL FAIL
             self.cluster_masteruser_secret = aws_secretsmanager.Secret(
@@ -79,6 +81,14 @@ class RedshiftStack(core.Stack):
             else:
                 clustertype = "single-node"
                 number_of_nodes = None
+            
+            # Encryption boolean to True if Y or y
+            if encryption == "Y":
+                encryptcluster = bool(1)
+            elif encryption == "y":
+                encryptcluster = bool(1)
+            else:
+                encryptcluster = bool(0)
 
             security_group_id = vpc.get_vpc_security_group_id
 
@@ -92,6 +102,7 @@ class RedshiftStack(core.Stack):
                 # master_user_password=master_password,
                 iam_roles=[self.cluster_iam_role.role_arn],
                 node_type=f"{node_type}",
+                encrypted=encryptcluster,
                 number_of_nodes=number_of_nodes,
                 cluster_subnet_group_name=self.cluster_subnet_group.ref,
                 vpc_security_group_ids=[security_group_id]
