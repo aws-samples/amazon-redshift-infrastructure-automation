@@ -47,6 +47,13 @@ class DmsOnPremToRedshiftStack(core.Stack):
         source_pwd = client.get_secret_value(
             SecretId=secret_name
         )['SecretString']
+        
+        if cluster.get_cluster_type:
+            target_pwd = client.get_secret_value(
+                SecretId=cluster.get_cluster_secret
+            )['SecretString']
+        else:
+            target_pwd = cluster.get_cluster_password
 
         tablemappings="""{
           "rules": [
@@ -70,7 +77,7 @@ class DmsOnPremToRedshiftStack(core.Stack):
             endpoint_type="target",
             engine_name="redshift",
             database_name=f"{cluster.get_cluster_dbname}",
-            password=f"{cluster.get_cluster_password}",
+            password=f"{target_pwd}",
             username=f"{cluster.get_cluster_user}",
             server_name=f"{cluster.get_cluster_host}",
             port=5439
