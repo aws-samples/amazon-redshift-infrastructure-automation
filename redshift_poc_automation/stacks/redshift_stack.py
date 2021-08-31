@@ -21,10 +21,19 @@ class RedshiftStack(core.Stack):
         super().__init__(scope, id, **kwargs)
 
         if redshift_endpoint != "CREATE":
-            ################# todo fix code doesn't work for bootstrap for existing cluster ###########
             redshift_client = boto3.client('redshift')
+            ec2_client = boto3.resource('ec2')
             cluster_identifier = redshift_endpoint.split('.')[0]
             self.redshift = redshift_client.describe_clusters(ClusterIdentifier=cluster_identifier)['Clusters'][0]
+
+            redshift_sg_id = self.redshift['VpcSecurityGroups'][0]['VpcSecurityGroupId']
+            redshift_sg_name = ec2_client.SecurityGroup(redshift_sg_id).group_name
+
+            redshift_sg = aws_ec2.SecurityGroup.from_security_group_id(self, redshift_sg_name, redshift_sg_id)
+
+            dms_sg = vpc.get_vpc_security_group
+            redshift_sg.add_ingress_rule(peer=dms_sg, connection=aws_ec2.Port.all_traffic(), description="DMS input.")
+
         else:
 
             cluster_identifier = redshift_config.get('cluster_identifier')
@@ -111,32 +120,32 @@ class RedshiftStack(core.Stack):
         ###########################################
         ################# OUTPUTS #################
         ###########################################
-        output_1 = core.CfnOutput(
-            self,
-            "RedshiftCluster",
-            value=f"{self.demo_cluster.attr_endpoint_address}",
-            description=f"RedshiftCluster Endpoint"
-        )
+#         output_1 = core.CfnOutput(
+#             self,
+#             "RedshiftCluster",
+#             value=f"{self.demo_cluster.attr_endpoint_address}",
+#             description=f"RedshiftCluster Endpoint"
+#         )
 
-        output_2 = core.CfnOutput(
-            self,
-            "RedshiftClusterPassword",
-            value=(
-                f"https://console.aws.amazon.com/secretsmanager/home?region="
-                f"{core.Aws.REGION}"
-                f"#/secret?name="
-                f"{self.cluster_masteruser_secret.secret_arn}"
-            ),
-            description=f"Redshift Cluster Password in Secrets Manager"
-        )
-        output_3 = core.CfnOutput(
-            self,
-            "RedshiftIAMRole",
-            value=(
-                f"{self.cluster_iam_role.role_arn}"
-            ),
-            description=f"Redshift Cluster IAM Role Arn"
-        )
+#         output_2 = core.CfnOutput(
+#             self,
+#             "RedshiftClusterPassword",
+#             value=(
+#                 f"https://console.aws.amazon.com/secretsmanager/home?region="
+#                 f"{core.Aws.REGION}"
+#                 f"#/secret?name="
+#                 f"{self.cluster_masteruser_secret.secret_arn}"
+#             ),
+#             description=f"Redshift Cluster Password in Secrets Manager"
+#         )
+#         output_3 = core.CfnOutput(
+#             self,
+#             "RedshiftIAMRole",
+#             value=(
+#                 f"{self.cluster_iam_role.role_arn}"
+#             ),
+#             description=f"Redshift Cluster IAM Role Arn"
+#         )
 
         ############## FIX bug in CDK. Always returns None #########################
 
@@ -152,30 +161,46 @@ class RedshiftStack(core.Stack):
     # properties to share with other stacks
     @property
     def get_cluster(self):
-        return self.demo_cluster
+        if type(self.redshift) == dict:
+            return self.redshift
+        return self.redshift
+    
+    @property
+    def get_cluster_type(self):
+        return (type(self.redshift) == dict)
 
     @property
     def get_cluster_dbname(self) -> builtins.str:
-        return self.demo_cluster.db_name
+        if type(self.redshift) == dict:
+            return self.redshift['DBName']
+        return self.redshift.db_name
 
     @property
     def get_cluster_user(self) -> builtins.str:
-        return self.demo_cluster.master_username
+        if type(self.redshift) == dict:
+            return self.redshift['MasterUsername']
+        return self.redshift.master_username
 
     @property
     def get_cluster_password(self) -> builtins.str:
-        return self.demo_cluster.master_user_password
+        return self.redshift.master_user_password
 
     @property
     def get_cluster_host(self) -> builtins.str:
-        return self.demo_cluster.attr_endpoint_address
+        if type(self.redshift) == dict:
+            return self.redshift['Endpoint']['Address']
+        return self.redshift.attr_endpoint_address
 
     @property
     def get_cluster_iam_role(self) -> builtins.str:
+        if type(self.redshift) == dict:
+            return self.redshift['IamRoles'][0]['IamRoleArn']
         return self.cluster_iam_role.role_arn
 
     @property
     def get_cluster_secret(self) -> builtins.str:
+        if type(self.redshift) == dict:
+            return 'RedshiftPassword'
         return self.cluster_masteruser_secret.secret_name
 
     ############## FIX bug in CDK. Always returns None #########################
@@ -185,4 +210,6 @@ class RedshiftStack(core.Stack):
 
     @property
     def get_cluster_availability_zone(self) -> builtins.str:
-        return str(self.demo_cluster.availability_zone)
+        if type(self.redshift) == dict:
+            return self.redshift['AvailabilityZone']
+        return str(self.redshift.availability_zone)
