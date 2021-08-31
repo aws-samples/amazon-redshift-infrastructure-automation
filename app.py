@@ -55,7 +55,7 @@ vpc_stack = VpcStack(
 )
 
 # Deploy Redshift cluster and load data"
-if redshift_endpoint == "CREATE":
+if redshift_endpoint != "N/A":
 
     redshift_stack = RedshiftStack(
         app,
