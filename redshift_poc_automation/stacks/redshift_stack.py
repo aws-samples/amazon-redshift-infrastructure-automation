@@ -4,6 +4,7 @@ from aws_cdk import aws_secretsmanager
 from aws_cdk import core
 import json
 import boto3
+from aws_cdk import aws_ec2
 import builtins
 
 
