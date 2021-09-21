@@ -27,7 +27,7 @@ To achieve this, a JSON-formatted config file specifying the desired service con
 
 Here you can see a diagram giving an overview of this flow:
 
-![Architecture Flow](https://github.com/aws-samples/amazon-redshift-infrastructure-automation/blob/main/images/Architecture_Flow.png)
+![Architecture Flow](./images/Architecture_Flow.png)
 
 The following sections give further details of how to complete these steps.
 
@@ -54,15 +54,15 @@ These resources will be sufficient for the staging infrastructure. If a manually
 To ensure instances launched in this subnet will be auto-assigned public IPv4 addresses, 
 1. Navigate to the **Subnets** tab in the VPC console -- select the subnet you intend to use for your staging infrastructure (i.e. the subnet name created with the launch wizard above), and under details, see whether the "Auto-assign public IPv4 address" value is Yes or No
 
-	![Autoassign](https://github.com/aws-samples/amazon-redshift-infrastructure-automation/blob/main/images/Austoassign-step1.png)
+	![Autoassign](./images/Austoassign-step1.png)
 
 2. If the value is No, select **Actions** > **Modify auto-assign IP settings**
 
-	![Modify](https://github.com/aws-samples/amazon-redshift-infrastructure-automation/blob/main/images/Autoassign-step2.png)
+	![Modify](./images/Autoassign-step2.png)
 
 	select the "Enable auto-assign public IPv4 address" checkbox
 
-	![Checkbox](https://github.com/aws-samples/amazon-redshift-infrastructure-automation/blob/main/images/Autoassign-step3.png)
+	![Checkbox](./images/Autoassign-step3.png)
 	
 3. Press **Save**
 
