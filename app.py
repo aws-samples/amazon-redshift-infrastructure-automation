@@ -33,7 +33,6 @@ redshift_what_if = "N/A"
 redshift_what_if_config = "N/A"
 
 dms_instance_private_endpoint = config.get('dms_instance_private_endpoint')
-
 dms_on_prem_to_redshift_target = config.get('dms_on_prem_to_redshift_target')
 sct_on_prem_to_redshift_target = config.get('sct_on_prem_to_redshift_target')
 dms_on_prem_to_redshift_config = config.get('dms_on_prem_to_redshift')
