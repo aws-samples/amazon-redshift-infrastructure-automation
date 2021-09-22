@@ -19,12 +19,18 @@ setuptools.setup(
     packages=setuptools.find_packages(where="redshift_poc_automation"),
 
     install_requires=[
-        "aws-cdk.core==1.92.0",
-        "aws-cdk.aws_iam==1.92.0",
-        "aws-cdk.aws_sqs==1.92.0",
-        "aws-cdk.aws_sns==1.92.0",
-        "aws-cdk.aws_sns_subscriptions==1.92.0",
-        "aws-cdk.aws_s3==1.92.0",
+        "aws-cdk.core==1.124.0",
+        "aws-cdk.aws_iam==1.124.0",
+        "aws-cdk.aws_sqs==1.124.0",
+        "aws-cdk.aws_sns==1.124.0",
+        "aws-cdk.aws_sns_subscriptions==1.124.0",
+        "aws-cdk.aws_s3==1.124.0",
+        "aws_cdk.aws_ec2==1.124.0",
+        "aws_cdk.aws_dms==1.124.0",
+        "aws_cdk.aws_redshift==1.124.0",
+        "aws_cdk.aws_cloudformation==1.124.0",
+        "aws_cdk.custom_resources==1.124.0",
+        "aws_cdk.aws_glue==1.124.0"
     ],
 
     python_requires=">=3.6",

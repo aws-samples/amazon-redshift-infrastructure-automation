@@ -106,7 +106,7 @@ Once all appropriate Launch Values and Configurations have been defined, upload 
 	
 	An example:
 
-	![Example](https://github.com/aws-samples/amazon-redshift-infrastructure-automation/blob/main/images/CloudFormationTemplate.png)
+	![Example](./images/CloudFormationTemplate.png)
 
 	Press **Next**
 4. To make troubleshooting easier, under **Stack creation options**, select Disabled under "Rollback on failure" -- press **Next**
