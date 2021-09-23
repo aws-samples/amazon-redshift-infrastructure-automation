@@ -5,7 +5,7 @@ python3 -m venv .env
 source .env/bin/activate
 pip install -r requirements.txt
 LINE='~/amazon-redshift-infrastructure-automation/scripts/restart_session.sh'
-FILE='~/.bashrc'
+FILE=~/.bashrc
 grep -qF -- "$LINE" "$FILE" || echo "$LINE" >> "$FILE"
 read -n 1 -r -s -p $'[Input Required] Upload user-config.json and press enter to continue...\n'
 #Need more elegant solution for handling exception here:
