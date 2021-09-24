@@ -1,6 +1,8 @@
 from aws_cdk import aws_dms
 from aws_cdk import core
 import boto3
+import getpass
+
 
 class GlobalArgs():
     """
@@ -44,14 +46,32 @@ class DmsOnPremToRedshiftStack(core.Stack):
             region_name=region_name,
         )
 
-        source_pwd = client.get_secret_value(
-            SecretId=secret_name
-        )['SecretString']
+        try:
+            source_pwd = client.get_secret_value(
+                SecretId=secret_name
+            )['SecretString']
+        except Exception:
+            source_pwd = getpass.getpass(prompt='Source DB Password: ')
+            client.create_secret(
+                Name=secret_name,
+                SecretString=source_pwd,
+                Description='Source database password for DMS'
+            )
+            pass
         
         if cluster.get_cluster_type:
-            target_pwd = client.get_secret_value(
-                SecretId=cluster.get_cluster_secret
-            )['SecretString']
+            try:
+                target_pwd = client.get_secret_value(
+                    SecretId=cluster.get_cluster_secret
+                )['SecretString']
+            except Exception:
+                target_pwd = getpass.getpass(prompt='Target DB Password: ')
+                client.create_secret(
+                    Name=cluster.get_cluster_secret,
+                    SecretString=target_pwd,
+                    Description='Redshift DB Password'
+                )
+                pass
         else:
             target_pwd = cluster.get_cluster_password
 

@@ -102,7 +102,7 @@ class RedshiftStack(core.Stack):
 
             security_group_id = vpc.get_vpc_security_group_id
 
-            self.demo_cluster = aws_redshift.CfnCluster(
+            self.redshift = aws_redshift.CfnCluster(
                 self,
                 cluster_identifier,
                 db_name=database_name,
