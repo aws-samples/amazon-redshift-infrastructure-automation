@@ -1,0 +1,38 @@
+{
+  "vpc_id": "CREATE",
+  "redshift_endpoint": "CREATE",
+  "dms_migration_to_redshift_target": "CREATE",
+  "sct_on_prem_to_redshift_target": "CREATE",
+
+
+  "vpc": {
+    "on_prem_cidr": "__",
+    "vpc_cidr": "__",
+    "number_of_az": "__",
+    "cidr_mask": "__"
+  },
+  "redshift": {
+    "cluster_identifier": "__",
+    "database_name": "__",
+    "node_type": "__",
+    "number_of_nodes": "__",
+    "master_user_name": "__",
+    "subnet_type": "__",
+    "encryption": "__"
+  },
+  "dms_migration": {
+    "subnet_type": "__",
+    "migration_type": "__"
+  },
+  "external_database": {
+    "source_db": "__",
+    "source_engine": "__",
+    "source_schema": "__",
+    "source_host": "__",
+    "source_user": "__",
+    "source_port": 1111
+  },
+  "sct_on_prem_to_redshift": {
+    "key_name": "__"
+  }
+}
