@@ -27,6 +27,7 @@ The following sections give further details of how to complete these steps.
 ## Prerequisites
 
 Prior to deployment, some resources need to be preconfigured:
+* Please verify that you will be deploying this solution in a [region that supports CloudShell](https://docs.aws.amazon.com/general/latest/gr/cloudshell.html)
 * Execute the deployment with an IAM user with permissions to use:
 	- AWSCloudShellFullAccess
 	- IAMFullAccess
