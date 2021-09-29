@@ -83,7 +83,7 @@ Once all appropriate Launch Values and Configurations have been defined, save th
 
 4. Clone the Git repository
 
-	`git clone -b julbeck-changes git@ssh.gitlab.aws.dev:acclab-aaa/amazon-redshift-infrastructure-automation.git`
+	`git clone https://github.com/aws-samples/amazon-redshift-infrastructure-automation.git`
 
 5. Run the deployment script
 
