@@ -12,7 +12,7 @@ class SctOnPremToRedshiftStack(core.Stack):
             self,
             scope: core.Construct, id: str,
             cluster,
-            dmsredshift_config: dict,
+            source_config: dict,
             sctredshift_config: dict,
             redshift_config: dict,
             vpc,
@@ -22,15 +22,15 @@ class SctOnPremToRedshiftStack(core.Stack):
     ) -> None:
         super().__init__(scope, id, **kwargs)
 
-        source_db = dmsredshift_config.get('source_db')
-        source_engine = dmsredshift_config.get('source_engine')
-        source_schema = dmsredshift_config.get('source_schema')
-        source_host = dmsredshift_config.get('source_host')
-        source_user = dmsredshift_config.get('source_user')
-        source_pwd = dmsredshift_config.get('source_pwd')
+        source_db = source_config.get('source_db')
+        source_engine = source_config.get('source_engine')
+        source_schema = source_config.get('source_schema')
+        source_host = source_config.get('source_host')
+        source_user = source_config.get('source_user')
+        source_pwd = source_config.get('source_pwd')
         keyname = sctredshift_config.get('key_name')
         s3_bucket_output = sctredshift_config.get('s3_bucket_output')
-        source_port = int(dmsredshift_config.get('source_port'))
+        source_port = int(source_config.get('source_port'))
         redshift_host = cluster.get_cluster_host
         redshift_db = cluster.get_cluster_dbname
         redshift_user = cluster.get_cluster_user

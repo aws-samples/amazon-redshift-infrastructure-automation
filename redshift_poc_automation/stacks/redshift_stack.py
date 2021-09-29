@@ -6,6 +6,7 @@ import json
 import boto3
 from aws_cdk import aws_ec2
 import builtins
+import getpass
 
 
 class RedshiftStack(core.Stack):
@@ -20,12 +21,33 @@ class RedshiftStack(core.Stack):
             **kwargs
     ) -> None:
         super().__init__(scope, id, **kwargs)
-
+        stackname = id.split('-')[0]
         if redshift_endpoint != "CREATE":
             redshift_client = boto3.client('redshift')
             ec2_client = boto3.resource('ec2')
             cluster_identifier = redshift_endpoint.split('.')[0]
             self.redshift = redshift_client.describe_clusters(ClusterIdentifier=cluster_identifier)['Clusters'][0]
+            
+            self.password = stackname+'-RedshiftPassword'
+            
+            region_name = boto3.session.Session().region_name
+            session = boto3.session.Session()
+            client = session.client(
+                    service_name='secretsmanager',
+                    region_name=region_name,
+                )
+
+            try:
+                source_pwd = client.get_secret_value(
+                    SecretId=stackname+'-RedshiftPassword'
+                )['SecretString']
+            except Exception:
+                source_pwd = getpass.getpass(prompt='Redshift cluster password: ')
+                client.create_secret(
+                    Name=stackname+'-RedshiftPassword',
+                    SecretString=source_pwd,
+                    Description='Password of Redshift cluster'
+                )
 
             redshift_sg_id = self.redshift['VpcSecurityGroups'][0]['VpcSecurityGroupId']
             redshift_sg_name = ec2_client.SecurityGroup(redshift_sg_id).group_name
@@ -45,13 +67,12 @@ class RedshiftStack(core.Stack):
             subnet_type = redshift_config.get('subnet_type')
             encryption = redshift_config.get('encryption')
 
-
             # Create Cluster Password  ## MUST FIX EXCLUDE CHARACTERS FEATURE AS IT STILL INCLUDES SINGLE QUOTES SOMETIMES WHICH WILL FAIL
             self.cluster_masteruser_secret = aws_secretsmanager.Secret(
                 self,
                 "RedshiftClusterSecret",
                 description="Redshift Cluster Secret",
-                secret_name='RedshiftClusterSecretAA',
+                secret_name=stackname+'-RedshiftClusterSecretAA',
                 generate_secret_string=aws_secretsmanager.SecretStringGenerator(
                     exclude_punctuation=True, password_length=10),
                 removal_policy=core.RemovalPolicy.DESTROY
@@ -201,7 +222,7 @@ class RedshiftStack(core.Stack):
     @property
     def get_cluster_secret(self) -> builtins.str:
         if type(self.redshift) == dict:
-            return 'RedshiftPassword'
+            return self.password
         return self.cluster_masteruser_secret.secret_name
 
     ############## FIX bug in CDK. Always returns None #########################

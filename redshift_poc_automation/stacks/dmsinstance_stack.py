@@ -23,6 +23,7 @@ class DmsInstanceStack(core.Stack):
         scope: core.Construct, id: str,
         vpc,
         stack_log_level: str,
+        dms_config: dict,
         **kwargs
 
     ) -> None:
@@ -48,8 +49,13 @@ class DmsInstanceStack(core.Stack):
         #       ],
         #       role_name = "dms-vpc-role"
         #   )
+        subnet_type = dms_config.get('subnet_type')
 
-        subnets = vpc.get_vpc_private_subnet_ids
+        if subnet_type == 'PUBLIC':
+            subnets = vpc.get_vpc_public_subnet_ids
+        else:
+            subnets = vpc.get_vpc_private_subnet_ids
+        
 
         dms_subnet_group = aws_dms.CfnReplicationSubnetGroup(
             self,
