@@ -110,7 +110,7 @@ press the *Enter* key
 
 input a unique stack name to be used to identify this deployment, then press the *Enter* key
 
-Depending on your resource configuration, you may receive some input prompts:
+9. Depending on your resource configuration, you may receive some input prompts:
 
 |	Prompt	|	Input	|	Description	|
 |-----------|-----------|---------------|
