@@ -110,16 +110,18 @@ press the *Enter* key
 
 input a unique stack name to be used to identify this deployment, then press the *Enter* key
 
-### Post deployment
-
-Once the script has been run, you can monitor the deployment of CloudFormation stacks through the CloudShell console.
-
 Depending on your resource configuration, you may receive some input prompts:
 
 |	Prompt	|	Input	|	Description	|
 |-----------|-----------|---------------|
 |![Input Database Password](./images/InputDBPassword.png)|Password of external database|If are using an external database, will create a Secrets Manager secret with the password value|
 |![Input Redshift Password](./images/InputRedshiftPassword.png)|Password of existing Redshift cluster|If are giving a Redshift endpoint in the user_config.json file, will create a Secrets Manager secret with the password for the cluster database|
+
+
+### Post deployment
+
+Once the script has been run, you can monitor the deployment of CloudFormation stacks through the CloudShell terminal, or with the CloudFormation console.
+
 
 ## Clean up
 
