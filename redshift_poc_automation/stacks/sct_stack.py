@@ -27,7 +27,7 @@ class SctOnPremToRedshiftStack(core.Stack):
         source_schema = source_config.get('source_schema')
         source_host = source_config.get('source_host')
         source_user = source_config.get('source_user')
-        source_pwd = source_config.get('source_pwd')
+        #source_pwd = source_config.get('source_pwd')
         keyname = sctredshift_config.get('key_name')
         s3_bucket_output = sctredshift_config.get('s3_bucket_output')
         source_port = int(source_config.get('source_port'))
