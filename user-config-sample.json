@@ -24,7 +24,7 @@
     "subnet_type": "PUBLIC",
     "migration_type": "full-load"
   },
-  "dms_on_prem_to_redshift": {
+  "external_database": {
     "source_db": "dns_endpoint",
     "source_engine": "sqlserver",
     "source_schema": "dbo",
