@@ -7,7 +7,6 @@ import os
 from aws_cdk import core
 from redshift_poc_automation.stacks.vpc_stack import VpcStack
 from redshift_poc_automation.stacks.redshift_stack import RedshiftStack
-from redshift_poc_automation.stacks.glue_crawler_stack import GlueCrawlerStack
 from redshift_poc_automation.stacks.dms_on_prem_to_redshift_stack import DmsOnPremToRedshiftStack
 from redshift_poc_automation.stacks.sct_stack import SctOnPremToRedshiftStack
 
