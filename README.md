@@ -76,7 +76,7 @@ The structure of the config file has two parts: (1) a list of key-value pairs, w
 
 You can see an example of a completed config file under [user-config-sample.json](./user-config-sample.json).
 
-Once all appropriate Launch Values and Configurations have been defined, save the file as the name *user_config.json*.
+Once all appropriate Launch Values and Configurations have been defined, save the file as the name *user-config.json*.
 
 ### Launch the infrastructure
 
