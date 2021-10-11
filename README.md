@@ -94,7 +94,7 @@ Once all appropriate Launch Values and Configurations have been defined, save th
 
 ![Upload Config](./images/UploadConfig.png)
 
-upload the completed user_config.json file
+upload the completed user-config.json file
 
 ![Upload Location](./images/UploadLocation.png)
 
