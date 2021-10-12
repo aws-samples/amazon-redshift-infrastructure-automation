@@ -4,9 +4,9 @@ cd ~/amazon-redshift-infrastructure-automation
 python3 -m venv .env
 source .env/bin/activate
 pip install -r requirements.txt
-LINE='~/amazon-redshift-infrastructure-automation/scripts/restart_session.sh'
-FILE='~/.bashrc'
-grep -qF -- "$LINE" "$FILE" || echo "$LINE" >> "$FILE"
+#LINE='~/amazon-redshift-infrastructure-automation/scripts/restart_session.sh'
+#FILE=~/.bashrc
+#grep -qF -- "$LINE" "$FILE" || echo "$LINE" >> "$FILE"
 read -n 1 -r -s -p $'[Input Required] Upload user-config.json and press enter to continue...\n'
 read -p $'[Input Required] Enter a stack name: ' stack
 export STACK_NAME=$stack

@@ -1,5 +1,8 @@
 import boto3
 import json
+import os
+
+stackname = os.getenv('STACK_NAME')
 
 region_name = boto3.session.Session().region_name
 session = boto3.session.Session()
@@ -8,10 +11,9 @@ sm_client = session.client(
     region_name=region_name,
 )
 
-config = json.load(open("../user-config.json"))
-secrets_list = [f"{config['stack_name']}-SourceDBPassword",
-                f"{config['stack_name']}-RedshiftPassword",
-                f"{config['stack_name']}-RedshiftClusterSecretAA"]
+secrets_list = [f"{stackname}-SourceDBPassword",
+                f"{stackname}-RedshiftPassword",
+                f"{stackname}-RedshiftClusterSecretAA"]
 
 sm_response = sm_client.list_secrets()
 for secret in sm_response['SecretList']:
