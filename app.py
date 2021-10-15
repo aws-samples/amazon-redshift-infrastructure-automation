@@ -84,7 +84,6 @@ if sct_on_prem_to_redshift_target == "CREATE":
         f"{stackname}-sct-stack",
         env=env,
         cluster=redshift_stack,
-        source_config=external_database_config,
         sctredshift_config=sct_on_prem_to_redshift_config,
         redshift_config=redshift_config,
         vpc=vpc_stack,
