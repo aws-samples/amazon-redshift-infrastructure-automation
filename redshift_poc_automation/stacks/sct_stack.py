@@ -86,7 +86,7 @@ class SctOnPremToRedshiftStack(core.Stack):
         #                                       description="Allow ssh access to ec2 instances",
         #                                       allow_all_outbound=True
         #                                       )
-        # my_security_group.add_ingress_rule(aws_ec2.Peer.any_ipv4(), aws_ec2.Port.tcp(22), "allow ssh access from the world")
+        # my_security_group.add_ingress_rule(aws_ec2.Peer.ipv4('10.200.0.0/24'), aws_ec2.Port.tcp(22), "allow ssh access from the world")
         # my_security_group.add_ingress_rule(my_security_group, aws_ec2.Port.all_tcp(), "self-referencing rule")
         my_security_group = vpc.get_vpc_security_group
 
