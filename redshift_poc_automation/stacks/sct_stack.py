@@ -90,7 +90,7 @@ class SctOnPremToRedshiftStack(core.Stack):
         # my_security_group.add_ingress_rule(my_security_group, aws_ec2.Port.all_tcp(), "self-referencing rule")
         my_security_group = vpc.get_vpc_security_group
 
-        my_security_group.add_ingress_rule(peer=aws_ec2.Peer.any_ipv4(), connection=aws_ec2.Port.tcp(3389),
+        my_security_group.add_ingress_rule(peer=aws_ec2.Peer.ipv4('10.200.0.0/24'), connection=aws_ec2.Port.tcp(3389),
                                            description="RDP from anywhere")
 
         custom_ami = aws_ec2.WindowsImage(aws_ec2.WindowsVersion.WINDOWS_SERVER_2019_ENGLISH_FULL_BASE);
