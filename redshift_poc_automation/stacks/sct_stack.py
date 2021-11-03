@@ -16,6 +16,7 @@ class SctOnPremToRedshiftStack(core.Stack):
             redshift_config: dict,
             vpc,
             stack_log_level: str,
+            vpc_config: dict,
             **kwargs
 
     ) -> None:
