@@ -23,6 +23,7 @@ class SctOnPremToRedshiftStack(core.Stack):
 
         
         keyname = sctredshift_config.get('key_name')
+        onprem_cidr = vpc_config.get('on_prem_cidr')
         s3_bucket_output = sctredshift_config.get('s3_bucket_output')
         redshift_host = cluster.get_cluster_host
         redshift_db = cluster.get_cluster_dbname
