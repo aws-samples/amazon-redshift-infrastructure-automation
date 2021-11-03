@@ -43,7 +43,6 @@ vpc_stack = VpcStack(
     vpc_id=vpc_id,
     vpc_config=vpc_config,
     stack_log_level="INFO",
-    vpc_config=vpc_config,
     description="AWS Analytics Automation: Custom Multi-AZ VPC"
 )
 
@@ -89,6 +88,7 @@ if sct_on_prem_to_redshift_target == "CREATE":
         redshift_config=redshift_config,
         vpc=vpc_stack,
         stack_log_level="INFO",
+        vpc_config=vpc_config,
         description="AWS Analytics Automation: SCT install on new EC2 Instance"
     )
     sct_on_prem_to_redshift_stack.add_dependency(redshift_stack);
