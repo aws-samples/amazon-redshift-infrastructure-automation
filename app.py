@@ -43,6 +43,7 @@ vpc_stack = VpcStack(
     vpc_id=vpc_id,
     vpc_config=vpc_config,
     stack_log_level="INFO",
+    vpc_config=vpc_config,
     description="AWS Analytics Automation: Custom Multi-AZ VPC"
 )
 
