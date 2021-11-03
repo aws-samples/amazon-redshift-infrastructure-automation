@@ -33,6 +33,7 @@ class VpcStack(core.Stack):
                 self, "vpc",
                 vpc_id=vpc_id
             )
+            onprem_cidr = vpc_config.get('on_prem_cidr')
         else:
             vpc_cidr = vpc_config.get('vpc_cidr')
             onprem_cidr = vpc_config.get('on_prem_cidr')
