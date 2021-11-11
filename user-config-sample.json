@@ -3,6 +3,7 @@
   "redshift_endpoint": "CREATE",
   "dms_migration_to_redshift_target": "CREATE",
   "sct_on_prem_to_redshift_target": "CREATE",
+  "jmeter": "CREATE",
 
 
   "vpc": {
