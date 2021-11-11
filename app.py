@@ -9,6 +9,7 @@ from redshift_poc_automation.stacks.vpc_stack import VpcStack
 from redshift_poc_automation.stacks.redshift_stack import RedshiftStack
 from redshift_poc_automation.stacks.dms_on_prem_to_redshift_stack import DmsOnPremToRedshiftStack
 from redshift_poc_automation.stacks.sct_stack import SctOnPremToRedshiftStack
+from redshift_poc_automation.stacks.jmeter_stack import JmeterStack
 
 app = core.App()
 
@@ -26,6 +27,7 @@ redshift_config = config.get('redshift')
 
 dms_on_prem_to_redshift_target = config.get('dms_migration_to_redshift_target')
 sct_on_prem_to_redshift_target = config.get('sct_on_prem_to_redshift_target')
+jmeter = config.get('jmeter')
 dms_on_prem_to_redshift_config = config.get('dms_migration')
 external_database_config = config.get('external_database')
 sct_on_prem_to_redshift_config = config.get('sct_on_prem_to_redshift')
@@ -92,6 +94,21 @@ if sct_on_prem_to_redshift_target == "CREATE":
         description="AWS Analytics Automation: SCT install on new EC2 Instance"
     )
     sct_on_prem_to_redshift_stack.add_dependency(redshift_stack);
+
+if jmeter == "CREATE":
+    jmeter_stack = JmeterStack(
+        app,
+        f"{stackname}-jmeter-stack",
+        env=env,
+        cluster=redshift_stack,
+        sctredshift_config=sct_on_prem_to_redshift_config,
+        redshift_config=redshift_config,
+        vpc=vpc_stack,
+        stack_log_level="INFO",
+        vpc_config=vpc_config,
+        description="AWS Analytics Automation: Jmeter install on new EC2 Instance"
+    )
+    jmeter_stack.add_dependency(redshift_stack);
 
 # Glue Crawler Stack to crawl s3 locations
 if glue_crawler_s3_target != "N/A":
