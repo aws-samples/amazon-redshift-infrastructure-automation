@@ -30,7 +30,7 @@ sct_on_prem_to_redshift_target = config.get('sct_on_prem_to_redshift_target')
 jmeter = config.get('jmeter')
 dms_on_prem_to_redshift_config = config.get('dms_migration')
 external_database_config = config.get('external_database')
-sct_on_prem_to_redshift_config = config.get('sct_on_prem_to_redshift')
+other_config = config.get('other')
 
 stackname = os.getenv('STACK_NAME')
 
@@ -86,7 +86,7 @@ if sct_on_prem_to_redshift_target == "CREATE":
         f"{stackname}-sct-stack",
         env=env,
         cluster=redshift_stack,
-        sctredshift_config=sct_on_prem_to_redshift_config,
+        other_config=other_config,
         redshift_config=redshift_config,
         vpc=vpc_stack,
         stack_log_level="INFO",
@@ -101,7 +101,7 @@ if jmeter == "CREATE":
         f"{stackname}-jmeter-stack",
         env=env,
         cluster=redshift_stack,
-        sctredshift_config=sct_on_prem_to_redshift_config,
+        other_config=other_config,
         redshift_config=redshift_config,
         vpc=vpc_stack,
         stack_log_level="INFO",
