@@ -12,7 +12,7 @@ class JmeterStack(core.Stack):
             self,
             scope: core.Construct, id: str,
             cluster,
-            sctredshift_config: dict,
+            other_config: dict,
             redshift_config: dict,
             vpc,
             stack_log_level: str,
@@ -22,9 +22,9 @@ class JmeterStack(core.Stack):
     ) -> None:
         super().__init__(scope, id, **kwargs)
 
-        keyname = sctredshift_config.get('key_name')
+        keyname = other_config.get('key_name')
         onprem_cidr = vpc_config.get('on_prem_cidr')
-        s3_bucket_output = sctredshift_config.get('s3_bucket_output')
+        jmeter_node_type = other_config.get('jmeter_node_type')
         redshift_host = cluster.get_cluster_host
         redshift_db = cluster.get_cluster_dbname
         redshift_user = cluster.get_cluster_user
@@ -98,7 +98,7 @@ class JmeterStack(core.Stack):
         firstcommand = "\naws configure set role_arn arn:aws:iam::" + account_id + ":role/windows-cli-role\n"
         input_data = user_data + firstcommand + user_data_2
         instance = aws_ec2.Instance(self, "Instance",
-                                    instance_type=aws_ec2.InstanceType("m5.large"),
+                                    instance_type=aws_ec2.InstanceType(jmeter_node_type),
                                     machine_image=custom_ami,
                                     vpc=vpc.vpc,
                                     vpc_subnets=subnet,
