@@ -12,7 +12,7 @@ class SctOnPremToRedshiftStack(core.Stack):
             self,
             scope: core.Construct, id: str,
             cluster,
-            sctredshift_config: dict,
+            other_config: dict,
             redshift_config: dict,
             vpc,
             stack_log_level: str,
@@ -22,10 +22,9 @@ class SctOnPremToRedshiftStack(core.Stack):
     ) -> None:
         super().__init__(scope, id, **kwargs)
 
-        
-        keyname = sctredshift_config.get('key_name')
+        keyname = other_config.get('key_name')
         onprem_cidr = vpc_config.get('on_prem_cidr')
-        s3_bucket_output = sctredshift_config.get('s3_bucket_output')
+        s3_bucket_output = other_config.get('s3_bucket_output')
         redshift_host = cluster.get_cluster_host
         redshift_db = cluster.get_cluster_dbname
         redshift_user = cluster.get_cluster_user
@@ -34,7 +33,6 @@ class SctOnPremToRedshiftStack(core.Stack):
         amiID = 'ami-042e0580ee1b9e2af'
 
         account_id = boto3.client('sts').get_caller_identity().get('Account')
-
 
         with open("./sctconfig.sh") as f:
             user_data = f.read()
