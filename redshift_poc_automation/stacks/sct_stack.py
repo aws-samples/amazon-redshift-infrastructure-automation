@@ -56,12 +56,23 @@ class SctOnPremToRedshiftStack(core.Stack):
                 }
             ]
         }
-        adminrole = aws_iam.Role(
-            self,
-            id='windows-cli-role',
-            assumed_by=aws_iam.ArnPrincipal("arn:aws:iam::" + account_id + ":root"),
-            role_name='windows-cli-role'
-        )
+        client = boto3.client('iam')
+        roles = client.list_roles()
+        Role_list = roles['Roles']
+        for key in Role_list:
+            name = key['RoleName']
+            if name == 'window-cli-role':
+                windowcliexists = 1
+            else:
+                windowcliexists = 0
+
+        if windowcliexists == 1:
+          adminrole = aws_iam.Role(
+              self,
+              id='windows-cli-role',
+              assumed_by=aws_iam.ArnPrincipal("arn:aws:iam::" + account_id + ":root"),
+              role_name='windows-cli-role'
+          )
         adminrole.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("AmazonS3ReadOnlyAccess"))
 
         role = aws_iam.Role(self, "WindowsCLIrole", assumed_by=aws_iam.ServicePrincipal("ec2.amazonaws.com"))
