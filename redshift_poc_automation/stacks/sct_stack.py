@@ -71,7 +71,7 @@ class SctOnPremToRedshiftStack(core.Stack):
             assumed_by=aws_iam.ArnPrincipal("arn:aws:iam::" + account_id + ":root"),
             role_name='windows-cli-role'
           )
-        adminrole.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("AmazonS3ReadOnlyAccess"))
+          adminrole.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("AmazonS3ReadOnlyAccess"))
 
         role = aws_iam.Role(self, "WindowsCLIrole", assumed_by=aws_iam.ServicePrincipal("ec2.amazonaws.com"))
 
