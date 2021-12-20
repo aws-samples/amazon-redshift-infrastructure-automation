@@ -6,7 +6,7 @@ import boto3
 import json
 
 
-class SctOnPremToRedshiftStack(core.Stack):
+class JmeterStack(core.Stack):
 
     def __init__(
             self,
@@ -24,7 +24,7 @@ class SctOnPremToRedshiftStack(core.Stack):
 
         keyname = other_config.get('key_name')
         onprem_cidr = vpc_config.get('on_prem_cidr')
-        s3_bucket_output = other_config.get('s3_bucket_output')
+        jmeter_node_type = other_config.get('jmeter_node_type')
         redshift_host = cluster.get_cluster_host
         redshift_db = cluster.get_cluster_dbname
         redshift_user = cluster.get_cluster_user
@@ -34,10 +34,10 @@ class SctOnPremToRedshiftStack(core.Stack):
 
         account_id = boto3.client('sts').get_caller_identity().get('Account')
 
-        with open("./sctconfig.sh") as f:
+        with open("./jmeterconfig.sh") as f:
             user_data = f.read()
 
-        with open("./sctconfig_2.sh") as f_2:
+        with open("./jmeterconfig_2.sh") as f_2:
             user_data_2 = f_2.read()
 
         # Instance Role and SSM Managed Policy
@@ -54,24 +54,13 @@ class SctOnPremToRedshiftStack(core.Stack):
                 }
             ]
         }
-        client = boto3.client('iam')
-        roles = client.list_roles()
-        Role_list = roles['Roles']
-        for key in Role_list:
-            name = key['RoleName']
-            if name == 'window-cli-role':
-                windowcliexists = 1
-            else:
-                windowcliexists = 0
-
-        if windowcliexists == 1:
-          adminrole = aws_iam.Role(
+        adminrole = aws_iam.Role(
             self,
             id='windows-cli-role',
             assumed_by=aws_iam.ArnPrincipal("arn:aws:iam::" + account_id + ":root"),
             role_name='windows-cli-role'
-          )
-          adminrole.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("AmazonS3ReadOnlyAccess"))
+        )
+        adminrole.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("AmazonS3ReadOnlyAccess"))
 
         role = aws_iam.Role(self, "WindowsCLIrole", assumed_by=aws_iam.ServicePrincipal("ec2.amazonaws.com"))
 
@@ -109,7 +98,7 @@ class SctOnPremToRedshiftStack(core.Stack):
         firstcommand = "\naws configure set role_arn arn:aws:iam::" + account_id + ":role/windows-cli-role\n"
         input_data = user_data + firstcommand + user_data_2
         instance = aws_ec2.Instance(self, "Instance",
-                                    instance_type=aws_ec2.InstanceType("m5.large"),
+                                    instance_type=aws_ec2.InstanceType(jmeter_node_type),
                                     machine_image=custom_ami,
                                     vpc=vpc.vpc,
                                     vpc_subnets=subnet,

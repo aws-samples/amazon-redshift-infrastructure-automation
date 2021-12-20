@@ -1,12 +1,12 @@
 {
-  "vpc_id": "CREATE",
+  "vpc_id": "vpc-fd5b3880",
   "redshift_endpoint": "CREATE",
-  "dms_migration_to_redshift_target": "CREATE",
-  "sct_on_prem_to_redshift_target": "CREATE",
-
+  "dms_migration_to_redshift_target": "N/A",
+  "sct_on_prem_to_redshift_target": "N/A",
+  "jmeter": "CREATE",
 
   "vpc": {
-    "on_prem_cidr": "18.206.107.24/29",
+    "on_prem_cidr": "10.1.0.0/0",
     "vpc_cidr": "10.1.0.0/16",
     "number_of_az": "2",
     "cidr_mask": "24"
@@ -15,7 +15,7 @@
     "cluster_identifier": "target-cluster",
     "database_name": "dev",
     "node_type": "ra3.4xlarge",
-    "number_of_nodes": "2",
+    "number_of_nodes": "12",
     "master_user_name": "awsuser",
     "subnet_type": "PUBLIC",
     "encryption": "Y"
@@ -25,14 +25,15 @@
     "migration_type": "full-load"
   },
   "external_database": {
-    "source_db": "dns_endpoint",
+    "source_db": "dms_sample",
     "source_engine": "sqlserver",
     "source_schema": "dbo",
-    "source_host": "ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com",
-    "source_user": "admin",
+    "source_host": "ec2-3-86-250-37.compute-1.amazonaws.com",
+    "source_user": "awssct",
     "source_port": 1433
   },
-  "sct_on_prem_to_redshift": {
-    "key_name": "demokey"
+  "other": {
+    "key_name": "cdkstaging2",
+    "jmeter_node_type": "m5.xlarge"
   }
 }
