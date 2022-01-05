@@ -64,14 +64,13 @@ class JmeterStack(core.Stack):
             else:
                 windowcliexists = 0
 
-        if windowcliexists == 1:
-          adminrole = aws_iam.Role(
-            self,
-            id='windows-cli-role',
-            assumed_by=aws_iam.ArnPrincipal("arn:aws:iam::" + account_id + ":root"),
-            role_name='windows-cli-role'
-          )
-          adminrole.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("AmazonS3ReadOnlyAccess"))
+        adminrole = aws_iam.Role(
+          self,
+          id='windows-cli-role',
+          assumed_by=aws_iam.ArnPrincipal("arn:aws:iam::" + account_id + ":root"),
+          role_name='windows-cli-role'
+        )
+        adminrole.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("AmazonS3ReadOnlyAccess"))
 
         role = aws_iam.Role(self, "WindowsCLIrole", assumed_by=aws_iam.ServicePrincipal("ec2.amazonaws.com"))
 
