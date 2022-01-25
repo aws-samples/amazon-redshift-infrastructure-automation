@@ -33,7 +33,6 @@ class VpcStack(core.Stack):
                 self, "vpc",
                 vpc_id=vpc_id
             )
-            onprem_cidr = vpc_config.get('on_prem_cidr')
         else:
             vpc_cidr = vpc_config.get('vpc_cidr')
             onprem_cidr = vpc_config.get('on_prem_cidr')
@@ -68,7 +67,8 @@ class VpcStack(core.Stack):
              description = "Gives DMS instance access to Redshift"
         )
         self.dms_security_group.add_ingress_rule(peer=self.dms_security_group, connection=aws_ec2.Port.all_traffic(), description="Self-referencing rule.")
-        self.dms_security_group.add_ingress_rule(peer=aws_ec2.Peer.ipv4(onprem_cidr), connection=aws_ec2.Port.tcp(22), description="SSH from anywhere")
+        if vpc_id == "CREATE":
+            self.dms_security_group.add_ingress_rule(peer=aws_ec2.Peer.ipv4(onprem_cidr), connection=aws_ec2.Port.tcp(22), description="SSH from on prem IP")
 
 
         output_1 = core.CfnOutput(
