@@ -33,7 +33,8 @@
     "source_user": "__",
     "source_port": 1111
   },
-  "sct_on_prem_to_redshift": {
-    "key_name": "__"
+  "other": {
+    "key_name": "__",
+    "jmeter_node_type": "__"
   }
 }
