@@ -139,10 +139,10 @@ class RedshiftStack(core.Stack):
                 vpc_security_group_ids=[security_group_id]
             )
             
-            self.rs_role = redshift_client.modify_cluster_iam_roles(
-                ClusterIdentifier=cluster_identifier,
-                DefaultIamRoleArn=self.cluster_iam_role.role_arn
-            )
+#            self.rs_role = redshift_client.modify_cluster_iam_roles(
+#                ClusterIdentifier=cluster_identifier,
+#                DefaultIamRoleArn=self.cluster_iam_role.role_arn
+#            )
 
         ###########################################
         ################# OUTPUTS #################
