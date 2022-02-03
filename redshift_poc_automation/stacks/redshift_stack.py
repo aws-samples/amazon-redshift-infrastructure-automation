@@ -22,8 +22,8 @@ class RedshiftStack(core.Stack):
     ) -> None:
         super().__init__(scope, id, **kwargs)
         stackname = id.split('-')[0]
+        redshift_client = boto3.client('redshift')
         if redshift_endpoint != "CREATE":
-            redshift_client = boto3.client('redshift')
             ec2_client = boto3.resource('ec2')
             cluster_identifier = redshift_endpoint.split('.')[0]
             self.redshift = redshift_client.describe_clusters(ClusterIdentifier=cluster_identifier)['Clusters'][0]
