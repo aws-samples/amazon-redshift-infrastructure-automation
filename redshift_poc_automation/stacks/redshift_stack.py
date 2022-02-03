@@ -138,6 +138,11 @@ class RedshiftStack(core.Stack):
                 cluster_subnet_group_name=self.cluster_subnet_group.ref,
                 vpc_security_group_ids=[security_group_id]
             )
+            
+            self.rs_role = rs_client.modify_cluster_iam_roles(
+                ClusterIdentifier=cluster_identifier,
+                DefaultIamRoleArn=[self.cluster_iam_role.role_arn]
+            )
 
         ###########################################
         ################# OUTPUTS #################
