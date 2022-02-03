@@ -141,7 +141,7 @@ class RedshiftStack(core.Stack):
             
             self.rs_role = redshift_client.modify_cluster_iam_roles(
                 ClusterIdentifier=cluster_identifier,
-                DefaultIamRoleArn=[self.cluster_iam_role.role_arn]
+                DefaultIamRoleArn=self.cluster_iam_role.role_arn
             )
 
         ###########################################
