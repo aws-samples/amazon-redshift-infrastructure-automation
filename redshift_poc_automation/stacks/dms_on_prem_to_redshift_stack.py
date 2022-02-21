@@ -70,7 +70,6 @@ class DmsOnPremToRedshiftStack(core.Stack):
             vpc_security_group_ids=[security_group_id]
         )
 
-
         #--------CREATE DMS MIGRATION TASK--------
         source_db = source_config.get('source_db')
         source_engine = source_config.get('source_engine')
@@ -110,6 +109,8 @@ class DmsOnPremToRedshiftStack(core.Stack):
             )['SecretString']
         else:
             target_pwd = cluster.get_cluster_password
+
+        print(target_pwd)
 
         tablemappings="""{
           "rules": [
