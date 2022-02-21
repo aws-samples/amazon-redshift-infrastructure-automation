@@ -7,6 +7,7 @@ import os
 from aws_cdk import core
 from redshift_poc_automation.stacks.vpc_stack import VpcStack
 from redshift_poc_automation.stacks.redshift_stack import RedshiftStack
+from redshift_poc_automation.stacks.redshiftrole_stack import RSDefaultRole
 from redshift_poc_automation.stacks.dms_on_prem_to_redshift_stack import DmsOnPremToRedshiftStack
 from redshift_poc_automation.stacks.sct_stack import SctOnPremToRedshiftStack
 from redshift_poc_automation.stacks.jmeter_stack import JmeterStack
@@ -62,7 +63,17 @@ if redshift_endpoint != "N/A":
         description="AWS Analytics Automation: Deploy Redshift cluster"
     )
     redshift_stack.add_dependency(vpc_stack);
-
+    
+    redshiftrole_stack = RSDefaultRole(
+      app,
+      f"{stackname}-redshiftrole-stack",
+      env=env,
+      cluster=redshift_stack.redshift,
+      defaultrole=redshift_stack.cluster_iam_role.role_arn,
+      stack_log_level="INFO",
+      description="AWS Analytics Automation: Modify Redshift Role"
+    )
+    redshiftrole_stack.add_dependency(redshift_stack);
 
 # DMS OnPrem to Redshift Stack for migrating database to redshift
 if dms_on_prem_to_redshift_target == "CREATE":
