@@ -5,6 +5,7 @@ from aws_cdk import core
 import json
 import boto3
 from aws_cdk import aws_ec2
+from redshift_poc_automation.stacks.redshiftrole_stack import RSDefaultRole
 import builtins
 import getpass
 
@@ -138,11 +139,6 @@ class RedshiftStack(core.Stack):
                 cluster_subnet_group_name=self.cluster_subnet_group.ref,
                 vpc_security_group_ids=[security_group_id]
             )
-            
-#            self.rs_role = redshift_client.modify_cluster_iam_roles(
-#                ClusterIdentifier=cluster_identifier,
-#                DefaultIamRoleArn=self.cluster_iam_role.role_arn
-#            )
 
         ###########################################
         ################# OUTPUTS #################
@@ -231,9 +227,13 @@ class RedshiftStack(core.Stack):
         return self.cluster_masteruser_secret.secret_name
 
     ############## FIX bug in CDK. Always returns None #########################
-    # @property
-    # def get_cluster_identifier(self) -> builtins.str:
-    #     return str(self.demo_cluster.cluster_identifier)
+    @property
+    def get_cluster_endpoint(self) -> builtins.str:
+        return str(self.redshift.attr_endpoint_address)
+
+    @property
+    def get_cluster_identifier(self) -> builtins.str:
+        return str(self.redshift.attr_endpoint_address).split('.')[0]
 
     @property
     def get_cluster_availability_zone(self) -> builtins.str:
