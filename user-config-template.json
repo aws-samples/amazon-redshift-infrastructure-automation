@@ -7,7 +7,6 @@
 
 
   "vpc": {
-    "on_prem_cidr": "__",
     "vpc_cidr": "__",
     "number_of_az": "__",
     "cidr_mask": "__"
