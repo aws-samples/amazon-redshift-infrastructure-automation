@@ -21,7 +21,7 @@ class VpcStack(core.Stack):
         scope: core.Construct,
         id: str,
         stack_log_level: str,
-        onprem_cidr: str,
+        on_prem_cidr: str,
         vpc_id: str,
         vpc_config: dict,
 
@@ -35,6 +35,7 @@ class VpcStack(core.Stack):
                 vpc_id=vpc_id
             )
         else:
+            onprem_cidr = vpc_config.get('on_prem_cidr')
             vpc_cidr = vpc_config.get('vpc_cidr')
             cidr_mask = int(vpc_config.get('cidr_mask'))
             number_of_az = int(vpc_config.get('number_of_az'))
