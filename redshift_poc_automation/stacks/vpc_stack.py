@@ -21,7 +21,6 @@ class VpcStack(core.Stack):
         scope: core.Construct,
         id: str,
         stack_log_level: str,
-        on_prem_cidr: str,
         vpc_id: str,
         vpc_config: dict,
 
@@ -29,21 +28,18 @@ class VpcStack(core.Stack):
     ) -> None:
         super().__init__(scope, id, **kwargs)
         onprem_cidr = vpc_config.get('on_prem_cidr')
-        print("Onprem_cidr: " + onprem_cidr)
-        print(type(onprem_cidr))
-        print("Other cidr: " + on_prem_cidr)
-        print(type(on_prem_cidr))
+
         if vpc_id != "CREATE":
             self.vpc = aws_ec2.Vpc.from_lookup(
                 self, "vpc",
                 vpc_id=vpc_id
             )
-            
+            onprem_cidr = vpc_config.get('on_prem_cidr')   
         else:
             vpc_cidr = vpc_config.get('vpc_cidr')
             cidr_mask = int(vpc_config.get('cidr_mask'))
             number_of_az = int(vpc_config.get('number_of_az'))
-
+            onprem_cidr = vpc_config.get('on_prem_cidr')
             self.vpc = aws_ec2.Vpc(
                 self,
                 "RedshiftPOCVpc",
