@@ -28,14 +28,18 @@ class VpcStack(core.Stack):
         ** kwargs
     ) -> None:
         super().__init__(scope, id, **kwargs)
-
+        onprem_cidr = vpc_config.get('on_prem_cidr')
+        print("Onprem_cidr: " + onprem_cidr)
+        print(type(onprem_cidr))
+        print("Other cidr: " + on_prem_cidr)
+        print(type(on_prem_cidr))
         if vpc_id != "CREATE":
             self.vpc = aws_ec2.Vpc.from_lookup(
                 self, "vpc",
                 vpc_id=vpc_id
             )
+            
         else:
-            onprem_cidr = vpc_config.get('on_prem_cidr')
             vpc_cidr = vpc_config.get('vpc_cidr')
             cidr_mask = int(vpc_config.get('cidr_mask'))
             number_of_az = int(vpc_config.get('number_of_az'))
