@@ -34,6 +34,7 @@ external_database_config = config.get('external_database')
 other_config = config.get('other')
 
 stackname = os.getenv('STACK_NAME')
+on_prem_cidr = os.getenv('ON_PREM_CIDR')
 
 glue_crawler_s3_target = "N/A"
 glue_crawler_s3_config = "N/A"
@@ -44,6 +45,7 @@ vpc_stack = VpcStack(
     f"{stackname}-vpc-stack",
     env=env,
     vpc_id=vpc_id,
+    on_prem_cidr=on_prem_cidr,
     vpc_config=vpc_config,
     stack_log_level="INFO",
     description="AWS Analytics Automation: Custom Multi-AZ VPC"
