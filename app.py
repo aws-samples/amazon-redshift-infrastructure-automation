@@ -45,7 +45,6 @@ vpc_stack = VpcStack(
     f"{stackname}-vpc-stack",
     env=env,
     vpc_id=vpc_id,
-    on_prem_cidr=on_prem_cidr,
     vpc_config=vpc_config,
     stack_log_level="INFO",
     description="AWS Analytics Automation: Custom Multi-AZ VPC"
