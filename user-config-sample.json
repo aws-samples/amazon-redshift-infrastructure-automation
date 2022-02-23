@@ -18,7 +18,8 @@
     "number_of_nodes": "12",
     "master_user_name": "awsuser",
     "subnet_type": "PUBLIC",
-    "encryption": "Y"
+    "encryption": "Y",
+    "loadTPCdata": "Y"
   },
   "dms_migration": {
     "subnet_type": "PUBLIC",
