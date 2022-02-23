@@ -6,6 +6,7 @@ import json
 import boto3
 from aws_cdk import aws_ec2
 from redshift_poc_automation.stacks.redshiftrole_stack import RSDefaultRole
+from redshift_poc_automation.stacks.redshiftload_stack import RedshiftLoadStack
 import builtins
 import getpass
 
@@ -67,6 +68,7 @@ class RedshiftStack(core.Stack):
             master_user_name = redshift_config.get('master_user_name')
             subnet_type = redshift_config.get('subnet_type')
             encryption = redshift_config.get('encryption')
+            loadtpc = redshift_config.get('loadTPCdata')
 
             # Create Cluster Password  ## MUST FIX EXCLUDE CHARACTERS FEATURE AS IT STILL INCLUDES SINGLE QUOTES SOMETIMES WHICH WILL FAIL
             self.cluster_masteruser_secret = aws_secretsmanager.Secret(
