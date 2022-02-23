@@ -8,6 +8,7 @@ from aws_cdk import core
 from redshift_poc_automation.stacks.vpc_stack import VpcStack
 from redshift_poc_automation.stacks.redshift_stack import RedshiftStack
 from redshift_poc_automation.stacks.redshiftrole_stack import RSDefaultRole
+from redshift_poc_automation.stacks.redshiftload_stack import RedshiftLoadStack
 from redshift_poc_automation.stacks.dms_on_prem_to_redshift_stack import DmsOnPremToRedshiftStack
 from redshift_poc_automation.stacks.sct_stack import SctOnPremToRedshiftStack
 from redshift_poc_automation.stacks.jmeter_stack import JmeterStack
@@ -25,6 +26,7 @@ vpc_config = config.get('vpc')
 
 redshift_endpoint = config.get('redshift_endpoint')
 redshift_config = config.get('redshift')
+loadtpc = redshift_config.get('loadTPCdata')
 
 dms_on_prem_to_redshift_target = config.get('dms_migration_to_redshift_target')
 sct_on_prem_to_redshift_target = config.get('sct_on_prem_to_redshift_target')
@@ -34,7 +36,6 @@ external_database_config = config.get('external_database')
 other_config = config.get('other')
 
 stackname = os.getenv('STACK_NAME')
-on_prem_cidr = os.getenv('ON_PREM_CIDR')
 
 glue_crawler_s3_target = "N/A"
 glue_crawler_s3_config = "N/A"
@@ -75,6 +76,21 @@ if redshift_endpoint != "N/A":
       description="AWS Analytics Automation: Modify Redshift Role"
     )
     redshiftrole_stack.add_dependency(redshift_stack);
+    
+    if loadtpc == "Y":
+      redshiftload_stack = RedshiftLoadStack(
+        app,
+        f"{stackname}-redshiftload-stack",
+        env=env,
+        cluster=redshift_stack.redshift,
+        defaultrole=redshift_stack.cluster_iam_role.role_arn,
+        redshift_config=redshift_config,
+        stack_log_level="INFO",
+        description="AWS Analytics Automation: Load TPC Data"
+        )
+      redshiftload_stack.add_dependency(redshift_stack);
+      redshiftload_stack.add_dependency(redshiftrole_stack);
+
 
 # DMS OnPrem to Redshift Stack for migrating database to redshift
 if dms_on_prem_to_redshift_target == "CREATE":
