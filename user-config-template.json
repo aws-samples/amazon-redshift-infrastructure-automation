@@ -19,7 +19,9 @@
     "number_of_nodes": "__",
     "master_user_name": "__",
     "subnet_type": "__",
-    "encryption": "__"
+    "encryption": "__",
+    "loadTPCdata": "__"
+
   },
   "dms_migration": {
     "subnet_type": "__",
