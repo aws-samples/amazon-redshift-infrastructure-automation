@@ -63,8 +63,8 @@ class RedshiftLoadStack(core.Stack):
                             physical_resource_id=PhysicalResourceId.of(
                             cluster_identifier),
                             ),
-                          # resource_type='Custom::AWS-S3-Object',
-                          role=lambda_role)
+                         )
+                          #role=lambda_role)
                           # You can set the lambda Timeout by passing the Timeout (Default: Duration.minutes(2)
 
         # Closing file
