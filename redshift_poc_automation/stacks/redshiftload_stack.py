@@ -63,8 +63,7 @@ class RedshiftLoadStack(core.Stack):
                             physical_resource_id=PhysicalResourceId.of(
                             cluster_identifier),
                             ),
-                         )
-                          #role=lambda_role)
+                          role=lambda_role)
                           # You can set the lambda Timeout by passing the Timeout (Default: Duration.minutes(2)
 
         # Closing file
