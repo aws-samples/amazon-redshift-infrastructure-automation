@@ -11,7 +11,7 @@ aws configure set default.region us-east-1
 read -n 1 -r -s -p $'[Input Required] Upload user-config.json and press enter to continue...\n'
 read -p $'[Input Required] Enter a stack name: ' stack
 read -p $'[Input Required] Enter your region: (e.g. us-east-1): ' current_region
-read -p $'[Input Required] Enter the CIDR range for the IP address(es) used to access your environment (format xxx.xxx.xxx.xxx/xx): ' onprem_cidr
+read -p $'[Input Required] Enter your on prem CIDR range (format xxx.xxx.xxx.xxx/xx): ' onprem_cidr
 export STACK_NAME=$stack
 export ONPREM_CIDR=$onprem_cidr
 #Need more elegant solution for handling exception here:
