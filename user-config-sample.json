@@ -6,7 +6,6 @@
   "jmeter": "CREATE",
 
   "vpc": {
-    "on_prem_cidr": "10.1.0.0/28",
     "vpc_cidr": "10.1.0.0/16",
     "number_of_az": "2",
     "cidr_mask": "24"
