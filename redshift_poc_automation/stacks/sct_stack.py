@@ -11,24 +11,16 @@ class SctOnPremToRedshiftStack(core.Stack):
     def __init__(
             self,
             scope: core.Construct, id: str,
-            cluster,
             other_config: dict,
-            redshift_config: dict,
             vpc,
             stack_log_level: str,
-            vpc_config: dict,
+            onprem_cidr: str,
             **kwargs
 
     ) -> None:
         super().__init__(scope, id, **kwargs)
 
         keyname = other_config.get('key_name')
-        onprem_cidr = vpc_config.get('on_prem_cidr')
-        s3_bucket_output = other_config.get('s3_bucket_output')
-        redshift_host = cluster.get_cluster_host
-        redshift_db = cluster.get_cluster_dbname
-        redshift_user = cluster.get_cluster_user
-        redshift_port = cluster.get_cluster_iam_role
         secret_arn = 'RedshiftClusterSecretAA'
         amiID = 'ami-042e0580ee1b9e2af'
 
