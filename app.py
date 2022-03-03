@@ -73,7 +73,7 @@ if redshift_endpoint != "N/A":
       f"{stackname}-redshiftrole-stack",
       env=env,
       cluster=redshift_stack.redshift,
-      defaultrole=get_cluster_iam_role(redshift_stack),
+      defaultrole=redshift_stack.get_cluster_iam_role(),
       stack_log_level="INFO",
       description="AWS Analytics Automation: Modify Redshift Role"
     )
