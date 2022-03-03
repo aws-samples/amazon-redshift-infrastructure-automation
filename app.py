@@ -133,7 +133,7 @@ if jmeter == "CREATE":
         redshift_config=redshift_config,
         vpc=vpc_stack,
         stack_log_level="INFO",
-        vpc_config=vpc_config,
+        onprem_cidr=onprem_cidr,
         description="AWS Analytics Automation: Jmeter install on new EC2 Instance"
     )
     jmeter_stack.add_dependency(redshift_stack);
