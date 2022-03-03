@@ -115,12 +115,10 @@ if sct_on_prem_to_redshift_target == "CREATE":
         app,
         f"{stackname}-sct-stack",
         env=env,
-        cluster=redshift_stack,
         other_config=other_config,
-        redshift_config=redshift_config,
         vpc=vpc_stack,
         stack_log_level="INFO",
-        vpc_config=vpc_config,
+        onprem_cidr=onprem_cidr,
         description="AWS Analytics Automation: SCT install on new EC2 Instance"
     )
     sct_on_prem_to_redshift_stack.add_dependency(redshift_stack);
