@@ -16,14 +16,13 @@ class JmeterStack(core.Stack):
             redshift_config: dict,
             vpc,
             stack_log_level: str,
-            vpc_config: dict,
+            onprem_cidr: str,
             **kwargs
 
     ) -> None:
         super().__init__(scope, id, **kwargs)
 
         keyname = other_config.get('key_name')
-        onprem_cidr = vpc_config.get('on_prem_cidr')
         jmeter_node_type = other_config.get('jmeter_node_type')
         redshift_host = cluster.get_cluster_host
         redshift_db = cluster.get_cluster_dbname
