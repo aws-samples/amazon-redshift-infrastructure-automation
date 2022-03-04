@@ -51,7 +51,7 @@ Prior to deployment, some resources need to be preconfigured:
 		}
 		```
 
-* [OPTIONAL] If using SCT, create a key pair that can be accessed (see [the documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair) on how to create a new one)
+* [OPTIONAL] If using SCT or JMeter, create a key pair that can be accessed (see [the documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair) on how to create a new one)
 * [OPTIONAL] If using an external database, open source firewalls/ security groups to allow for traffic from AWS
 
 If these are complete, continue to [deployment steps](#deployment-steps). If you come across errors, please refer to the [troubleshooting](#troubleshooting) section -- if the error isn't addressed there, please submit the feedback using the [Issues](https://github.com/aws-samples/amazon-redshift-infrastructure-automation/issues) tab of this repo.
@@ -68,10 +68,12 @@ The structure of the config file has two parts: (1) a list of key-value pairs, w
 
 | Service Key | Launch Values | Configuration | Description |
 | ----------- | ------------- | ------------- | ----------- |
-| `vpc_id`    | `CREATE`, existing VPC ID | In case of `CREATE`, configure `vpc`:<br>`on_prem_cidr`: CIDR block used to connect to VPC (for security groups)<br>`vpc_cidr`: The CIDR block used for the VPC private IPs and size<br>`number_of_az`: Number of Availability Zones the VPC should cover<br>`cidr_mask`: The size of the public and private subnet to be launched in the VPC. | [REQUIRED] The VPC to launch the target resources in -- can either be an existing VPC or created from scratch. |
-| `redshift_endpoint` | `CREATE`, `N/A`, existing Redshift endpoint | In case of `CREATE`, configure `redshift`:<br>`cluster_identifier`: Name to be used in the cluster ID<br>`database_name`: Name of the database<br>`node_type`: `ds2.xlarge`, `ds2.8xlarge`, `dc1.large`, `dc1.8xlarge`, `dc2.large`, `dc2.8xlarge`, `ra3.xlplus`, `ra3.4xlarge`, or `ra3.16xlarge`<br>`number_of_nodes`: Number of compute nodes<br>`master_user_name`: Username to be used for Redshift database<br>`subnet_type`: Subnet type the cluster should be launched in -- `PUBLIC` or `PRIVATE` (note: need at least 2 subnets in separate AZs)<br>`encryption`: Whether the cluster should be encrypted -- `y`/`Y` or `n`/`N` | Launching a Redshift cluster. |
-| `dms_on_prem_to_redshift_target` | `CREATE`, `N/A` | *Can only CREATE if are also creating Redshift cluster.*<br>In case of `CREATE`,<br>1. Configure `dms_migration`:<br>`migration_type`: `full-load`, `cdc`, or `full-load-and-cdc`<br>`subnet_type`: Subnet type the cluster should be launched in -- `PUBLIC` or `PRIVATE` (note: need at least 2 subnets in separate AZs)<br>2. Configure `external_database`:<br>`source_db`: Name of source database to migrate<br>`source_engine`: Engine type of the source<br>`source_schema`: Name of source schema to migrate<br>`source_host`: DNS endpoint of the source<br>`source_user`: Username of the database to migrate<br>`source_port`: [INT] Port to connect to connect on| Creates a migration instance, task, and endpoints between a source and Redshift configured above. |
-| `sct_on_prem_to_redshift_target` | `CREATE`, `N/A` | *Can only CREATE if are also creating Redshift cluster.*<br>In case of `CREATE`,<br>1. Configure `sct_on_prem_to_redshift`:<br>`key_name`: EC2 key pair name to be used for EC2 running SCT<br>2. Configure `external_database`:<br>`source_db`: Name of source database to migrate<br>`source_engine`: Engine type of the source<br>`source_schema`: Name of source schema to migrate<br>`source_host`: DNS endpoint of the source<br>`source_user`: Username of the database to migrate<br>`source_port`: [INT] Port to connect to connect on| Launches an EC2 instance and installs SCT to be used for schema conversion. |
+| `vpc_id`    | `CREATE`, existing VPC ID | In case of `CREATE`, configure `vpc`:<br>`vpc_cidr`: The CIDR block used for the VPC private IPs and size<br>`number_of_az`: Number of Availability Zones the VPC should cover<br>`cidr_mask`: The size of the public and private subnet to be launched in the VPC. | [REQUIRED] The VPC to launch the target resources in -- can either be an existing VPC or created from scratch. |
+| `redshift_endpoint` | `CREATE`, `N/A`, existing Redshift endpoint | In case of `CREATE`, configure `redshift`:<br>`cluster_identifier`: Name to be used in the cluster ID<br>`database_name`: Name of the database<br>`node_type`: `ds2.xlarge`, `ds2.8xlarge`, `dc1.large`, `dc1.8xlarge`, `dc2.large`, `dc2.8xlarge`, `ra3.xlplus`, `ra3.4xlarge`, or `ra3.16xlarge`<br>`number_of_nodes`: Number of compute nodes<br>`master_user_name`: Username to be used for Redshift database<br>`subnet_type`: Subnet type the cluster should be launched in -- `PUBLIC` or `PRIVATE` (note: need at least 2 subnets in separate AZs)<br>`encryption`: Whether the cluster should be encrypted -- `y`/`Y` or `n`/`N`<br>`loadTPCdata`: Whether a sample TPC-DS dataset should be loaded into the new cluster -- `y`/`Y` or `n`/`N` | Launching a Redshift cluster. |
+| `dms_on_prem_to_redshift_target` | `CREATE`, `N/A` | *Can only CREATE if are also using a Redshift cluster.*<br>In case of `CREATE`,<br>1. Configure `dms_migration`:<br>`migration_type`: `full-load`, `cdc`, or `full-load-and-cdc`<br>`subnet_type`: Subnet type the cluster should be launched in -- `PUBLIC` or `PRIVATE` (note: need at least 2 subnets in separate AZs)<br>2. Configure `external_database`:<br>`source_db`: Name of source database to migrate<br>`source_engine`: Engine type of the source<br>`source_schema`: Name of source schema to migrate<br>`source_host`: DNS endpoint of the source<br>`source_user`: Username of the database to migrate<br>`source_port`: [INT] Port to connect to connect on| Creates a migration instance, task, and endpoints between a source and Redshift configured above. |
+| `sct_on_prem_to_redshift_target` | `CREATE`, `N/A` | *Can only CREATE if are also using a Redshift cluster.*<br>In case of `CREATE`, configure `other`:<br>`key_name`: EC2 key pair name to be used for EC2 running SCT (you don't need to configure the `jmeter_node_type` parameter)| Launches an EC2 instance and installs SCT to be used for schema conversion. |
+| `jmeter` | `CREATE`, `N/A` | *Can only CREATE if are also using a Redshift cluster.*<br>In case of `CREATE`, configure `other`:<br>`key_name`: EC2 key pair name to be used for EC2 running JMeter<br>`jmeter_node_type`: The EC2 node type to be used to run JMeter| Launches an EC2 instance and installs JMeter to be used for load testing the Redshift cluster. |
+
 
 
 You can see an example of a completed config file under [user-config-sample.json](./user-config-sample.json).
@@ -110,7 +112,15 @@ press the *Enter* key
 
 input a unique stack name to be used to identify this deployment, then press the *Enter* key
 
-9. Depending on your resource configuration, you may receive some input prompts:
+![Input Region](./images/InputRegion.png)
+
+input the region used for this deployment, then press the *Enter* key
+
+![Input CIDR](./images/InputCIDR.png)
+
+input the CIDR of the on premise environment/ your IP address which needs access to the deployed resources, then press the *Enter* key
+
+9. Depending on your resource configuration, you may receive some additional input prompts:
 
 |	Prompt	|	Input	|	Description	|
 |-----------|-----------|---------------|
@@ -217,4 +227,3 @@ See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more inform
 ## License
 
 This library is licensed under the MIT-0 License. See the LICENSE file.
-
