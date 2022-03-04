@@ -68,7 +68,7 @@ if redshift_endpoint != "N/A":
     )
     redshift_stack.add_dependency(vpc_stack);
     
-    if loadtpc == "Y":
+    if loadtpc == "Y" or loadtpc == "y":
         redshiftrole_stack = RSDefaultRole(
               app,
               f"{stackname}-redshiftrole-stack",
