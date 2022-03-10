@@ -68,29 +68,30 @@ if redshift_endpoint != "N/A":
     )
     redshift_stack.add_dependency(vpc_stack);
     
-    if loadtpc == "Y":
-        redshiftrole_stack = RSDefaultRole(
-              app,
-              f"{stackname}-redshiftrole-stack",
-              env=env,
-              cluster=redshift_stack.redshift,
-              defaultrole=redshift_stack.cluster_iam_role.role_arn,
-              stack_log_level="INFO",
-              description="AWS Analytics Automation: Modify Redshift Role"
-            )
-        redshiftrole_stack.add_dependency(redshift_stack);
-        redshiftload_stack = RedshiftLoadStack(
-                app,
-                f"{stackname}-redshiftload-stack",
-                env=env,
-                cluster=redshift_stack.redshift,
-                defaultrole=redshift_stack.cluster_iam_role.role_arn,
-                redshift_config=redshift_config,
-                stack_log_level="INFO",
-                description="AWS Analytics Automation: Load TPC Data"
-            )
-        redshiftload_stack.add_dependency(redshift_stack);
-        redshiftload_stack.add_dependency(redshiftrole_stack);
+    if redshift_endpoint == "CREATE":
+        if loadtpc == "Y" or loadtpc == "y":
+            redshiftrole_stack = RSDefaultRole(
+                  app,
+                  f"{stackname}-redshiftrole-stack",
+                  env=env,
+                  cluster=redshift_stack.redshift,
+                  defaultrole=redshift_stack.cluster_iam_role.role_arn,
+                  stack_log_level="INFO",
+                  description="AWS Analytics Automation: Modify Redshift Role"
+                )
+            redshiftrole_stack.add_dependency(redshift_stack);
+            redshiftload_stack = RedshiftLoadStack(
+                    app,
+                    f"{stackname}-redshiftload-stack",
+                    env=env,
+                    cluster=redshift_stack.redshift,
+                    defaultrole=redshift_stack.cluster_iam_role.role_arn,
+                    redshift_config=redshift_config,
+                    stack_log_level="INFO",
+                    description="AWS Analytics Automation: Load TPC Data"
+                )
+            redshiftload_stack.add_dependency(redshift_stack);
+            redshiftload_stack.add_dependency(redshiftrole_stack);
 
 
 # DMS OnPrem to Redshift Stack for migrating database to redshift
