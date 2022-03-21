@@ -1,8 +1,8 @@
 aws configure set credential_source Ec2InstanceMetadata
-cd apache-jmeter-5.4.3
+cd apache-jmeter-5.4.1
 aws s3 cp "s3://event-driven-app-with-lambda-redshift/scripts/Redshift Load Test.jmx" "Redshift Load Test.jmx"
-aws s3 cp "s3://event-driven-app-with-lambda-redshift/scripts/jmeter.bat" "C:\JMETER\apache-jmeter-5.4.3\bin\jmeter.bat"
-mklink "C:\Users\Administrator\Desktop\jmeter.bat" "C:\JMETER\apache-jmeter-5.4.3\bin\jmeter.bat"
+aws s3 cp "s3://event-driven-app-with-lambda-redshift/scripts/jmeter.bat" "C:\JMETER\apache-jmeter-5.4.1\bin\jmeter.bat"
+mklink "C:\Users\Administrator\Desktop\jmeter.bat" "C:\JMETER\apache-jmeter-5.4.1\bin\jmeter.bat"
 cd lib
 aws s3 cp s3://event-driven-app-with-lambda-redshift/scripts/redshift-jdbc42-2.0.0.4.jar redshift-jdbc42-2.0.0.4.jar
 cd ext
