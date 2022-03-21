@@ -63,23 +63,23 @@ class JmeterStack(core.Stack):
             else:
                 windowcliexists = 0
 
-        adminrole = aws_iam.Role(
-          self,
-          id='windows-cli-role',
-          assumed_by=aws_iam.ArnPrincipal("arn:aws:iam::" + account_id + ":root"),
-          role_name='windows-cli-role'
-        )
-        adminrole.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("AmazonS3ReadOnlyAccess"))
+        #adminrole = aws_iam.Role(
+        #  self,
+        #  id='windows-cli-role',
+        #  assumed_by=aws_iam.ArnPrincipal("arn:aws:iam::" + account_id + ":root"),
+        #  role_name='windows-cli-role'
+        #)
+        #adminrole.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("AmazonS3ReadOnlyAccess"))
 
-        role = aws_iam.Role(self, "WindowsCLIrole", assumed_by=aws_iam.ServicePrincipal("ec2.amazonaws.com"))
+        #role = aws_iam.Role(self, "WindowsCLIrole", assumed_by=aws_iam.ServicePrincipal("ec2.amazonaws.com"))
 
-        role.add_to_policy(aws_iam.PolicyStatement(
-            actions=["sts:AssumeRole"],
-            resources=["arn:aws:iam::" + account_id + ":role/windows-cli-role"],
-            effect=aws_iam.Effect.ALLOW
-        ))
-        role.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AmazonEC2RoleforSSM"))
-        role.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("SecretsManagerReadWrite"))
+        #role.add_to_policy(aws_iam.PolicyStatement(
+        #    actions=["sts:AssumeRole"],
+        #    resources=["arn:aws:iam::" + account_id + ":role/windows-cli-role"],
+        #    effect=aws_iam.Effect.ALLOW
+        #))
+        #role.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AmazonEC2RoleforSSM"))
+        #role.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("SecretsManagerReadWrite"))
 
         # secrets_client = boto3.client(service_name='secretsmanager', region_name='us-east-1')
         # get_secret_value_response = secrets_client.get_secret_value(
@@ -112,7 +112,7 @@ class JmeterStack(core.Stack):
                                     vpc=vpc.vpc,
                                     vpc_subnets=subnet,
                                     key_name=keyname,
-                                    role=role,
+                                    #role=role,
                                     security_group=my_security_group,
                                     #            resource_signal_timeout=core.Duration.minutes(5),
                                     user_data=aws_ec2.UserData.custom(input_data)
