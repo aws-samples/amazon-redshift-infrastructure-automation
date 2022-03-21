@@ -10,5 +10,5 @@ curl -L https://jmeter-plugins.org/get/ > jmeter-plugins-manager.jar
 cd ../../..
 curl -o openjdk-17.0.1_windows-x64_bin.zip https://download.java.net/java/GA/jdk17.0.1/2a2082e5a09d4267845be086888add4f/12/GPL/openjdk-17.0.1_windows-x64_bin.zip
 tar -xf openjdk-17.0.1_windows-x64_bin.zip
-setx PATH "%PATH%;c:\JMETER\jdk-17.0.1\bin\"
+setx PATH "%PATH%;c:\jdk-17.0.1\bin\"
 </script>
