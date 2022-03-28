@@ -4,7 +4,7 @@
 import json
 import boto3
 import os
-from aws_cdk import core, tags
+from aws_cdk import core
 from redshift_poc_automation.stacks.vpc_stack import VpcStack
 from redshift_poc_automation.stacks.redshift_stack import RedshiftStack
 from redshift_poc_automation.stacks.redshiftrole_stack import RSDefaultRole
@@ -14,6 +14,7 @@ from redshift_poc_automation.stacks.sct_stack import SctOnPremToRedshiftStack
 from redshift_poc_automation.stacks.jmeter_stack import JmeterStack
 
 app = core.App()
+tags = core.Tags()
 
 my_region = boto3.session.Session().region_name
 account_id = boto3.client('sts').get_caller_identity().get('Account')
