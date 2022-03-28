@@ -4,7 +4,7 @@
 import json
 import boto3
 import os
-from aws_cdk import core
+from aws_cdk import core, tags
 from redshift_poc_automation.stacks.vpc_stack import VpcStack
 from redshift_poc_automation.stacks.redshift_stack import RedshiftStack
 from redshift_poc_automation.stacks.redshiftrole_stack import RSDefaultRole
@@ -52,6 +52,7 @@ vpc_stack = VpcStack(
     stack_log_level="INFO",
     description="AWS Analytics Automation: Custom Multi-AZ VPC"
 )
+Tags.of(vpc_stack).add("project", stackname)
 
 # Deploy Redshift cluster and load data"
 if redshift_endpoint != "N/A":
@@ -67,6 +68,7 @@ if redshift_endpoint != "N/A":
         description="AWS Analytics Automation: Deploy Redshift cluster"
     )
     redshift_stack.add_dependency(vpc_stack);
+    Tags.of(redshift_stack).add("project", stackname)
     
     if redshift_endpoint == "CREATE":
         if loadtpc == "Y" or loadtpc == "y":
@@ -92,6 +94,9 @@ if redshift_endpoint != "N/A":
                 )
             redshiftload_stack.add_dependency(redshift_stack);
             redshiftload_stack.add_dependency(redshiftrole_stack);
+            
+            Tags.of(redshiftrole_stack).add("project", stackname)
+            Tags.of(redshiftload_stack).add("project", stackname)
 
 
 # DMS OnPrem to Redshift Stack for migrating database to redshift
@@ -108,6 +113,7 @@ if dms_on_prem_to_redshift_target == "CREATE":
         description="AWS Analytics Automation: DMS endpoints and tasks"
     )
     dms_on_prem_to_redshift_stack.add_dependency(redshift_stack);
+    Tags.of(dms_on_prem_to_redshift_stack).add("project", stackname)
 
 # SCT OnPrem to Redshift Stack for migrating database to redshift
 if sct_on_prem_to_redshift_target == "CREATE":
@@ -122,6 +128,7 @@ if sct_on_prem_to_redshift_target == "CREATE":
         description="AWS Analytics Automation: SCT install on new EC2 Instance"
     )
     sct_on_prem_to_redshift_stack.add_dependency(redshift_stack);
+    Tags.of(sct_on_prem_to_redshift_stack).add("project", stackname)
 
 if jmeter == "CREATE":
     jmeter_stack = JmeterStack(
@@ -137,6 +144,7 @@ if jmeter == "CREATE":
         description="AWS Analytics Automation: Jmeter install on new EC2 Instance"
     )
     jmeter_stack.add_dependency(redshift_stack);
+    Tags.of(jmeter_stack).add("project", stackname)
 
 # Glue Crawler Stack to crawl s3 locations
 if glue_crawler_s3_target != "N/A":
