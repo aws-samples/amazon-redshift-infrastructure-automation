@@ -12,3 +12,4 @@ then
 fi
 cdk destroy --all --require-approval never
 python3 ./scripts/delete_secrets.py
+python3 ./scripts/delete_buckets.py
