@@ -15,6 +15,7 @@ then
         read -p $'[Input Required] Enter your on prem CIDR range (format xxx.xxx.xxx.xxx/xx): ' onprem_cidr
         export ONPREM_CIDR=$onprem_cidr
 fi
+python3 ./scripts/delete_secrets.py
 cdk destroy --all --require-approval never
 python3 ./scripts/delete_secrets.py
 python3 ./scripts/delete_buckets.py
