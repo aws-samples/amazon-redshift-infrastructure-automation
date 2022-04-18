@@ -10,6 +10,11 @@ then
 	read -p $'[Input Required] Enter a stack name: ' stack
 	export STACK_NAME=$stack
 fi
+if [ -z "${ONPREM_CIDR}" ]
+then
+        read -p $'[Input Required] Enter your on prem CIDR range (format xxx.xxx.xxx.xxx/xx): ' onprem_cidr
+        export ONPREM_CIDR=$onprem_cidr
+fi
 cdk destroy --all --require-approval never
 python3 ./scripts/delete_secrets.py
 python3 ./scripts/delete_buckets.py
