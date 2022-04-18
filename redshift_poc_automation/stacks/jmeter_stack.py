@@ -81,12 +81,6 @@ class JmeterStack(core.Stack):
         role.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AmazonEC2RoleforSSM"))
         role.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("SecretsManagerReadWrite"))
 
-         secrets_client = boto3.client(service_name='secretsmanager', region_name='us-east-1')
-         get_secret_value_response = secrets_client.get_secret_value(
-            SecretId=secret_arn
-         )
-         redshift_pwd = [value for value in get_secret_value_response.values()][3]
-
         ### TAKE THIS OUT SO THAT INSTANCE IS NOT PUBLIC ###
         subnet = aws_ec2.SubnetSelection(subnet_type=aws_ec2.SubnetType('PUBLIC'))
 
@@ -96,7 +90,7 @@ class JmeterStack(core.Stack):
         #                                       allow_all_outbound=True
         #                                       )
         # my_security_group.add_ingress_rule(aws_ec2.Peer.ipv4('10.200.0.0/24'), aws_ec2.Port.tcp(22), "allow ssh access from the world")
-         my_security_group.add_ingress_rule(my_security_group, aws_ec2.Port.all_tcp(), "self-referencing rule")
+        # my_security_group.add_ingress_rule(my_security_group, aws_ec2.Port.all_tcp(), "self-referencing rule")
         my_security_group = vpc.get_vpc_security_group
 
         my_security_group.add_ingress_rule(peer=aws_ec2.Peer.ipv4(onprem_cidr), connection=aws_ec2.Port.tcp(3389),
