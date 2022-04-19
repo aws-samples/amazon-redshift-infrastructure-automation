@@ -7,14 +7,17 @@ source .env/bin/activate
 pip install -r requirements.txt
 if [ -z "${STACK_NAME}" ]
 then
-	read -p $'[Input Required] Enter a stack name: ' stack
-	export STACK_NAME=$stack
+        read -p $'[Input Required] Enter a stack name: ' stack
+        export STACK_NAME=$stack
 fi
-if [ -z "${ONPREM_CIDR}" ]
-then
-        read -p $'[Input Required] Enter your on prem CIDR range (format xxx.xxx.xxx.xxx/xx): ' onprem_cidr
-        export ONPREM_CIDR=$onprem_cidr
-fi
+#if [ -z "${ONPREM_CIDR}" ]
+#then
+#        read -p $'[Input Required] Enter your on prem CIDR range (format xxx.xxx.xxx.xxx/xx): ' onprem_cidr
+#        export ONPREM_CIDR=$onprem_cidr
+#fi
+export ONPREM_CIDR=12.34.56.78/32
 python3 ./scripts/delete_buckets.py
+python3 ./scripts/detach_policy.py
 cdk destroy --all --require-approval never
+aws cloudformation delete-stack --stack-name CDKToolkit
 #python3 ./scripts/delete_secrets.py
