@@ -37,7 +37,7 @@ Prior to deployment, some resources need to be preconfigured:
 	- Amazon S3
 	- AWS Secrets Manager
 	- Amazon EC2
-	- AWS Database Migration Service
+	- AWS Database Migration Service (DMS)
 	- For a more granular list of permissions, please see [here](./permissionlist.md)
 * [OPTIONAL] If using SCT or JMeter, create a key pair that can be accessed (see [the documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair) on how to create a new one)
 * [OPTIONAL] If using an external database, open source firewalls/ security groups to allow for traffic from AWS
