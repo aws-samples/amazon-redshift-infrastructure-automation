@@ -25,6 +25,7 @@ python3 << EOF
 import boto3
 import json
 import os
+stackname = os.getenv('STACK_NAME')
 region_name = boto3.session.Session().region_name
 session = boto3.session.Session()
 sm_client = session.client(
