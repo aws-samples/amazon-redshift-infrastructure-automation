@@ -22,6 +22,9 @@ cdk destroy --all --require-approval never
 aws cloudformation delete-stack --stack-name CDKToolkit
 
 python3 << EOF
+import boto3
+import json
+import os
 region_name = boto3.session.Session().region_name
 session = boto3.session.Session()
 sm_client = session.client(
