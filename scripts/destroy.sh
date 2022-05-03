@@ -20,4 +20,20 @@ python3 ./scripts/delete_buckets.py
 python3 ./scripts/detach_policy.py
 cdk destroy --all --require-approval never
 aws cloudformation delete-stack --stack-name CDKToolkit
-# python3 ./scripts/delete_secrets.py
+
+python3 << EOF
+region_name = boto3.session.Session().region_name
+session = boto3.session.Session()
+sm_client = session.client(
+    service_name='secretsmanager',
+    region_name=region_name,
+)
+secrets_list = [f"{stackname}-SourceDBPassword",
+                f"{stackname}-RedshiftPassword",
+                f"{stackname}-RedshiftClusterSecretAA"]
+
+sm_response = sm_client.list_secrets()
+for secret in sm_response['SecretList']:
+    if secret['Name'] in secrets_list:
+      ./scripts/delete_secrets.py
+EOF
