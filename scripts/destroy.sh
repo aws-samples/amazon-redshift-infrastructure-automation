@@ -25,7 +25,6 @@ python3 << EOF
 import boto3
 import json
 import os
-import delete_secrets
 stackname = os.getenv('STACK_NAME')
 region_name = boto3.session.Session().region_name
 session = boto3.session.Session()
@@ -40,5 +39,5 @@ secrets_list = [f"{stackname}-SourceDBPassword",
 sm_response = sm_client.list_secrets()
 for secret in sm_response['SecretList']:
     if secret['Name'] in secrets_list:
-      execfile('delete_secrets.py')
+      os.system('python delete_secrets.py')
 EOF
