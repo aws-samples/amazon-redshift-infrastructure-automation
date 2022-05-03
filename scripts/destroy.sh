@@ -20,4 +20,4 @@ python3 ./scripts/delete_buckets.py
 python3 ./scripts/detach_policy.py
 cdk destroy --all --require-approval never
 aws cloudformation delete-stack --stack-name CDKToolkit
-python3 ./scripts/delete_secrets.py
+# python3 ./scripts/delete_secrets.py
