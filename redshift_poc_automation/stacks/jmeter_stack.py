@@ -27,7 +27,6 @@ class JmeterStack(core.Stack):
         redshift_host = cluster.get_cluster_host
         redshift_db = cluster.get_cluster_dbname
         redshift_user = cluster.get_cluster_user
-        redshift_port = cluster.get_cluster_iam_role
         secret_arn = 'RedshiftClusterSecretAA'
         amiID = 'ami-042e0580ee1b9e2af'
 
