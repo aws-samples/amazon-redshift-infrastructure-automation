@@ -39,5 +39,5 @@ secrets_list = [f"{stackname}-SourceDBPassword",
 sm_response = sm_client.list_secrets()
 for secret in sm_response['SecretList']:
     if secret['Name'] in secrets_list:
-      os.system('python amazon-redshift-infrastructure-automation/scripts/delete_secrets.py')
+      os.system('python /home/cloudshell-user/amazon-redshift-infrastructure-automation/scripts/delete_secrets.py')
 EOF
