@@ -67,7 +67,7 @@ Metadata:
         - CopyCommandOptions
         - CopyCommandSchedule
         - SourceS3Bucket
-       
+
 Resources:
   # RedshiftNotificationTopicSNS:
   #   Type: AWS::SNS::Topic
@@ -106,7 +106,7 @@ Resources:
               Statement:
                 -
                   Effect: Allow
-                  Action: 
+                  Action:
                   - redshift:GetClusterCredentials
                   - redshift:DescribeClusters
                   Resource:
@@ -121,12 +121,12 @@ Resources:
                   - redshift-data:GetStatementResult
                   - redshift-data:DescribeStatement
                   Resource: "*"
-          - 
+          -
             PolicyName: DynamoDBAccessPolicy
             PolicyDocument:
               Version: 2012-10-17
               Statement:
-                - 
+                -
                   Effect: Allow
                   Action:
                    - dynamodb:DescribeStream
@@ -141,12 +141,12 @@ Resources:
                    - dynamodb:BatchWriteItem
                    - dynamodb:DeleteItem
                   Resource: "arn:aws:dynamodb:*:*:table/s3_data_loader*"
-          - 
+          -
             PolicyName: SQSAccessPolicy
             PolicyDocument:
               Version: 2012-10-17
               Statement:
-                - 
+                -
                   Effect: Allow
                   Action:
                    - sqs:ReceiveMessage
@@ -155,14 +155,14 @@ Resources:
                    - sqs:GetQueueAttributes
                    - sqs:SetQueueAttributes
                    - sqs:GetQueueUrl
-                  Resource: 
+                  Resource:
                     - !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:s3-loader-utility.fifo
-          - 
+          -
             PolicyName: s3EventNotification
             PolicyDocument:
               Version: 2012-10-17
               Statement:
-                - 
+                -
                   Effect: Allow
                   Action:
                     - 's3:GetBucketNotification'
@@ -170,10 +170,10 @@ Resources:
                     - 's3:ListObjectsV2'
                     - 's3:GetObject'
                     - 's3:PutObject'
-                  Resource: 
+                  Resource:
                     - !Sub 'arn:aws:s3:::${SourceS3Bucket}'
                     - !Sub 'arn:aws:s3:::${SourceS3Bucket}/*'
-                - 
+                -
                   Effect: Allow
                   Action:
                     - 'logs:CreateLogGroup'
@@ -195,14 +195,14 @@ Resources:
             #       Effect: Allow
             #       Action: sns:Publish
             #       Resource: !Ref RedshiftNotificationTopicSNS
-  
-  
+
+
 #Event Bridge Rules
 #First Event bridge rule to trigger Lambda 2 s3LoaderUtilKickoffFileProcessing
   KickoffFileProcessingSchedule:
      Type: "AWS::Events::Rule"
      Properties:
-       Description: First Event Rule to be triggered periodically based on cron expression. This is Scheduled event and triggers s3LoaderUtilKickoffFileProcessing Lambda. 
+       Description: First Event Rule to be triggered periodically based on cron expression. This is Scheduled event and triggers s3LoaderUtilKickoffFileProcessing Lambda.
        ScheduleExpression: !Ref CopyCommandSchedule
        State: "ENABLED"
        Targets:
@@ -224,7 +224,7 @@ Resources:
         Fn::GetAtt:
           - "KickoffFileProcessingSchedule"
           - "Arn"
-  
+
 
 #Event Bridge rule to trigger Lambda 5  (s3LoaderUtilUpdateLogTable).  This rule is pattern based. Triggered based on s3LoaderUtilProcessQueueLoadRS Redshift Data API Event.
   UpdateLogTableEventBased:
@@ -232,7 +232,7 @@ Resources:
      Description: Second Event Bridge rule to trigger Lambda 5  (s3LoaderUtilUpdateLogTable).  This rule is pattern based and triggered based on s3LoaderUtilProcessQueueLoadRS Redshift Data API Event.
      Properties:
        EventPattern: !Sub "{\"source\": [\"aws.redshift-data\"],\"detail-type\": [\"Redshift Data Statement Status Change\"]}"
-       Description: Respond to Redshift-data ETL events coming from s3LoaderUtilProcessQueueLoadRS lambda. 2nd Event Rule. 
+       Description: Respond to Redshift-data ETL events coming from s3LoaderUtilProcessQueueLoadRS lambda. 2nd Event Rule.
        State: "ENABLED"
        Targets:
           -
@@ -253,7 +253,7 @@ Resources:
   QueueRSProcessingSchedule:
      Type: "AWS::Events::Rule"
      Properties:
-       Description: Event Rule to be triggered periodically, this rule triggers s3LoaderUtilProcessQueueLoadRS Lambda to kickoff the Redshift COPY commands. 
+       Description: Event Rule to be triggered periodically, this rule triggers s3LoaderUtilProcessQueueLoadRS Lambda to kickoff the Redshift COPY commands.
        ScheduleExpression: "rate(5 minutes)"
        State: "ENABLED"
        Targets:
@@ -276,7 +276,7 @@ Resources:
           - "Arn"
 
 #Lambda Functions
-#step 1 lambda function  
+#step 1 lambda function
   s3LoaderUtilLogFileMetadata :
     Type: "AWS::Lambda::Function"
     #DependsOn: SetupRedshiftObjectsLambdaRole
@@ -314,14 +314,14 @@ Resources:
               #print('Response from dynamoDb is:',response)
               item_key='Item'
               if item_key in response:
-                  #print('Its already added') 
+                  #print('Its already added')
                   item_key='Item'
               else:
                   event_time = datetime.now()
                   event_time = event_time - timedelta (days=1000)
                   file_last_processed_timestamp = event_time.strftime('%Y-%m-%d %H:%M:%S.%f')
                   #copy_command_additional_options = "delimiter '|' gzip"
-                  
+
                   #if (copy_default_options=='delimiter pipe gzip'):
                   #    copy_command_additional_options = "delimiter '|' gzip"
                   #elif (copy_default_options=='delimiter pipe'):
@@ -337,18 +337,18 @@ Resources:
                   #elif (copy_default_options=='csv gzip'):
                   #    copy_command_additional_options = "csv gzip"
                   #else:
-                  #    copy_command_additional_options = "delimiter '|' gzip"       
-                  
+                  #    copy_command_additional_options = "delimiter '|' gzip"
+
                   dynamoTable_config.put_item(
                       Item={'s3_table_name': s3_table_name_config, 'redshift_table_name': s3_table_name_config,'max_file_proccessed_timestamp': file_last_processed_timestamp , 'load_status': 'active' , 'iam_role':rs_iam_role ,'additional_copy_options':copy_default_options,'redshift_schema':redshift_schema })
                   status =1
-                      
-              
+
+
               return status
 
           def lambda_handler(event, context):
               # TODO implement
-              
+
               Number_of_messages = len(event['Records'])
               my_file_list =[]
               s3_base_path ='s3-redshift-loader-source/'
@@ -366,7 +366,7 @@ Resources:
                   table_name_path = key.replace(s3_base_path,'')
                   tbl_split = table_name_path.split('/',1)
                   table_name = tbl_split[0]
-                  complete_file_path= 's3://'+ s3_file_path_prefix+ '/' + key 
+                  complete_file_path= 's3://'+ s3_file_path_prefix+ '/' + key
                   my_file_list.append(table_name)
                   print("Table Name : ",table_name)
                   print('S3 file path : ',complete_file_path)
@@ -374,17 +374,23 @@ Resources:
                   #format = "%Y-%m-%d %H:%M:%S.%f"
                   #date_object = datetime.strptime(event_time, format)
                   file_created_timestamp = event_time.strftime('%Y-%m-%d %H:%M:%S.%f')
-                  
-                  config_status = AddTableMetadata(table_name,iam_role_redshift,redshift_schema,copy_default_options)        
+
+                  # Adding code to capture the content length##
+                  s3 = boto3.resource('s3')
+                  object = s3.Object(bucket,key)
+                  file_content_length = object.content_length
+                  # Adding code to capture the content length##
+
+                  config_status = AddTableMetadata(table_name,iam_role_redshift,redshift_schema,copy_default_options)
                   dynamoTable = dynamodb.Table('s3_data_loader_file_metadata')
                   dynamoTable.put_item(
-                      Item={'s3_table_name': table_name, 'file_created_timestamp': file_created_timestamp,'s3_file_path': complete_file_path})
-                  
-                
+                      Item={'s3_table_name': table_name, 'file_created_timestamp': file_created_timestamp,'s3_file_path': complete_file_path ,'file_content_length':file_content_length})
+
+
               return {
                   'statusCode': 200,
                   'Num of files': json.dumps(Number_of_messages)
-                  
+
               }
 
 #step 3 lambda function
@@ -393,7 +399,7 @@ Resources:
         - s3LoaderLambdaRole
       Type: AWS::Lambda::Function
       Properties:
-        Description: Step 3 Lambda function prepare copy commands and process the files 
+        Description: Step 3 Lambda function prepare copy commands and process the files
         Handler: index.lambda_handler
         Runtime: python3.9
         Role: !GetAtt 's3LoaderLambdaRole.Arn'
@@ -428,14 +434,14 @@ Resources:
 
               s3_bucket_name = os.environ['source_s3_bucket']
               s3_file_path_prefix ='s3://' + s3_bucket_name + '/'
-              s3_bucket_manifest_key='s3-redshift-loader-manifest/'+table_name 
-              
+              s3_bucket_manifest_key='s3-redshift-loader-manifest/'+table_name
+
               dynamoTable_config = dynamodb.Table('s3_data_loader_table_config')
               dynamoTable_file = dynamodb.Table('s3_data_loader_file_metadata')
-              
+
               response =   dynamoTable_config.get_item(Key={'s3_table_name': table_name})
               item_key='Item'
-              
+
               amazon_sqs_name ='s3-loader-utility.fifo'
 
               if item_key in response:
@@ -446,18 +452,25 @@ Resources:
                 copy_load_status = response['Item']['load_status']
                 max_file_proccessed_timestamp = response['Item']['max_file_proccessed_timestamp']
                 redshift_schema = response['Item']['redshift_schema']
-               
-        
+
+
                 if(copy_load_status=='active'):
 
-                    # get all files from the control table which are not processed yet. 
-                    
+                    # get all files from the control table which are not processed yet.
+
                     response = dynamoTable_file.query(KeyConditionExpression=Key('s3_table_name').eq(table_name) & Key('file_created_timestamp').gt(max_file_proccessed_timestamp))
-                    
+
                     print(response['Items'])
                     num_rows = len(response['Items'])
                     s3_objects = []
                     date_object_list=[]
+
+                    #code to handle content length parquet
+
+                    content_length_dic_file ={}
+
+                    #### end content length change
+
                     if(num_rows>0):
                         for record in response['Items']:
                             print ('file path :',record['s3_file_path'])
@@ -470,28 +483,35 @@ Resources:
                                 format = "%Y-%m-%d %H:%M:%S.%f"
                                 date_object = datetime.strptime(dt_str, format)
                                 date_object_list.append(date_object)
+                                ## content changes for parquet
+                                content_length_item ={}
+                                content_length_item['content_length'] = int(record['file_content_length'])
+                                content_length_dic_file[record['s3_file_path']] = content_length_item
+                                ## end content length change
+
+                        #entries_dict = dict(entries = [dict(url=x, mandatory=True) for x in s3_objects])
+                        entries_dict = dict(entries = [dict(url=x, mandatory=True,meta =content_length_dic_file[x] ) for x in s3_objects])
                         
-                        entries_dict = dict(entries = [dict(url=x, mandatory=True) for x in s3_objects])
                         s3 = boto3.client('s3')
                         current_timestamp = datetime.utcnow().isoformat().replace(':','')
                         s3_manifest_file_name = '{}/{}#{}.json'.format(s3_bucket_manifest_key,table_name,current_timestamp)
                         s3.put_object(Body=json.dumps(entries_dict),Bucket=s3_bucket_name,Key= s3_manifest_file_name)
                         max_processed_date = max(date_object_list)
                         print('Max file for the selected table :',max_processed_date)
-                        
-                        sql_copy_command = 'COPY ' 
+
+                        sql_copy_command = 'COPY '
                         sql_copy_command = sql_copy_command + redshift_schema + "." + copy_redshift_table_name +" FROM \'" +s3_file_path_prefix+ s3_manifest_file_name
-                        
+
                         if (copy_iam_role=='default'):
                             sql_copy_command = sql_copy_command+ "\' iam_role " + copy_iam_role + " manifest " + copy_additional_option
                         else:
                             sql_copy_command = sql_copy_command + "\' iam_role '" + copy_iam_role + "' manifest " + copy_additional_option
-                        
+
                         print('Copy command :',sql_copy_command)
                         #copy_response = execute_sql_data_api(redshift_client,redshift_database,'COPY',sql_copy_command,redshift_user,redshift_cluster_id,False,statement_name,True)
-                        
+
                         queue = sqs.get_queue_by_name(QueueName=amazon_sqs_name)
-                        
+
                         MSG_ATTR ={
                                         's3_table_name': {
                                                     'DataType': 'String',
@@ -515,10 +535,10 @@ Resources:
                                                   }
                                         }
                         MSG_COPY_COMMAND = sql_copy_command
-                       
-                        
+
+
                         dynamoTable_config.update_item(Key={ 's3_table_name': table_name,}, UpdateExpression="set max_file_proccessed_timestamp = :g", ExpressionAttributeValues={ ':g': max_processed_date.strftime('%Y-%m-%d %H:%M:%S.%f') },ReturnValues="UPDATED_NEW")
-                
+
 
 
                         resp_queu = queue.send_message(MessageBody=MSG_COPY_COMMAND , MessageAttributes=MSG_ATTR , MessageGroupId=table_name)
@@ -539,7 +559,7 @@ Resources:
         - s3LoaderUtilProcessPendingFiles
       Type: AWS::Lambda::Function
       Properties:
-        Description: Step 2 Lambda function trigger the process file function based on the Metadata from DynamoDB 
+        Description: Step 2 Lambda function trigger the process file function based on the Metadata from DynamoDB
         Handler: index.lambda_handler
         Runtime: python3.9
         Role: !GetAtt 's3LoaderLambdaRole.Arn'
@@ -565,7 +585,7 @@ Resources:
 
             def lambda_handler(event, context):
                 # TODO implement
-                
+
                 config_table ='s3_data_loader_table_config'
                 table = dynamodb_client.Table(config_table)
                 response = table.scan()
@@ -576,16 +596,16 @@ Resources:
                 while 'LastEvaluatedKey' in response:
                     response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
                     data.extend(response['Items'])
-                
+
                 print('All Contents of Config table ',data)
-                
+
                 for i in range(0,len(data)):
-                
-                    sql = "Select " + lambda_processing_files +"('"+data[i]['s3_table_name']+"')"    
+
+                    sql = "Select " + lambda_processing_files +"('"+data[i]['s3_table_name']+"')"
                     print(sql)
-                    
+
                     lambda_payload = {"TableName":data[i]['s3_table_name']}
-                    lambda_client.invoke(FunctionName=lambda_processing_files, 
+                    lambda_client.invoke(FunctionName=lambda_processing_files,
                                 InvocationType='Event',
                                 Payload=json.dumps(lambda_payload))
                     print('Lambda Payload :',lambda_payload)
@@ -595,7 +615,7 @@ Resources:
                     'statusCode': 200,
                     'body': json.dumps('S3 Loader Util Kicked Off')
                 }
-                
+
 
 #step 4 lamdba function
   s3LoaderUtilProcessQueueLoadRS :
@@ -648,7 +668,7 @@ Resources:
               done = False
 
               # Wait until query is finished or max cycles limit has been reached.
-              while not done and isSynchronous: 
+              while not done and isSynchronous:
               #and attempts < MAX_WAIT_CYCLES:
                   #attempts += 1
                   #time.sleep(1)
@@ -679,7 +699,7 @@ Resources:
                       query_status, query_id, command))
 
               return query_status
-              
+
           def lambda_handler(event, context):
               # TODO implement
               redshift_cluster_id = os.environ['redshift_cluster_id']
@@ -689,9 +709,9 @@ Resources:
               statement_name = 's3-loader-utility'
 
               dynamoTable_config = dynamodb.Table('s3_data_loader_table_config')
-              dynamoTable_log = dynamodb.Table('s3_data_loader_log')    
+              dynamoTable_log = dynamodb.Table('s3_data_loader_log')
 
-              
+
               amazon_sqs_name ='s3-loader-utility.fifo'
               queue = sqs.get_queue_by_name(QueueName=amazon_sqs_name)
               max_no_of_copy_commands = 2
@@ -701,18 +721,18 @@ Resources:
                   max_message_to_poll=10
               else:
                   max_message_to_poll = max_no_of_copy_commands
-                      
+
               cluster_status='Not Available'
               myClusters = rs_db_client.describe_clusters(ClusterIdentifier=redshift_cluster_id)['Clusters']
-              
+
               if len(myClusters) > 0:
                   cluster_status = myClusters[0]['ClusterAvailabilityStatus']
                   print('Redshift cluster {} status : {}'.format(redshift_cluster_id,cluster_status) )
                   if cluster_status !='Available':
                       print('Redshift Cluster {} is not available !'.format(redshift_cluster_id))
-                
-                  
-              
+
+
+
               while True and cluster_status=='Available':
                   messages = queue.receive_messages(MessageAttributeNames=['All'], MaxNumberOfMessages=max_message_to_poll, VisibilityTimeout=30)
                   if len(messages) == 0 or copy_counter >=max_no_of_copy_commands:
@@ -727,14 +747,14 @@ Resources:
                       redshift_table_name = msg.message_attributes.get('redshift_table_name').get('StringValue')
                       s3_manifest_file_path = msg.message_attributes.get('s3_manifest_file_path').get('StringValue')
                       redshift_schema = msg.message_attributes.get('redshift_schema').get('StringValue')
-                      
+
                       print('Copy command :',sql_copy_command)
                       copy_response = execute_sql_data_api(redshift_client,redshift_database,'COPY',sql_copy_command,redshift_user,redshift_cluster_id,False,statement_name,True)
-                      # purge the meessage from the 
+                      # purge the meessage from the
                       msg.delete()
                       event_time = datetime.now()
                       log_timestamp = event_time.strftime('%Y-%m-%d %H:%M:%S.%f')
-                          
+
                       dynamoTable_log.put_item(Item={'data_api_queryId': copy_response,'redshift_schema':redshift_schema, 's3_table_name': s3_table_name,'redshift_table_name': redshift_table_name , 's3_manifest_file_path': s3_manifest_file_path , 'copy_command_status':'Execution' ,'copy_command_sql': sql_copy_command,'redshift_query_Id':'','log_timestamp':log_timestamp,'finish_timestamp':''})
 
               return {
@@ -772,9 +792,9 @@ Resources:
 
           def lambda_handler(event, context):
               # TODO implement
-              
-              dynamoTable_log = dynamodb.Table('s3_data_loader_log')  
-            
+
+              dynamoTable_log = dynamodb.Table('s3_data_loader_log')
+
               data_api_detail = event['detail']
               statement_name = data_api_detail['statementName']
               if(statement_name=='s3-loader-utility'):
@@ -784,82 +804,82 @@ Resources:
                   print('Value of  data_api_query_id :',data_api_query_id)
                   print('Value of  redshift_query_id :',redshift_query_id)
                   print('Value of  items Query_state :',Query_state)
-                  
+
                   event_time = datetime.now()
                   log_timestamp = event_time.strftime('%Y-%m-%d %H:%M:%S.%f')
-                  
-                  
+
+
                   dynamoTable_log.update_item(Key={ 'data_api_queryId': data_api_query_id,}, UpdateExpression="set redshift_query_Id = :g ,copy_command_status = :st , finish_timestamp = :ft", ExpressionAttributeValues={ ':g': redshift_query_id ,':st':Query_state,':ft':log_timestamp},ReturnValues="UPDATED_NEW")
-                  
+
               return {
                   'statusCode': 200,
                   'body': json.dumps('Logging Data to Redshift Done!')
               }
 
-  DynamoDBTables3loadeFileMetadata: 
+  DynamoDBTables3loadeFileMetadata:
     Type: AWS::DynamoDB::Table
-    Properties: 
-        AttributeDefinitions: 
-          - 
+    Properties:
+        AttributeDefinitions:
+          -
             AttributeName: "s3_table_name"
             AttributeType: "S"
-          - 
+          -
             AttributeName: "file_created_timestamp"
             AttributeType: "S"
-        KeySchema: 
-          - 
+        KeySchema:
+          -
             AttributeName: "s3_table_name"
             KeyType: "HASH"
-          - 
+          -
             AttributeName: "file_created_timestamp"
             KeyType: "RANGE"
-        ProvisionedThroughput: 
+        ProvisionedThroughput:
           ReadCapacityUnits: "5"
           WriteCapacityUnits: "5"
         TableClass: "STANDARD"
         TableName: "s3_data_loader_file_metadata"
 
-  DynamoDBTables3DataLoaderLog: 
+  DynamoDBTables3DataLoaderLog:
     Type: AWS::DynamoDB::Table
-    Properties: 
-        AttributeDefinitions: 
-          - 
+    Properties:
+        AttributeDefinitions:
+          -
             AttributeName: "data_api_queryId"
             AttributeType: "S"
-        KeySchema: 
-          - 
+        KeySchema:
+          -
             AttributeName: "data_api_queryId"
             KeyType: "HASH"
-        ProvisionedThroughput: 
+        ProvisionedThroughput:
           ReadCapacityUnits: "5"
           WriteCapacityUnits: "5"
         TableClass: "STANDARD"
         TableName: "s3_data_loader_log"
-  DynamoDBTables3DataLoaderTableConfig: 
+  DynamoDBTables3DataLoaderTableConfig:
     Type: AWS::DynamoDB::Table
-    Properties: 
-        AttributeDefinitions: 
-          - 
+    Properties:
+        AttributeDefinitions:
+          -
             AttributeName: "s3_table_name"
             AttributeType: "S"
-        KeySchema: 
-          - 
+        KeySchema:
+          -
             AttributeName: "s3_table_name"
             KeyType: "HASH"
-        ProvisionedThroughput: 
+        ProvisionedThroughput:
           ReadCapacityUnits: "5"
           WriteCapacityUnits: "5"
         TableClass: "STANDARD"
         TableName: "s3_data_loader_table_config"
   S3LoaderSQSQueue:
     Type: AWS::SQS::Queue
-    Properties: 
+    Properties:
         ContentBasedDeduplication: True
         FifoQueue: True
         MessageRetentionPeriod: 345600
         QueueName: s3-loader-utility.fifo
         ReceiveMessageWaitTimeSeconds: 1
-        Tags: 
+        Tags:
           - Key: "keyname1"
             Value: "value1"
   s3LoaderUtilLogFileMetadataInvokePermission:
@@ -888,10 +908,10 @@ Resources:
             import os
             SUCCESS = "SUCCESS"
             FAILED = "FAILED"
-            
+
             print('Loading function')
             s3 = boto3.resource('s3')
-            
+
             def lambda_handler(event, context):
                 print("Received event: " + json.dumps(event, indent=2))
                 responseData={}
@@ -956,5 +976,3 @@ Resources:
       ServiceToken: !GetAtt CustomResourceLambdaFunction.Arn
       LambdaArn: !GetAtt s3LoaderUtilLogFileMetadata.Arn
       Bucket: !Ref SourceS3Bucket
-
-
