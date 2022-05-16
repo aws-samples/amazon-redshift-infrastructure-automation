@@ -102,11 +102,18 @@ class RedshiftStack(core.Stack):
                     subnet_ids=vpc.get_vpc_public_subnet_ids,
                     description="Redshift Demo Cluster Subnet Group"
                 )
-            else:
+            elif subnet_type == 'PRIVATE':
                 self.cluster_subnet_group = aws_redshift.CfnClusterSubnetGroup(
                     self,
                     "redshiftDemoClusterSubnetGroup",
                     subnet_ids=vpc.get_vpc_private_subnet_ids,
+                    description="Redshift Demo Cluster Subnet Group"
+                )
+            elif subnet_type == 'ISOLATED':
+                self.cluster_subnet_group = aws_redshift.CfnClusterSubnetGroup(
+                    self,
+                    "redshiftDemoClusterSubnetGroup",
+                    subnet_ids=vpc.get_vpc_private_isolated_subnet_ids,
                     description="Redshift Demo Cluster Subnet Group"
                 )
 
