@@ -45,8 +45,10 @@ class DmsOnPremToRedshiftStack(core.Stack):
 
         if subnet_type == 'PUBLIC':
             subnets = vpc.get_vpc_public_subnet_ids
-        else:
+        elif subnet_type == 'PRIVATE':
             subnets = vpc.get_vpc_private_subnet_ids
+        elif subnet_type == 'ISOLATED':
+            subnets = vpc.get_vpc_private_isolated_subnet_ids
 
         dms_subnet_group = aws_dms.CfnReplicationSubnetGroup(
             self,
