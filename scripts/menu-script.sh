@@ -116,7 +116,7 @@ then
     read -r -p "[Input Required][REDSHIFT Details]: How many nodes of $node_type? " number_of_nodes
     
     PS3='[Input Required][REDSHIFT Details]: Please select subnet type: '
-    options=("Public" "Private" )
+    options=("PUBLIC" "PRIVATE" )
     select selection in "${options[@]}"; do
         if [[ $REPLY == "0" ]]; then
             echo 'Goodbye' >&2
