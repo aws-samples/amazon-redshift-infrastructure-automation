@@ -66,7 +66,7 @@ elif [ "$vpc_id" = "N/A" ];
 then
     read -r -p "[Input Required]: Please select from existing VPC's [Press ENTER to continue....]"
     echo "Loading your VPC's..."
-    /bin/bash ./bash-menu-cli-commands.sh
+    ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
     readarray -t list < vpclist.txt
     PS3='Please enter your choice or 0 to exit: '
     select selection in "${list[@]}"; do
@@ -153,7 +153,7 @@ then
     case $answer in
         [Yy]* ) 
         echo "Loading your Redshift Clusters..."
-            /bin/bash ./bash-menu-cli-commands.sh
+            ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
             readarray -t list < redshiftlist.txt
             PS3='Please enter your choice or 0 to exit: '
             select selection in "${list[@]}"; do
@@ -308,46 +308,6 @@ JSON_STRING=$( jq -n \
                         jmeter_node_type: $jnt
                     }
                     }' \ >user-config.json ) 
-
-echo $JSON_STRING
-echo "<----CREATE/NA---->"
-echo "vpc ID: "$vpc_id
-echo "redshift endpoint: "$redshift_endpoint
-echo "dms: " $dms_migration_to_redshift_target
-echo "sct: "$sct_on_prem_to_redshift_target
-echo "jmeter: " $jmeter
-echo "---------------------------"
-echo "<----VPC DETAILS---->"
-echo "vpc cidr: " $cidr
-echo "Number of AZ's: "$number_of_az
-echo "CIDR Mask: "$cidr_mask
-echo "Existing VPC: " $existing_vpc_id
-echo "---------------------------"
-echo "<----REDSHIFT DETAILS---->"
-echo $"existing_RS_id: " $existing_RS_id
-echo "cluster identifer: " $cluster_identifier
-echo "redshift database name: "$database_name
-echo "redshift master username: "$master_user_name
-echo "redshift node type: " $node_type
-echo "redshift number of nodes: "$number_of_nodes
-echo "redshift subnet type:"$subnet_type
-echo "redshift encryption type:"$encryption
-echo "redshift load tpc data?: "$loadTPCdata
-echo "---------------------------"
-echo "<----DMS DETAILS---->"
-echo "Source Database: " $source_db
-echo "Source Engine: " $source_engine
-echo "Source Schema: " $source_schema
-echo "Source Host: " $source_host
-echo "Source User: " $source_user
-echo "Source Port: " $source_port
-echo "---------------------------"
-echo "<----SCT EC2 KEYNAME--->"
-echo "sct key name: "$key_name
-echo "---------------------------"
-echo "<----Jmeter EC2 KEYNAME--->"
-echo "jmeter key name: "$jmeter_key_name
-echo "---------------------------"
 
 
 

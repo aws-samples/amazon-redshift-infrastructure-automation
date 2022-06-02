@@ -1,5 +1,6 @@
 sudo yum -y install gcc gcc-c++ python3 python3-devel unixODBC unixODBC-devel aws-cfn-bootstrap
 sudo npm install -g aws-cdk@1.x
+~/amazon-redshift-infrastructure-automation/scripts/menu-script.sh
 cd ~/amazon-redshift-infrastructure-automation
 /bin/bash ~/menu-script.sh
 python3 -m venv .env
