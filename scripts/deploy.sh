@@ -1,6 +1,6 @@
 sudo yum -y install gcc gcc-c++ python3 python3-devel unixODBC unixODBC-devel aws-cfn-bootstrap
 sudo npm install -g aws-cdk@1.x
-#BASH GUI HERE
+/bin/bash ./master-version.sh
 cd ~/amazon-redshift-infrastructure-automation
 python3 -m venv .env
 source .env/bin/activate
@@ -9,7 +9,7 @@ pip install -r requirements.txt
 #FILE=~/.bashrc
 #grep -qF -- "$LINE" "$FILE" || echo "$LINE" >> "$FILE"
 aws configure set default.region us-east-1
-read -n 1 -r -s -p $'[Input Required] Upload user-config.json and press enter to continue...\n'
+read -n 1 -r -s -p $'[Input Required] Upload user-config.json or press enter to skip...\n'
 read -p $'[Input Required] Enter a stack name: ' stack
 read -p $'[Input Required] Enter your region: (e.g. us-east-1): ' current_region
 read -p $'[Input Required] Enter your on prem CIDR range (format xxx.xxx.xxx.xxx/xx): ' onprem_cidr
