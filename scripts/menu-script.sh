@@ -240,7 +240,7 @@ while true; do
 done
 if [ "$jmeter" = "CREATE" ]; 
 then 
-    echo "Loading your VPC's..."
+    echo "Loading your account keypairs..."
     ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
     readarray -t list < keypairlist.txt
     PS3='[Input Required] Please select the keypair for Jmeter: '
