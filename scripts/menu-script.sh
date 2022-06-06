@@ -57,18 +57,18 @@ while true; do
 done
 if [ "$vpc_id" = "CREATE" ]; 
 then 
-    read -r -p "[Input Required]: Please configure VPC details [Press ENTER to continue....]"
+    echo "Please configure VPC details..."
     read -r -p "[Input Required][VPC Details]: Please provide a VPC CIDR Range: " cidr
     read -r -p "[Input Required][VPC Details]: How many Availability Zones? " number_of_az
     read -r -p "[Input Required][VPC Details]: Please provide a CIDR MASK: " cidr_mask
 
 elif [ "$vpc_id" = "N/A" ];
 then
-    read -r -p "[Input Required]: Please select from existing VPC's [Press ENTER to continue....]"
+    
     echo "Loading your VPC's..."
     ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
     readarray -t list < vpclist.txt
-    PS3='Please enter your choice or 0 to exit: '
+    PS3='[Input Required] Please select your VPC...'
     select selection in "${list[@]}"; do
         if [[ $REPLY == "0" ]]; then
             echo 'Goodbye' >&2
@@ -94,13 +94,12 @@ done
 
 if [ "$redshift_endpoint" = "CREATE" ]; 
 then 
-    read -r -p "[Input Required][REDSHIFT Details]: Please configure Redshift details [Press ENTER to continue....]"
+    echo "[Input Required][REDSHIFT Details]: Please configure Redshift details..."
     read -r -p "[Input Required][REDSHIFT Details]: Please provide a cluster indentifier: " cluster_identifier
     read -r -p "[Input Required][REDSHIFT Details]: Please provide a Redshift database name: " database_name
     read -r -p "[Input Required][REDSHIFT Details]: Please provide a master user name: " master_user_name 
 
     PS3='[Input Required][REDSHIFT Details]: Please select your Redshift node type choice: '
-    node_type=""
     options=("ds2.xlarge" "ds2.8xlarge" "dc1.large" "dc1.8xlarge" "dc2.large" "dc2.8xlarge" "ra3.xlplus" "ra3.4xlarge" "ra3.16xlarge" )
     select selection in "${options[@]}"; do
         if [[ $REPLY == "0" ]]; then
@@ -241,7 +240,29 @@ while true; do
 done
 if [ "$jmeter" = "CREATE" ]; 
 then 
+    while true; do
     read -r -p "[Input Required] Please provide Key Name for Jmeter: " jmeter_key_name
+    case $jmeter_key_name in
+        [Yy]* ) 
+        echo "Loading your account Key Pairs"
+            ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
+            readarray -t list < keypairlist.txt
+            PS3='Please enter your choice or 0 to exit: '
+            select selection in "${list[@]}"; do
+                if [[ $REPLY == "0" ]]; then
+                    echo 'Goodbye' >&2
+                    exit
+                else
+                    jmeter_key_name=$selection
+                    break
+                fi
+            done
+            echo "You have choosen $selection"
+            break;;
+        [Nn]* ) break;;
+        * ) echo "Please answer Y or N.";;
+    esac
+    done  
 fi
 JSON_STRING=$( jq -n \
                   --arg bn "$vpc_id" \
