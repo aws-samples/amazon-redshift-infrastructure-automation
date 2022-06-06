@@ -138,7 +138,7 @@ then
     done
     while true; do
     read -r -p "[Input Required][REDSHIFT Details]: Would you like to load TPC data? (Y/N) " loadTPCdata
-    case $answer in
+    case $loadTPCdata in
         [Yy]* ) export loadTPCdata="Y"; break;;
         [Nn]* ) export loadTPCdata="N"; break;;
         * ) echo "Please answer Y or N.";;
