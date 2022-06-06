@@ -241,13 +241,12 @@ done
 if [ "$jmeter" = "CREATE" ]; 
 then 
     while true; do
-    read -r -p "[Input Required] Please provide Key Name for Jmeter: " jmeter_key_name
     case $jmeter_key_name in
         [Yy]* ) 
         echo "Loading your account Key Pairs"
             ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
             readarray -t list < keypairlist.txt
-            PS3='Please enter your choice or 0 to exit: '
+            PS3='[Input Required] Please provide Key Name for Jmeter: '
             select selection in "${list[@]}"; do
                 if [[ $REPLY == "0" ]]; then
                     echo 'Goodbye' >&2
