@@ -240,28 +240,21 @@ while true; do
 done
 if [ "$jmeter" = "CREATE" ]; 
 then 
-    while true; do
-    case $jmeter_key_name in
-        [Yy]* ) 
-        echo "Loading your account Key Pairs"
-            ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
-            readarray -t list < keypairlist.txt
-            PS3='[Input Required] Please provide Key Name for Jmeter: '
-            select selection in "${list[@]}"; do
-                if [[ $REPLY == "0" ]]; then
-                    echo 'Goodbye' >&2
-                    exit
-                else
-                    jmeter_key_name=$selection
-                    break
-                fi
-            done
-            echo "You have choosen $selection"
-            break;;
-        [Nn]* ) break;;
-        * ) echo "Please answer Y or N.";;
-    esac
-    done  
+    echo "Loading your VPC's..."
+    ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
+    readarray -t list < keypairlist.txt
+    PS3='[Input Required] Please select the keypair for Jmeter: '
+    select selection in "${list[@]}"; do
+        if [[ $REPLY == "0" ]]; then
+            echo 'Goodbye' >&2
+            exit
+        else
+        
+            jmeter_key_name=$selection
+            break
+        fi
+    done
+    echo "You have choosen $selection"
 fi
 JSON_STRING=$( jq -n \
                   --arg bn "$vpc_id" \
