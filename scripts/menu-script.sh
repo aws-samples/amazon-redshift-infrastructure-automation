@@ -154,7 +154,7 @@ then
         echo "Loading your Redshift Clusters..."
             ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
             readarray -t list < redshiftlist.txt
-            PS3='Please enter your choice or 0 to exit: '
+            PS3='[Input Required] Please select your Redshift Cluster: '
             select selection in "${list[@]}"; do
                 if [[ $REPLY == "0" ]]; then
                     echo 'Goodbye' >&2
