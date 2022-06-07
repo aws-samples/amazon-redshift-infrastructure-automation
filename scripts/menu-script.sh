@@ -287,8 +287,8 @@ JSON_STRING=$( jq -n \
                   '{
                     vpc_id: $bn, 
                     redshift_endpoint: $on,
-                    sct_on_prem_to_redshift_target: $sct, 
-                    dms_migration_to_redshift_target: $tl, 
+                    dms_migration_to_redshift_target: $tl,
+                    sct_on_prem_to_redshift_target: $sct,  
                     jmeter: $jm,
                     vpc:{
                         cidr: $ll,
