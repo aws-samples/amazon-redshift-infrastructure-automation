@@ -93,7 +93,8 @@ class RedshiftStack(core.Stack):
                 ]
             )
             self.cluster_masteruser_secret.grant_read(self.cluster_iam_role)
-
+            
+            publiclyaccessible = False
             # Subnet Group for Cluster
             if subnet_type == 'PUBLIC':
                 self.cluster_subnet_group = aws_redshift.CfnClusterSubnetGroup(
@@ -102,6 +103,7 @@ class RedshiftStack(core.Stack):
                     subnet_ids=vpc.get_vpc_public_subnet_ids,
                     description="Redshift Demo Cluster Subnet Group"
                 )
+                publiclyaccessible = True
             elif subnet_type == 'PRIVATE':
                 self.cluster_subnet_group = aws_redshift.CfnClusterSubnetGroup(
                     self,
@@ -145,6 +147,7 @@ class RedshiftStack(core.Stack):
                 node_type=f"{node_type}",
                 encrypted=encryptcluster,
                 number_of_nodes=number_of_nodes,
+                publicly_accessible=publiclyaccessible,
                 cluster_subnet_group_name=self.cluster_subnet_group.ref,
                 vpc_security_group_ids=[security_group_id]
             )
