@@ -280,7 +280,7 @@ JSON_STRING=$( jq -n \
                   --arg ss "$source_schema" \
                   --arg sh "$source_host" \
                   --arg su "$source_user" \
-                  --arg sp "$source_port" \
+                  --argjson sp "$source_port" \
                   --arg jnt "$jmeter_node_type" \
                   --arg jkn "$key_name" \
                   --arg jm "$jmeter" \
@@ -291,7 +291,7 @@ JSON_STRING=$( jq -n \
                     sct_on_prem_to_redshift_target: $sct,  
                     jmeter: $jm,
                     vpc:{
-                        cidr: $ll,
+                        vpc_cidr: $ll,
                         number_of_az: $la, 
                         cidr_mask: $lt
                     },
