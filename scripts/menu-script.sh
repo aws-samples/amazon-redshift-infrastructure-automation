@@ -197,7 +197,7 @@ then
     done
     read -r -p "[Input Required][DMS DETAILS] Please provide name of source database to migrate: " source_db
     PS3='[Input Required][DMS DETAILS] What is the engine type? '
-    options=( "Oracle" "PostgreSQL" "Teradata" "Snowflake")
+    options=( "mysql" "oracle" "postgres" "mariadb" "aurora" "aurora-postgresql" "opensearch" "redshift" "s3" "db2" "azuredb" "sybase" "dynamodb" "mongodb" "kinesis" "kafka" "elasticsearch" "docdb" "sqlserver" "neptune")
     select selection in "${options[@]}"; do
         if [[ $REPLY == "0" ]]; then
             echo 'Goodbye' >&2
@@ -208,7 +208,8 @@ then
             break
         fi   
     done
-    read -r -p "[Input Required][DMS DETAILS] What is the name of source schema? " source_host
+    read -r -p "[Input Required][DMS DETAILS] What is the name of source schema? " source_schema
+    read -r -p "[Input Required][DMS DETAILS] What is the name of source host? " source_host
     read -r -p "[Input Required][DMS DETAILS] What is the source user? " source_user
     read -r -p "[Input Required][DMS DETAILS] What is the source port? " source_port
 fi
@@ -249,7 +250,6 @@ then
             echo 'Goodbye' >&2
             exit
         else
-        
             key_name=$selection
             break
         fi
