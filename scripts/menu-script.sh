@@ -29,9 +29,9 @@ source_host=""
 source_user=""
 source_port=""
 #SCT KeyName
-key_name=""
+sct_key_name=""
 #JMeter KeyName
-jmeter_key_name=""
+key_name=""
 jmeter_node_type="c5.9xlarge"
 
 while true; do
@@ -226,7 +226,7 @@ done
 fi
 if [ "$sct_on_prem_to_redshift_target" = "CREATE" ]; 
 then 
-    read -r -p "[Input Required] Please provide Key Name: " key_name
+    read -r -p "[Input Required] Please provide Key Name: " sct_key_name
 
 fi
 
@@ -250,7 +250,7 @@ then
             exit
         else
         
-            jmeter_key_name=$selection
+            key_name=$selection
             break
         fi
     done
@@ -280,9 +280,8 @@ JSON_STRING=$( jq -n \
                   --arg sh "$source_host" \
                   --arg su "$source_user" \
                   --arg sp "$source_port" \
-                  --arg kn "$key_name" \
                   --arg jnt "$jmeter_node_type" \
-                  --arg jkn "$jmeter_key_name" \
+                  --arg jkn "$key_name" \
                   --arg jm "$jmeter" \
                   '{
                     vpc_id: $bn, 
@@ -317,7 +316,7 @@ JSON_STRING=$( jq -n \
                         source_port: $sp
                     },
                     other:{
-                        jmeter_key_name: $jkn,
+                        key_name: $jkn,
                         jmeter_node_type: $jnt
                     }
                     }' \ >user-config.json ) 
