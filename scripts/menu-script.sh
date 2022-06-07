@@ -260,6 +260,7 @@ JSON_STRING=$( jq -n \
                   --arg bn "$vpc_id" \
                   --arg on "$redshift_endpoint" \
                   --arg tl "$dms_migration_to_redshift_target" \
+                  --arg sct "$sct_on_prem_to_redshift_target" \
                   --arg on "$redshift_endpoint" \
                   --arg ll "$cidr" \
                   --arg la "$number_of_az" \
@@ -285,7 +286,8 @@ JSON_STRING=$( jq -n \
                   --arg jm "$jmeter" \
                   '{
                     vpc_id: $bn, 
-                    redshift_endpoint: $on, 
+                    redshift_endpoint: $on,
+                    sct_on_prem_to_redshift_target: $sct, 
                     dms_migration_to_redshift_target: $tl, 
                     jmeter: $jm,
                     vpc:{
