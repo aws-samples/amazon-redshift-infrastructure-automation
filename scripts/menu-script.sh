@@ -28,7 +28,7 @@ source_engine=""
 source_schema=""
 source_host=""
 source_user=""
-source_port=""
+source_port="1"
 #SCT KeyName
 sct_key_name=""
 #JMeter KeyName
