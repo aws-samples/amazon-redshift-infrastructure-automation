@@ -22,6 +22,7 @@ encryption=""
 loadTPCdata=""
 #DMS Details
 migration_type=""
+dms_subnet_type=""
 source_db=""
 source_engine=""
 source_schema=""
@@ -183,6 +184,18 @@ while true; do
 done
 if [ "$dms_migration_to_redshift_target" = "CREATE" ]; 
 then
+    PS3='[Input Required][DMS Details]: Please select subnet type: '
+    options=("PUBLIC" "PRIVATE" )
+    select selection in "${options[@]}"; do
+        if [[ $REPLY == "0" ]]; then
+            echo 'Goodbye' >&2
+            exit
+        else
+        echo $REPLY $selection
+            dms_subnet_type=$selection
+            break
+        fi     
+    done
     PS3='[Input Required][DMS Details]: Please select your migration type: '
     options=( "full-load" "cdc" "full-load-and-cdc")
     select selection in "${options[@]}"; do
@@ -273,7 +286,7 @@ JSON_STRING=$( jq -n \
                   --arg st "$subnet_type" \
                   --arg en "$encryption" \
                   --arg ltd "$loadTPCdata" \
-                  --arg dmsST "$subnet_type" \
+                  --arg dmsST "$dms_subnet_type" \
                   --arg mt "$migration_type" \
                   --arg sdb "$source_db" \
                   --arg se "$source_engine" \
