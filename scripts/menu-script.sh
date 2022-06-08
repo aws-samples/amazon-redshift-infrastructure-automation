@@ -184,7 +184,7 @@ while true; do
 done
 if [ "$dms_migration_to_redshift_target" = "CREATE" ]; 
 then
-    PS3='[Input Required][DMS Details]: Please select subnet type: '
+    PS3='[Input Required][DMS Details]: Please select subnet type for DMS: '
     options=("PUBLIC" "PRIVATE" )
     select selection in "${options[@]}"; do
         if [[ $REPLY == "0" ]]; then
@@ -240,7 +240,20 @@ done
 fi
 if [ "$sct_on_prem_to_redshift_target" = "CREATE" ]; 
 then 
-    read -r -p "[Input Required] Please provide Key Name: " sct_key_name
+    echo "Loading your account keypairs..."
+    ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
+    readarray -t list < keypairlist.txt
+    PS3='[Input Required] Please select the keypair for SCT: '
+    select selection in "${list[@]}"; do
+        if [[ $REPLY == "0" ]]; then
+            echo 'Goodbye' >&2
+            exit
+        else
+            key_name=$selection
+            break
+        fi
+    done
+    echo "You have choosen $selection"
 
 fi
 

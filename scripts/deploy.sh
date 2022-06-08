@@ -11,7 +11,6 @@ echo "Installing requirements...."; pip install -r requirements.txt > /dev/null;
 #grep -qF -- "$LINE" "$FILE" || echo "$LINE" >> "$FILE"
 aws configure set default.region us-east-1
 ~/amazon-redshift-infrastructure-automation/scripts/menu-script.sh
-read -n 1 -r -s -p $'[Input Required] Upload user-config.json or press enter to skip...\n'
 read -p $'[Input Required] Enter a stack name: ' stack
 read -p $'[Input Required] Enter your region: (e.g. us-east-1): ' current_region
 read -p $'[Input Required] Enter your on prem CIDR range (format xxx.xxx.xxx.xxx/xx): ' onprem_cidr
