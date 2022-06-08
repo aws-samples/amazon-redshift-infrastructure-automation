@@ -148,20 +148,29 @@ then
     
 elif [ "$redshift_endpoint" = "N/A" ];
 then
+    while true; do
+    read -r -p "[Input Required]: Would you like to provide an existing Redshift Cluster? " answer
+    case $answer in
+        [Yy]* ) 
         echo "Loading your Redshift Clusters..."
             ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
             readarray -t list < redshiftlist.txt
             PS3='[Input Required] Please select your Redshift Cluster: '
-            select mycluster in "${list[@]}"; do
+            select selection in "${list[@]}"; do
                 if [[ $REPLY == "0" ]]; then
                     echo 'Goodbye' >&2
                     exit
                 else
-                    redshift_endpoint=$mycluster
+                    redshift_endpoint=$selection
                     break
                 fi
             done
-            echo "You have choosen $mycluster" 
+            echo "You have choosen $selection"
+            break;;
+        [Nn]* ) break;;
+        * ) echo "Please answer Y or N.";;
+    esac
+    done  
 fi
 
 #####DMS
