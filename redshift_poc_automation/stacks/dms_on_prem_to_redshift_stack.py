@@ -112,8 +112,6 @@ class DmsOnPremToRedshiftStack(core.Stack):
         else:
             target_pwd = cluster.get_cluster_password
 
-        print(target_pwd)
-
         tablemappings="""{
           "rules": [
             {
