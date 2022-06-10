@@ -44,6 +44,13 @@ Parameters:
     Type: String
     Description: Cron expression to schedule S3 loader process through EventBridge rule
     Default: 'cron(0/5 * ? * * *)'
+  InitiateSchemaDetection:
+    Description: 'BETA: Dynamically detect schema prior to file load'
+    Type: String
+    Default: 'Yes'
+    AllowedValues:
+      - 'Yes'
+      - 'No'
   # SqlText:
   #   Type: String
   #   Description: SQL Text to run at the start up
@@ -87,6 +94,7 @@ Resources:
       Description : IAM Role for lambda functions to access Redshift, SQS and DynamoDB
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
       AssumeRolePolicyDocument:
           Version: 2012-10-17
           Statement:
@@ -285,7 +293,12 @@ Resources:
       Handler: index.lambda_handler
       Role: !GetAtt 's3LoaderLambdaRole.Arn'
       Runtime: python3.9
-      Timeout: 30
+      Layers:
+        - arn:aws:lambda:us-east-1:336392948345:layer:AWSDataWrangler-Python39:5
+      EphemeralStorage:
+        Size: 5120
+      MemorySize: 10240
+      Timeout: 900
       Environment:
         Variables:
           redshift_cluster_id: !Ref RedshiftClusterIdentifier
@@ -295,21 +308,31 @@ Resources:
           redshift_iam_role: !Ref RedshiftIAMRoleARN
           source_s3_bucket: !Ref SourceS3Bucket
           copy_default_options: !Ref CopyCommandOptions
+          initiate_schema_detection: !Ref InitiateSchemaDetection
       Code:
         ZipFile: |
           import json
           import urllib.parse
           import boto3
           import time
+          import csv
           import os
+          from pyarrow.parquet import ParquetFile
+          import pandas as pd
+          import pyarrow as pa
+          import pyarrow.parquet as pq
+          import awswrangler as wr
           from datetime import datetime , timedelta
 
           dynamodb = boto3.resource('dynamodb')
+          global_table_name = ''
+          global_schema_name =''
+          global_file_type = 'csv'
 
           def AddTableMetadata(s3_table_name_config,rs_iam_role ,redshift_schema,copy_default_options):
               status = 0
               dynamoTable_config = dynamodb.Table('s3_data_loader_table_config')
-              response =   dynamoTable_config.get_item(Key={'s3_table_name': s3_table_name_config})
+              response = dynamoTable_config.get_item(Key={'s3_table_name': s3_table_name_config})
               #response = dynamoTable_config.query(KeyConditionExpression=Key('s3_table_name').eq(s3_table_name_config))
               #print('Response from dynamoDb is:',response)
               item_key='Item'
@@ -339,10 +362,54 @@ Resources:
                   #else:
                   #    copy_command_additional_options = "delimiter '|' gzip"
 
+                  ### change to support schema creation #####
+                  redshift_tbl_name = s3_table_name_config
+                  chck_schema_table_name = s3_table_name_config.split('.',1)
+                  if len(chck_schema_table_name) >1:
+                      redshift_schema = chck_schema_table_name[0]
+                      redshift_tbl_name = chck_schema_table_name[1]
+                      create_schema_ddl = 'CREATE SCHEMA IF NOT EXISTS ' + redshift_schema + ';'
+                      print(create_schema_ddl)
+                      create_redshift_table(create_schema_ddl)
+                      time.sleep(3)
+
+
+                  #### schema creation end #########
+
+
+
                   dynamoTable_config.put_item(
-                      Item={'s3_table_name': s3_table_name_config, 'redshift_table_name': s3_table_name_config,'max_file_proccessed_timestamp': file_last_processed_timestamp , 'load_status': 'active' , 'iam_role':rs_iam_role ,'additional_copy_options':copy_default_options,'redshift_schema':redshift_schema })
+                      Item={'s3_table_name': s3_table_name_config, 'redshift_table_name': redshift_tbl_name,'max_file_proccessed_timestamp': file_last_processed_timestamp , 'load_status': 'inactive' , 'iam_role':rs_iam_role ,'additional_copy_options':copy_default_options,'redshift_schema':redshift_schema,'schema_detection_completed': 'No'})
                   status =1
 
+              return status
+
+          def DetectSchemaUpdateMetadata(s3_table_name_config, rs_iam_role, full_s3_file_path):
+
+              status = 0
+              global global_table_name
+              global global_schema_name
+
+              dynamoTable_config = dynamodb.Table('s3_data_loader_table_config')
+              response = dynamoTable_config.get_item(Key={'s3_table_name': s3_table_name_config})
+              item_key='Item'
+              global_table_name = response[item_key]['redshift_table_name']
+              global_schema_name = response[item_key]['redshift_schema']
+              print('DetectSchemaUpdateMetadata : DynamoDB table info')
+              print(response)
+
+              if not full_s3_file_path.endswith('/'):
+                  if os.environ['initiate_schema_detection'] == 'No':
+                      dynamoTable_config.update_item(Key={ 's3_table_name': s3_table_name_config}, UpdateExpression="set load_status = :label", ExpressionAttributeValues={ ":label": "active" },ReturnValues="UPDATED_NEW")
+
+                  elif response[item_key]['schema_detection_completed'] == 'No':
+                      copy_command_additional_options = read_file_type_from_dynamodb_source(full_s3_file_path)
+                      dynamoTable_config.update_item(Key={ 's3_table_name': s3_table_name_config}, UpdateExpression="set schema_detection_completed = :label", ExpressionAttributeValues={ ":label": "Yes" },ReturnValues="UPDATED_NEW")
+                      dynamoTable_config.update_item(Key={ 's3_table_name': s3_table_name_config}, UpdateExpression="set additional_copy_options = :label", ExpressionAttributeValues={ ":label": copy_command_additional_options[0] },ReturnValues="UPDATED_NEW")
+                      dynamoTable_config.update_item(Key={ 's3_table_name': s3_table_name_config}, UpdateExpression="set load_status = :label", ExpressionAttributeValues={ ":label": "active" },ReturnValues="UPDATED_NEW")
+
+                      if copy_command_additional_options[1] == 'false':
+                          dynamoTable_config.update_item(Key={ 's3_table_name': s3_table_name_config}, UpdateExpression="set schema_detection_failed = :label", ExpressionAttributeValues={ ":label": "Yes" },ReturnValues="UPDATED_NEW")
 
               return status
 
@@ -384,14 +451,409 @@ Resources:
                   config_status = AddTableMetadata(table_name,iam_role_redshift,redshift_schema,copy_default_options)
                   dynamoTable = dynamodb.Table('s3_data_loader_file_metadata')
                   dynamoTable.put_item(
-                      Item={'s3_table_name': table_name, 'file_created_timestamp': file_created_timestamp,'s3_file_path': complete_file_path ,'file_content_length':file_content_length})
+                      Item={'s3_table_name': table_name, 'file_created_timestamp': file_created_timestamp,'s3_file_path': complete_file_path,'file_content_length':file_content_length})
 
+                  ## detect schema and update the dynamoDb metadata
+
+                  schema_status = DetectSchemaUpdateMetadata(table_name,iam_role_redshift,complete_file_path)
 
               return {
                   'statusCode': 200,
                   'Num of files': json.dumps(Number_of_messages)
-
               }
+
+
+          def read_file_type_from_dynamodb_source(table_name_path):
+
+              s3_client = boto3.client('s3')
+              s3 = boto3.resource('s3')
+              path_split = split_s3_path(table_name_path)
+              s3.Object(bucket_name=path_split[0], key=path_split[1]).download_file('/tmp/data')
+              json_flag = False
+              file_type='Not Identified'
+              is_list = False
+
+              global global_file_type
+
+              try:
+                  df = wr.s3.read_parquet_metadata(path=table_name_path)
+                  file_type='Parquet'
+                  df = ""
+              except:
+                  print('not parquet')
+
+              try:
+                  #df = pd.read_csv('/tmp/data', keep_default_na=False)
+
+                  #table_headers = df.columns.values.tolist()
+                  with open('/tmp/data') as f:
+                    if f.read(1) in '{[':
+                      print('likely JSON')
+                      json_flag = True
+                      raise
+                    elif '<!DOCTYPE html' in f.read(2048):
+                        print('likely XML')
+                        raise
+                    else:
+                      f.seek(0)
+                      reader = csv.reader(f)
+                      #try:
+                      if len(next(reader)) == len(next(reader)) > 1:
+                          print('likely CSV')
+                      # except StopIteration:
+                      #   pass
+                  # print('TABLE HEADERS_______')
+                  # print(table_headers)
+
+                  file_type='CSV'
+                  df = ""
+              except:
+                  print('not csv')
+
+              try:
+                  with open('/tmp/data') as f:
+                      lines = f.read()
+                      firstline = lines.split('\n', 1)[0]
+                      jsonformatted = json.loads(firstline.replace('\'', '"'))
+
+                  # response = s3_client.get_object(Bucket=path_split[0], Key=path_split[1])
+                  # content = response['Body'].read().decode('utf-8')
+                  # firstline = content.split('\n')[0]
+                  # jsonformatted = json.loads(firstline.replace('\'', '"'))
+                  # content = ''
+                  file_type='JSON'
+                  json_flag = False
+              except:
+                  print('JSON enhanced check 1 failed')
+                  json_flag = True
+
+              if json_flag == True:
+                  try:
+                      with open('/tmp/data') as f:
+                          lines = f.read()
+                          #result = [json.dumps(record) for record in json.load(lines)]
+                          firstobj = lines.split('},', 1)[0] + '}'
+                          print('FIRST CHECK ______')
+                          print(firstobj)
+                          json.loads(firstobj.replace('\'', '"'))
+                          json_flag = False
+                          is_list = False
+                          file_type='JSON'
+                  except:
+                      print('JSON enhanced check 2 failed')
+
+              # LOGIC TO CONVERT JSON FILE EMBEDDED IN A LIST INTO REDSHIFT LOAD FORMAT
+
+              # if json_flag == True:
+              #     enhanced_check_success = False
+              #     try:
+              #         with open('/tmp/data') as f:
+              #             lines = f.read()
+              #             firstobj = lines.split('},', 1)[0] + '}'
+              #             firstobjCopy = firstobj
+              #             bracket_occurence_pos = len(firstobjCopy) - len(firstobjCopy.lstrip())
+              #             if firstobj[bracket_occurence_pos] == '[':
+              #                 firstobj = firstobj[bracket_occurence_pos+1:]
+              #             print('SECOND CHECK ______')
+              #             print(firstobj)
+              #             json.loads(firstobj.replace('\'', '"'))
+              #             is_list = True
+              #             json_flag = False
+              #             enhanced_check_success = True
+              #             file_type='JSON'
+              #     except:
+              #         print('JSON enhanced check 2 failed')
+
+              #     if enhanced_check_success:
+              #         new_file=''
+              #         data={}
+              #         try:
+              #             with open('/tmp/data') as f:
+              #                 data = json.load(f)
+
+              #                 # firstline = new_file.split('\n', 1)[0]
+              #                 # jsonformatted = json.loads(firstline.replace('\'', '"'))
+
+              #             result = [json.dumps(record) for record in data]
+
+              #             print('JSON REWRITE PRE-FORMATTING SUCCESSFUL')
+
+              #             with open('/tmp/data', 'w') as modified:
+              #                 for i in result:
+              #                     modified.write(i+'\n')
+
+              #             print('JSON REWRITE SUCCESSFUL')
+              #             is_list=False
+
+              #             with open('/tmp/data', 'r') as f:
+              #                 print(f.read(256))
+
+              #         except:
+              #             print('JSON rewrite failed, redshift does not support list of jsons')
+              #             file_type='Not Identified'
+
+              print('FILE TYPE: ' + file_type)
+              if (file_type == 'CSV'):
+                  global_file_type='csv'
+                  result = csv_parser(table_name_path)
+                  if result[0] == 'csv' or result[0] == 'csv delimiter \'|\'':
+                      parse_csv(False, result[2])
+                  else:
+                      if result[1] == 'false':
+                          parse_csv(False, result[2])
+                      else:
+                          parse_csv(True, result[2])
+
+                  return result
+              elif (file_type == 'JSON'):
+                  global_file_type='json'
+                  read_json(is_list)
+                  return 'format as json \'auto\'', 'true'
+              elif (file_type == 'Parquet'):
+                  global_file_type='parquet'
+                  read_parquet(table_name_path)
+                  return 'format as parquet', 'true'
+              else:
+                  global_file_type='csv'
+                  return os.environ['copy_default_options'], 'false'
+
+          def csv_parser(table_name_path):
+              copy_command_additional_options='csv ignoreheader 1'
+              s3_client = boto3.client('s3')
+              s3 = boto3.resource('s3')
+
+              sniffer = csv.Sniffer()
+              has_header = False
+              delimeter=','
+
+              with open('/tmp/data', 'rt') as csvfile:
+                  dialect = csv.Sniffer().sniff(csvfile.read(2048))
+                  delimeter=dialect.delimiter
+                  print('PRINTING DELIMITER _________')
+                  print(delimeter)
+                  csvfile.seek(0)
+                  has_header=csv.Sniffer().has_header(csvfile.read(2048))
+
+              print('HAS CSV HEADER PRINT____')
+              print(has_header)
+
+              if has_header and delimeter == ',':
+                  print("HEADER WITH DELIMETER AS COMMA")
+                  copy_command_additional_options='csv ignoreheader 1'
+                  return copy_command_additional_options, 'true', delimeter
+              elif not has_header and delimeter == ',':
+                  print("NO HEADER WITH DELIMETER AS COMMA")
+                  copy_command_additional_options='csv'
+                  return copy_command_additional_options, 'true', delimeter
+              elif has_header and delimeter == '|':
+                  print('HEADER WITH DELIMETER AS PIPE')
+                  copy_command_additional_options = 'csv delimiter \'|\' ignoreheader 1'
+                  return copy_command_additional_options, 'true', delimeter
+              elif not has_header and delimeter == '|':
+                  print('NO HEADER WITH DELIMETER AS PIPE')
+                  copy_command_additional_options = 'csv delimiter \'|\''
+                  return copy_command_additional_options, 'true', delimeter
+              else:
+                  return copy_command_additional_options, 'false', ','
+
+          def split_s3_path(s3_path):
+              path_parts=s3_path.replace("s3://","").split("/")
+              bucket=path_parts.pop(0)
+              key="/".join(path_parts)
+              return bucket, key
+
+          def parse_csv(has_header, delimeter):
+
+              df = pd.read_csv('/tmp/data', sep = delimeter, keep_default_na=False, nrows=200000)
+
+              table_headers = df.columns.values.tolist()
+              data_types = df.dtypes.astype(str).values.tolist()
+
+              if has_header == False:
+                  table_headers_string=''
+                  count=0
+                  for i in table_headers:
+                      col_name = 'col_' + str(count+1)
+                      table_headers[count] = col_name
+                      if count != len(table_headers) - 1:
+                          table_headers_string+=col_name + delimeter
+                      else:
+                          table_headers_string+=col_name
+                      count+=1
+
+                  file_data=''
+                  with open('/tmp/data', 'r') as original:
+                      file_data = original.read()
+
+                  with open('/tmp/data', 'w') as modified:
+                      modified.write(table_headers_string + "\n" + file_data)
+
+                  # with open('/tmp/data', 'r') as f:
+                  #     print(f.read(2048))
+
+                  df = pd.read_csv('/tmp/data', sep = delimeter, keep_default_na=False, nrows=200000)
+
+              len_headers = len(table_headers)
+              len_data = len(data_types)
+
+              result = dict()
+
+              for x in range(0, len_data, len_headers):
+                  for key, val in zip(table_headers, data_types[x:x+len_headers]):
+                      if key not in result:
+                          result[key] = []
+                      result[key].append(val)
+
+              create_csv_ddl(json.loads(json.dumps(result)), df)
+
+          def read_parquet(table_name_path):
+              df = wr.s3.read_parquet_metadata(path=table_name_path)
+              print('I AM HERE')
+              pf = ParquetFile('/tmp/data')
+              limit_rows = next(pf.iter_batches(batch_size = 200000))
+              df_table = pa.Table.from_batches([limit_rows]).to_pandas()
+              cols = df[0].keys()
+              datatypes = df[0].values()
+              print(df[0])
+
+              create_csv_ddl(df[0], df_table)
+
+          def read_json(is_list):
+
+              x = {}
+
+              if is_list:
+                  df = pd.read_json('/tmp/data', precise_float=True)
+              else:
+                  df = pd.read_json('/tmp/data', lines=True, precise_float=True, nrows=200000)
+
+              table_headers = df.columns.values.tolist()
+              data_types = df.dtypes.astype(str).values.tolist()
+
+              integer_columns = []
+              counter=0
+
+              for i in data_types:
+                  if 'int' in i:
+                      integer_columns.append(table_headers[counter])
+                  counter+=1
+
+              print(integer_columns)
+
+              try:
+                  if len(integer_columns) > 0:
+                      for i in integer_columns:
+                          with open('/tmp/data', 'rb') as f:
+                              data = f.readline()
+                              data_obj = json.loads(data)
+                              if is_float(data_obj[i]):
+                                  df[i] = df[i].astype(float)
+                                  print('ITS HAPPENING HERE')
+                                  print(i)
+                                  break
+              except:
+                  print('enhanced float check failed')
+
+              data_types = df.dtypes.astype(str).values.tolist()
+
+              len_headers = len(table_headers)
+              len_data = len(data_types)
+
+              result = dict()
+
+              for x in range(0, len_data, len_headers):
+                  for key, val in zip(table_headers, data_types[x:x+len_headers]):
+                      if key not in result:
+                          result[key] = []
+                      result[key].append(val)
+
+              create_csv_ddl(json.loads(json.dumps(result)), df)
+
+          def create_csv_ddl(keyanddatatypes, df):
+              buf = []
+              #buf.append('CREATE TABLE IF NOT EXISTS ' + os.environ['redshift_database'] + '.public.' + global_table_name + ' (')
+              buf.append('CREATE TABLE IF NOT EXISTS ' + os.environ['redshift_database'] + '.' + global_schema_name + '.' + global_table_name + ' (')
+              # Tahir : added the change to remove hard code public schema and use the one which is in dynamoDB metadata table
+              sizeof = len(keyanddatatypes)
+              count=1;
+              for key in keyanddatatypes:
+                value = keyanddatatypes[key] if global_file_type == 'parquet' else keyanddatatypes[key][0]
+                if count == sizeof:
+                  value = csv_data_type_mapping(key, value, df)
+                  total = key + ' ' + str(value)
+                else:
+                  value = csv_data_type_mapping(key, value, df)
+                  total = key + ' ' + str(value) + ', '
+                buf.append(total)
+                count = count + 1
+
+              buf.append(');')
+
+              ##partition by pt
+              tabledef = ''.join(buf)
+
+              print("---------print definition ---------")
+              print(tabledef)
+              df = ""
+              create_redshift_table(tabledef)
+
+          def csv_data_type_mapping(key, value, df):
+              if 'FLOAT' in value or 'float' in value or 'double' in value:
+                  return 'FLOAT'
+              elif 'INT' in value or 'int' in value:
+                  if global_file_type == 'parquet':
+                      return value
+                  col_bytes_len = int(df[key].astype(bytes).str.len().max())
+                  if col_bytes_len <= 4:
+                      return 'SMALLINT'
+                  elif col_bytes_len > 9:
+                      return 'BIGINT'
+                  else:
+                      return 'INT'
+              elif 'string' in value or 'object' in value:
+                  try:
+                      col_bytes_len = 3 * int(df[key].astype(bytes).str.len().max())
+                      if col_bytes_len < 62535:
+                          return 'varchar(' + str(col_bytes_len) + ')'
+                      else:
+                          return 'varchar(65535)'
+                  except:
+                      return 'varchar(65535)'
+              else:
+                  return value
+
+          def create_redshift_table(CREATE):
+              redshift_cluster_id = os.environ['redshift_cluster_id']
+              redshift_database = os.environ['redshift_database']
+              redshift_user = os.environ['redshift_user']
+              redshift_cluster_iam_role = os.environ['redshift_iam_role']
+
+              try:
+                response = boto3.client("redshift-data").execute_statement(
+                  ClusterIdentifier = redshift_cluster_id,
+                  Database = redshift_database,
+                  DbUser = redshift_user,
+                  Sql = CREATE
+                )
+                print(response)
+              except Exception as e:
+                print('Invalid response from client')
+
+          def head(filename: str, n: int):
+              try:
+                  with open(filename) as f:
+                      head_lines = [next(f).rstrip() for x in range(n)]
+              except StopIteration:
+                  with open(filename) as f:
+                      head_lines = f.read().splitlines()
+              return
+
+          def is_float(string):
+            try:
+              return float(string) and '.' in string  # True if string is a number contains a dot
+            except ValueError:  # String is not a number
+              return False
+
 
 #step 3 lambda function
   s3LoaderUtilProcessPendingFiles :
@@ -491,7 +953,7 @@ Resources:
 
                         #entries_dict = dict(entries = [dict(url=x, mandatory=True) for x in s3_objects])
                         entries_dict = dict(entries = [dict(url=x, mandatory=True,meta =content_length_dic_file[x] ) for x in s3_objects])
-                        
+
                         s3 = boto3.client('s3')
                         current_timestamp = datetime.utcnow().isoformat().replace(':','')
                         s3_manifest_file_name = '{}/{}#{}.json'.format(s3_bucket_manifest_key,table_name,current_timestamp)
@@ -714,9 +1176,9 @@ Resources:
 
               amazon_sqs_name ='s3-loader-utility.fifo'
               queue = sqs.get_queue_by_name(QueueName=amazon_sqs_name)
-              max_no_of_copy_commands = 2
+              max_no_of_copy_commands = 5
               copy_counter=1
-              max_message_to_poll = 2
+              max_message_to_poll = 5
               if max_no_of_copy_commands>10:
                   max_message_to_poll=10
               else:
@@ -877,6 +1339,7 @@ Resources:
         ContentBasedDeduplication: True
         FifoQueue: True
         MessageRetentionPeriod: 345600
+        KmsMasterKeyId: alias/aws/sqs
         QueueName: s3-loader-utility.fifo
         ReceiveMessageWaitTimeSeconds: 1
         Tags:
@@ -911,6 +1374,7 @@ Resources:
 
             print('Loading function')
             s3 = boto3.resource('s3')
+            s3_client = boto3.client('s3')
 
             def lambda_handler(event, context):
                 print("Received event: " + json.dumps(event, indent=2))
@@ -936,6 +1400,7 @@ Resources:
                 cfnresponse.send(event, context, responseStatus, responseData)
 
             def add_notification(LambdaArn, Bucket):
+                s3_client.put_object(Bucket=Bucket,Key='s3-redshift-loader-source/')
                 bucket_notification = s3.BucketNotification(Bucket)
                 response = bucket_notification.put(
                   NotificationConfiguration={

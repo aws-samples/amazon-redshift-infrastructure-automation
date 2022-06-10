@@ -1,7 +1,9 @@
 # Redshift Auto Loader 
 
 With this Redshift Auto loader framework now you can simply drop your files in S3 bucket and let this framework 
-automatically and continuously load them into your Amazon Redshift data warehouse. 
+automatically create tables for your files and continuously load teh files into your Amazon Redshift data warehouse.  This framework has two functional processes in it 
+* Auto schema detection and creating tables in Redshift Cluster
+* Continuous loading of the files from your S3 Bucket. As files are dropped in S3 bucket schema detection and data loading processes are triggered. No scheduling is required. 
 
 This process uses Redshift [copy command](https://docs.aws.amazon.com/redshift/latest/dg/t_Loading_tables_with_the_COPY_command.html) to load data into data warehouse. 
 
@@ -63,26 +65,23 @@ Below is high level Process Flow Diagram ![data flow diagram](/Redshift-Loader/I
 
 ### Process Flow
 
-Cloudformation needs an S3 bucket name and will create a directory **s3-to-redshift-loader-utility**. This act has the data repository and all sub directory ( first level ) are considered as Tables. Each entity/table can contain the files or sub directory. Following steps explain the process in detail
+Cloudformation needs an S3 bucket name and will create a directory **s3-to-redshift-loader-utility**. This acts as the data repository and all sub directories in the bucket (first level) are considered as Tables. Each entity/table can contain the files or sub directory. Following steps explain the process in detail
 
-0. User place  a file is in **s3-to-redshift-loader-utility** directory 
-1. Process defines a file based trigger and as soon a file is placed in the **s3-to-redshift-loader-utility** directory an S3 event notification trigger is kicked off.
-2. S3 event notification will call an AWS Lambda function **s3LoaderUtilLogFileMetadata** 
-3. AWS Lambda function **s3LoaderUtilLogFileMetadata** logs the file metadata and the table level configurations into Amazon DynamoDB tables e.g. **s3_data_loader_file_metadata** and **s3_data_loader_table_config**
-4. An AWS eventbridge **KickoffFileProcessingSchedule** is scheduled by default to run every 5 mins and will trigger a call to AWS lambda function **s3LoaderUtilKickoffFileProcessing**
-5. **s3LoaderUtilKickoffFileProcessing** refers to the metadata stored in Amazon DynamoDB table **s3_data_loader_table_config** and for any table with **"load_status= active"** it will call AWS lambda function **s3LoaderUtilProcessPendingFiles**
-6.  a) AWS Lambda function **s3LoaderUtilProcessPendingFiles** is invoked for each table and it would pick up all the files from the Amazon Dynamo DB table "s3_data_loader_file_metadata" where the **s3_data_loader_file_metadata.file_created_timestamp** is greater then the **s3_data_loader_table_config.max_file_proccessed_timestamp**
-
-     b) **s3LoaderUtilProcessPendingFiles** prepares a COPY Command SQL using the **s3_data_loader_table_config** and push the copy command SQL into an AWS SQS FIFO Queue **S3LoaderSQSQueue**
-7.  b) An AWS eventbridge **QueueRSProcessingSchedule** is scheduled by default to run every 5 mins and will trigger a call to AWS lambda function **s3LoaderUtilProcessQueueLoadRS**
-
-     a) AWS lambda function **s3LoaderUtilProcessQueueLoadRS** polls the AWS SQS queue **S3LoaderSQSQueue**
-8.  a) AWS lambda function **s3LoaderUtilProcessQueueLoadRS** execute the Copy commands using Amazon Redshift data api asynchronously and logs the informtion into the Amazon DynamoDB table **s3_data_loader_log**
-
-    b) Amazon Redshift data api loads the data to Amazon Redshift 
-9.  a) Amazon Redshift data api trigger the AWS eventbridge once the data api query execution is complete
-
-    b) AWS eventbridge **UpdateLogTableEventBased** invoke the AWS lambda **s3LoaderUtilUpdateLogTable** 
+0.  User place  a file is in **s3-to-redshift-loader-utility** directory 
+1.  Process defines a file based trigger and as soon a file is placed in the **s3-to-redshift-loader-utility** directory an S3 event notification trigger is kicked off.
+2.  S3 event notification will call an AWS Lambda function **s3LoaderUtilLogFileMetadata** 
+3.  * a. AWS Lambda function **s3LoaderUtilLogFileMetadata** logs the file metadata and the table level configurations into Amazon DynamoDB tables e.g. **s3_data_loader_file_metadata** and **s3_data_loader_table_config**
+    * b. AWS Lambda function s3LoaderUtilLogFileMetadata detects schema for the given file, creates the respective table in Amazon Redshift.
+4.  An AWS eventbridge **KickoffFileProcessingSchedule** is scheduled by default to run every 5 mins and will trigger a call to AWS lambda function **s3LoaderUtilKickoffFileProcessing**
+5.  **s3LoaderUtilKickoffFileProcessing** refers to the metadata stored in Amazon DynamoDB table **s3_data_loader_table_config** and for any table with **"load_status= active"** it will call AWS lambda function **s3LoaderUtilProcessPendingFiles**, this call can run the lambda function in parallel.
+6.  * a. AWS Lambda function **s3LoaderUtilProcessPendingFiles** is invoked for each table and it would pick up all the files from the Amazon Dynamo DB table "s3_data_loader_file_metadata" where the **s3_data_loader_file_metadata.file_created_timestamp** is greater then the **s3_data_loader_table_config.max_file_proccessed_timestamp**
+    * b. **s3LoaderUtilProcessPendingFiles** prepares a COPY Command SQL using the **s3_data_loader_table_config** and push the copy command SQL into an AWS SQS FIFO Queue **S3LoaderSQSQueue**
+7.  * a. An AWS eventbridge rule **QueueRSProcessingSchedule** is scheduled by default to run every 5 mins and will trigger a call to AWS lambda function **s3LoaderUtilProcessQueueLoadRS**
+    * b. AWS lambda function **s3LoaderUtilProcessQueueLoadRS** polls the AWS SQS queue **S3LoaderSQSQueue**
+8.  * a. AWS lambda function **s3LoaderUtilProcessQueueLoadRS** execute the Copy commands using Amazon Redshift data api asynchronously and logs the informtion into the Amazon DynamoDB table **s3_data_loader_log**.  More than one copy command can run in parallel, which means more than one table can be loaded. 
+    * b. Amazon Redshift data api loads the data to Amazon Redshift 
+9.  * a. Amazon Redshift data api trigger the AWS eventbridge once the data api query execution is complete
+    * b. AWS eventbridge **UpdateLogTableEventBased** invoke the AWS lambda **s3LoaderUtilUpdateLogTable** 
 10. AWS lambda **s3LoaderUtilUpdateLogTable** update the log entry for the copy command in the Amazon DynamoDB table **s3_data_loader_log** with final status e.g. Finished or Aborted etc.
 
 
@@ -120,7 +119,9 @@ Following AWS Services are created and used by this framework
 
 ### Cost
 
-This architecture uses servless services, most of these services have free tier available. You can learn more about AWS Free Tier [here](https://aws.amazon.com/free/?all-free-tier.sort-by=item.additionalFields.SortRank&all-free-tier.sort-order=asc&awsf.Free%20Tier%20Types=*all&awsf.Free%20Tier%20Categories=*all).  If your workload goes above and beyond free tier threshold and you would like to understand the pricing then please follow below links.
+This architecture uses serverless services, most of these services have free tier available. You can learn more about AWS Free Tier [here](https://aws.amazon.com/free/?all-free-tier.sort-by=item.additionalFields.SortRank&all-free-tier.sort-order=asc&awsf.Free%20Tier%20Types=*all&awsf.Free%20Tier%20Categories=*all).
+
+**NOTE:** If your workload goes above and beyond free tier threshold and you would like to understand the pricing then please follow below links
 
 [AWS Lambda](https://aws.amazon.com/lambda/pricing/)
 [Amazon DynamoDB](https://aws.amazon.com/dynamodb/pricing/)
@@ -138,7 +139,7 @@ This framework does not create
 It is expected that you already have S3 bucket and Amazon Redshift pre created for you. If not please follow these instructions here for [S3 Bucket](https://docs.aws.amazon.com/AmazonS3/latest/userguide/creating-bucket.html) and here for [Amazon Redshift](https://docs.aws.amazon.com/redshift/latest/gsg/rs-gsg-launch-sample-cluster.html) and here for Amazon [Redshift Cluster IAM Role](https://docs.aws.amazon.com/redshift/latest/dg/c-getting-started-using-spectrum-create-role.html)
 
 ### CloudFormation Template
-Below section talks about CloudFormation which when run creates infrastructure that you need.
+Below section talks about CloudFormation which when run creates infrastructure that you need to run this framework
 
 #### CloudFormation Parameters 
 
@@ -168,9 +169,8 @@ This is a visual architecture of the CloudFormation installer:
  
 Click on below **Launch Button** to launch the Cloud Formation:
 
-[<img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png" target=\”_blank\”>](https://console.aws.amazon.com/cloudformation/home?#/stacks/new?stackName=RedshiftLoader&templateURL=https://redshift-demos.s3.amazonaws.com/redshift-loader/redshift-s3-data-autoloader.yml
+[<img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png" target=\”_blank\”>](https://console.aws.amazon.com/cloudformation/home?#/stacks/new?stackName=RedshiftLoader&templateURL=https://redshift-demos.s3.amazonaws.com/redshift-loader/redshift-s3-data-autoloader.yaml
 )
-
 
 **Notes**
 
@@ -180,13 +180,9 @@ Click on below **Launch Button** to launch the Cloud Formation:
 
 
 #### CloudFormation Output Tabs
-
 ### Naming Standards
-
 - #### Table Names
-
 - #### S3 Prefixes
-
 ### Security
 
 - #### Lambda Execution Role
@@ -203,11 +199,24 @@ S3 loader utility will not generate any notification on failure of the redshift 
     2. Upload a file to the newly created directory e.g. **s3-to-redshift-loader-utility\test_tbl**
     3. (optional) create any sub directory to store data into partition e.g. **s3-to-redshift-loader-utility\test_tbl\Order-Date=20100101** , **s3-to-redshift-loader-utility\test_tbl\Order-Date=20100102** , **s3-to-redshift-loader-utility\test_tbl\Order-Date=20100103** , etc.
     4. Wait for the next run of AWS eventbridge **KickoffFileProcessingSchedule** and **QueueRSProcessingSchedule** and after that you should check the progress of the running copy command execution in Amazon DynamoDB table **s3_data_loader_log.copy_command_status**  the status for this column is "Execution", "Failed" or "Finished"
-    
+
+- #### Schema Detection     
+    When deploying the CloudFormation template, the user has the option to enable schema detection. If this is enabled, a Lambda function will scan S3 file data to dynamically assess the file type, column structure, and data types to be loaded into Redshift. This is a BETA feature but the tool attempts to address most edge cases. If the schema detection fails, the copy command will proceed to attempt a load with the default parameters the user can configure when deploying the CloudFormation template.
+
+    SHARED FEATURES & LIMITATIONS:
+    - User can specify to enable/disable schema detection in CFN template
+    - Automatic file type detection for the following files (file extension not needed): parquet, csv, json
+    - Columns cannot contain standard data type keywords (Ex: TIMESTAMP)
+    - Automatic DDL creation in Redshift cluster prior to load
+    - Dynamic casting for integers based on size - (SMALLINT, INT, BIGINT)
+    - Dynamic floating point number detection
+    - Dynamic varchar columns based on max size of first 200,000 rows (3x factor)
+
+    Following formats have been tested - Parquet, CSV, JSON. 
 
 - #### Controlling Copy command parameters
 
-    By default the copy command paramters are taken from the cloudformation input parameter **CopyCommandOptions** as defined in above Cloud Formation Parameters and it is stored in the DynamoDB table **s3_data_loader_table_config**
+    By default the copy command parameters are taken from the cloudformation input parameter **CopyCommandOptions** as defined in above Cloud Formation Parameters and it is stored in the DynamoDB table **s3_data_loader_table_config**
 
     To change or override the copy command options for any given table follow the steps as below
 
