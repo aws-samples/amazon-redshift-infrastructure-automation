@@ -35,8 +35,27 @@ sct_key_name=""
 key_name=""
 jmeter_node_type="c5.9xlarge"
 
+function box_out()
+{
+  local s=("$@") b w
+  for l in "${s[@]}"; do
+    ((w<${#l})) && { b="$l"; w="${#l}"; }
+  done
+  tput setaf 3
+  echo " -${b//?/-}-
+| ${b//?/ } |"
+  for l in "${s[@]}"; do
+    printf '| %s%*s%s |\n' "$(tput setaf 4)" "-$w" "$l" "$(tput setaf 3)"
+  done
+  echo "| ${b//?/ } |
+ -${b//?/-}-"
+  tput sgr 0
+}
+
+box_out "Welcome!" "This utility tool will help you create the required resources for $(whoami)" "Please review the pre-requisites at the following link before proceeding: " "" "https://github.com/aws-samples/amazon-redshift-infrastructure-automation#prerequisites"
+
 while true; do
-    read -r -p "[Input Required] Are the prerequisites met? ---> https://github.com/aws-samples/amazon-redshift-infrastructure-automation#prerequisites (Y/N): " answer
+    read -r -p "[Input Required] Are the prerequisites met?(Y/N): " answer
     case $answer in
         [Yy]* ) break;;
         [Nn]* ) 
@@ -116,7 +135,7 @@ then
     read -r -p "[Input Required][REDSHIFT Details]: How many nodes of $node_type? " number_of_nodes
     
     PS3='[Input Required][REDSHIFT Details]: Please select subnet type: '
-    options=("PUBLIC" "PRIVATE" )
+    options=("PUBLIC" "PRIVATE" "ISOLATED")
     select selection in "${options[@]}"; do
         if [[ $REPLY == "0" ]]; then
             echo 'Goodbye' >&2
@@ -148,12 +167,8 @@ then
     
 elif [ "$redshift_endpoint" = "N/A" ];
 then
-    while true; do
-    read -r -p "[Input Required]: Would you like to provide an existing Redshift Cluster? " answer
-    case $answer in
-        [Yy]* ) 
-        echo "Loading your Redshift Clusters..."
-            ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
+    echo "Loading your Redshift Clusters..."
+     ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
             readarray -t list < redshiftlist.txt
             PS3='[Input Required] Please select your Redshift Cluster: '
             select selection in "${list[@]}"; do
@@ -166,11 +181,6 @@ then
                 fi
             done
             echo "You have choosen $selection"
-            break;;
-        [Nn]* ) break;;
-        * ) echo "Please answer Y or N.";;
-    esac
-    done  
 fi
 
 #####DMS
@@ -185,7 +195,7 @@ done
 if [ "$dms_migration_to_redshift_target" = "CREATE" ]; 
 then
     PS3='[Input Required][DMS Details]: Please select subnet type for DMS: '
-    options=("PUBLIC" "PRIVATE" )
+    options=("PUBLIC" "PRIVATE" "ISOLATED" )
     select selection in "${options[@]}"; do
         if [[ $REPLY == "0" ]]; then
             echo 'Goodbye' >&2
