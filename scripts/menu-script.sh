@@ -292,6 +292,20 @@ then
     done
     echo "You have choosen $selection"
 fi
+PS3='[Input Required][REGION] Please select your region: '
+    options=("us-east-1" "us-east-2" "us-west-1" "us-west-2")
+    select selection in "${options[@]}"; do
+        if [[ $REPLY == "0" ]]; then
+            echo 'Goodbye' >&2
+            exit
+        else
+        echo $REPLY $selection
+            current_region=$selection
+            break
+        fi     
+    done
+read -p $'[Input Required] Enter a stack name: ' stack
+read -p $'[Input Required] Enter your on prem CIDR range (format xxx.xxx.xxx.xxx/xx): ' onprem_cidr
 JSON_STRING=$( jq -n \
                   --arg bn "$vpc_id" \
                   --arg on "$redshift_endpoint" \

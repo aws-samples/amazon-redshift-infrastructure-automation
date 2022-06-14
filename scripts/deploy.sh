@@ -10,10 +10,7 @@ echo "Installing requirements...."; pip install -r requirements.txt > /dev/null;
 #FILE=~/.bashrc
 #grep -qF -- "$LINE" "$FILE" || echo "$LINE" >> "$FILE"
 aws configure set default.region us-east-1
-~/amazon-redshift-infrastructure-automation/scripts/menu-script.sh
-read -p $'[Input Required] Enter a stack name: ' stack
-read -p $'[Input Required] Enter your region: (e.g. us-east-1): ' current_region
-read -p $'[Input Required] Enter your on prem CIDR range (format xxx.xxx.xxx.xxx/xx): ' onprem_cidr
+source ~/amazon-redshift-infrastructure-automation/scripts/menu-script.sh
 export STACK_NAME=$stack
 export ONPREM_CIDR=$onprem_cidr
 #Need more elegant solution for handling exception here:
