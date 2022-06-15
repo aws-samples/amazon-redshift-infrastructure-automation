@@ -277,6 +277,18 @@ while true; do
 done
 if [ "$jmeter" = "CREATE" ]; 
 then 
+    PS3='[Input Required][REGION] Please select your ec2 nodetype for Jmeter: '
+    options=("c5.9xlarge" "c5.12xlarge" "c5.18xlarge" "c5.24xlarge")
+    select selection in "${options[@]}"; do
+        if [[ $REPLY == "0" ]]; then
+            echo 'Goodbye' >&2
+            exit
+        else
+        echo $REPLY $selection
+            jmeter_node_type=$selection
+            break
+        fi     
+    done
     echo "Loading your account keypairs..."
     ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
     readarray -t list < keypairlist.txt
