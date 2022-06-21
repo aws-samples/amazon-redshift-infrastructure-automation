@@ -75,6 +75,7 @@ while true; do
         * ) echo "Please answer Y or N.";;
     esac
 done
+
 if [ "$vpc_id" = "CREATE" ]; 
 then 
     echo "Please configure VPC details..."
@@ -192,6 +193,7 @@ while true; do
         * ) echo "Please answer Y or N.";;   
     esac
 done
+
 if [ "$dms_migration_to_redshift_target" = "CREATE" ]; 
 then
     PS3='[Input Required][DMS Details]: Please select subnet type for DMS: '
@@ -248,23 +250,24 @@ while true; do
     esac
 done
 fi
+
 if [ "$sct_on_prem_to_redshift_target" = "CREATE" ]; 
-then 
+then
     echo "Loading your account keypairs..."
     ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
-    readarray -t list < keypairlist.txt
-    PS3='[Input Required] Please select the keypair for SCT: '
-    select selection in "${list[@]}"; do
-        if [[ $REPLY == "0" ]]; then
-            echo 'Goodbye' >&2
-            exit
+     readarray -t list < keypairlist.txt
+        number=$(wc -l < keypairlist.txt) 
+        PS3='[Input Required] Please select the keypair for SCT: '
+        if [ $number = "0" ]; 
+        then 
+            read -p $'[Input Required] Your selected region has no account keypairs. Please enter a name for one: ' key_name
         else
+            select selection in "${list[@]}"; do
             key_name=$selection
             break
+            done
         fi
-    done
-    echo "You have choosen $selection"
-
+        echo "You have choosen $selection"
 fi
 
 while true; do
@@ -275,6 +278,7 @@ while true; do
         * ) echo "Please answer Y or N.";;
     esac
 done
+
 if [ "$jmeter" = "CREATE" ]; 
 then 
     PS3='[Input Required][REGION] Please select your ec2 nodetype for Jmeter: '
@@ -292,18 +296,20 @@ then
     echo "Loading your account keypairs..."
     ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
     readarray -t list < keypairlist.txt
-    PS3='[Input Required] Please select the keypair for Jmeter: '
-    select selection in "${list[@]}"; do
-        if [[ $REPLY == "0" ]]; then
-            echo 'Goodbye' >&2
-            exit
+    number=$(wc -l < keypairlist.txt)
+        PS3='[Input Required] Please select the keypair for Jmeter: '
+        if [ $number = "0" ]; 
+        then 
+            read -p $'[Input Required] Your selected region has no account keypairs. Please enter a name for one: ' key_name
         else
+            select selection in "${list[@]}"; do
             key_name=$selection
             break
+            done
         fi
-    done
-    echo "You have choosen $selection"
+        echo "You have choosen $selection"
 fi
+
 PS3='[Input Required][REGION] Please select your region: '
     options=("us-east-1" "us-east-2" "us-west-1" "us-west-2")
     select selection in "${options[@]}"; do
