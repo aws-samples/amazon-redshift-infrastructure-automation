@@ -85,9 +85,9 @@ class SctOnPremToRedshiftStack(core.Stack):
         if aws_ec2.SubnetSelection(subnet_type=aws_ec2.SubnetType('PUBLIC')) != None:
             subnet = aws_ec2.SubnetSelection(subnet_type=aws_ec2.SubnetType('PUBLIC'))
         elif aws_ec2.SubnetSelection(subnet_type=aws_ec2.SubnetType('PRIVATE_WITH_NAT')) != None:
-            subnet = aws_ec2.SubnetSelection(subnet_type=aws_ec2.SubnetType('PRIVATE'))
+            subnet = aws_ec2.SubnetSelection(subnet_type=aws_ec2.SubnetType('PRIVATE_WITH_NAT'))
         else:
-            subnet = aws_ec2.SubnetSelection(subnet_type=aws_ec2.SubnetType('ISOLATED'))
+            subnet = aws_ec2.SubnetSelection(subnet_type=aws_ec2.SubnetType('PRIVATE_ISOLATED'))
 
         # my_security_group = aws_ec2.SecurityGroup(self, "SecurityGroup",
         #                                       vpc=vpc.vpc,
