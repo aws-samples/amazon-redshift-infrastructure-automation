@@ -257,15 +257,15 @@ then
     ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
      readarray -t list < keypairlist.txt
         number=$(wc -l < keypairlist.txt) 
-        PS3='[Input Required] Please select the keypair for SCT: '
         if [ $number = "0" ]; 
         then 
             read -p $'[Input Required] Your selected region has no account keypairs. Please enter a name for one: ' key_name
         else
+            PS3='[Input Required] Please select the keypair for SCT: '
             select selection in "${list[@]}"; do
             key_name=$selection
             break
-            done
+            
         fi
         echo "You have choosen $selection"
 fi
