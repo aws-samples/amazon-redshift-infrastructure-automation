@@ -265,8 +265,9 @@ then
             select selection in "${list[@]}"; do
             key_name=$selection
             break
-            
+            done
         fi
+        
         echo "You have choosen $selection"
 fi
 
