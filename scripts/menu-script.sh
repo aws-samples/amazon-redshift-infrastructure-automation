@@ -40,7 +40,7 @@ RESET="\033[0m"
 BOLD="\033[1m"
 YELLOW="\033[38;5;11m"
 BLUE="\033[36;5;11m"
-coloredQuestion="$(echo -e [$BOLD$YELLOW"??"$RESET])"
+coloredQuestion="$(echo -e [$BOLD$YELLOW"?? Input Required"$RESET])"
 coloredLoading="$(echo -e $BOLD$BLUE"..."$RESET)"
 function box_out()
 {
@@ -61,8 +61,10 @@ function box_out()
 
 box_out "Welcome!" "This utility tool will help you create the required resources for $(whoami)" "Please review the pre-requisites at the following link before proceeding: " "" "https://github.com/aws-samples/amazon-redshift-infrastructure-automation#prerequisites"
 echo
+
+##THIS IS WHERE THE MENU STARTS
 while true; do
-    read -r -p "$coloredQuestion[Input Required] Are the prerequisites met?(Y/N):" answer
+    read -r -p "$coloredQuestion Are the prerequisites met?(Y/N):" answer
     case $answer in
         [Yy]* ) break;;
         [Nn]* ) 
@@ -74,9 +76,10 @@ while true; do
     esac
 done
 echo
-#VPC
+
+#ANYTHING RELATED TO VPC DETAILS
 while true; do
-    read -r -p "$coloredQuestion[Input Required] Do you wish to create a new VPC? (Y/N):" answer
+    read -r -p "$coloredQuestion Do you wish to create a new VPC? (Y/N):" answer
     case $answer in
         [Yy]* ) export vpc_id="CREATE"; 
                  break;;
@@ -85,12 +88,16 @@ while true; do
     esac
 done
 echo
+
 if [ "$vpc_id" = "CREATE" ]; 
 then 
     echo "Please configure VPC details..."
-    read -r -p "$coloredQuestion [Input Required][VPC Details]: Please provide a VPC CIDR Range (format xxx.xxx.xxx.xxx/xx): " cidr
-    read -r -p "$coloredQuestion [Input Required][VPC Details]: How many Availability Zones: " number_of_az
-    read -r -p "$coloredQuestion [Input Required][VPC Details]: Please provide a CIDR MASK(number only, no /): " cidr_mask
+    read -r -p "$coloredQuestion [VPC Details]: Please provide a VPC CIDR Range (format xxx.xxx.xxx.xxx/xx): " cidr
+    echo
+    read -r -p "$coloredQuestion [VPC Details]: How many Availability Zones: " number_of_az
+    echo
+    read -r -p "$coloredQuestion [VPC Details]: Please provide a CIDR MASK(number only, no /): " cidr_mask
+    echo
 
 elif [ "$vpc_id" = "N/A" ];
 then
@@ -111,23 +118,28 @@ then
     done
     echo "You have choosen $selection"
 fi
+echo
 
-#REDSHIFT 
+#ANYTHING RELATED TO REDSHIFT DETAILS
 while true; do
-    read -r -p "$coloredQuestion[Input Required] Do you wish to create a new Redshift? (Y/N): " answer
+    read -r -p "$coloredQuestion Do you wish to create a new Redshift? (Y/N): " answer
     case $answer in
         [Yy]* ) export redshift_endpoint="CREATE"; break;;
         [Nn]* ) export redshift_endpoint="N/A"; break;;
         * ) echo "Please answer Y or N.";;
     esac
 done
+echo
 
 if [ "$redshift_endpoint" = "CREATE" ]; 
 then 
     echo "[Input Required][REDSHIFT Details]: Please configure Redshift details..."
-    read -r -p "$coloredQuestion[Input Required][REDSHIFT Details]: Please provide a cluster indentifier: " cluster_identifier
-    read -r -p "$coloredQuestion[Input Required][REDSHIFT Details]: Please provide a Redshift database name: " database_name
-    read -r -p "$coloredQuestion[Input Required][REDSHIFT Details]: Please provide a master user name: " master_user_name 
+    read -r -p "$coloredQuestion [REDSHIFT Details]: Please provide a cluster indentifier: " cluster_identifier
+    echo
+    read -r -p "$coloredQuestion [REDSHIFT Details]: Please provide a Redshift database name: " database_name
+    echo
+    read -r -p "$coloredQuestion [REDSHIFT Details]: Please provide a master user name: " master_user_name 
+    echo
 
     PS3='[Input Required][REDSHIFT Details]: Please select your Redshift node type choice: '
     options=("ds2.xlarge" "ds2.8xlarge" "dc1.large" "dc1.8xlarge" "dc2.large" "dc2.8xlarge" "ra3.xlplus" "ra3.4xlarge" "ra3.16xlarge" )
@@ -141,9 +153,9 @@ then
             break
         fi   
     done
-
-    read -r -p "$coloredQuestion[Input Required][REDSHIFT Details]: How many nodes of $node_type? " number_of_nodes
-    
+    echo
+    read -r -p "$coloredQuestion [REDSHIFT Details]: How many nodes of $node_type? " number_of_nodes
+    echo
     PS3='[Input Required][REDSHIFT Details]: Please select subnet type: '
     options=("PUBLIC" "PRIVATE" "ISOLATED")
     select selection in "${options[@]}"; do
@@ -156,24 +168,25 @@ then
             break
         fi     
     done
-    
+    echo
     while true; do
-    read -r -p "$coloredQuestion[Input Required][REDSHIFT Details]: Would you like to use encryption? (Y/N) " answer
+    read -r -p "$coloredQuestion [REDSHIFT Details]: Would you like to use encryption? (Y/N) " answer
     case $answer in
         [Yy]* ) export encryption="Y"; break;;
         [Nn]* ) export encryption="N"; break;;
         * ) echo "Please answer Y or N.";;
     esac
     done
+    echo
     while true; do
-    read -r -p "$coloredQuestion[Input Required][REDSHIFT Details]: Would you like to load TPC data? (Y/N) " loadTPCdata
+    read -r -p "$coloredQuestion [REDSHIFT Details]: Would you like to load TPC data? (Y/N) " loadTPCdata
     case $loadTPCdata in
         [Yy]* ) export loadTPCdata="Y"; break;;
         [Nn]* ) export loadTPCdata="N"; break;;
         * ) echo "Please answer Y or N.";;
     esac
     done        
-   
+    echo
     
 elif [ "$redshift_endpoint" = "N/A" ];
 then
@@ -192,16 +205,17 @@ then
             done
             echo "You have choosen $selection"
 fi
-
-#####DMS
+echo
+##ANYTHING RELATED TO DMS DETAILS
 while true; do
-    read -r -p "$coloredQuestion[Input Required] Do you have an external database that you would like to migrate using DMS? (Y/N): " answer
+    read -r -p "$coloredQuestion Do you have an external database that you would like to migrate using DMS? (Y/N): " answer
     case $answer in
         [Yy]* ) export dms_migration_to_redshift_target="CREATE"; break;;
         [Nn]* ) export dms_migration_to_redshift_target="N/A"; break;;
         * ) echo "Please answer Y or N.";;   
     esac
 done
+echo
 
 if [ "$dms_migration_to_redshift_target" = "CREATE" ]; 
 then
@@ -217,6 +231,7 @@ then
             break
         fi     
     done
+    echo
     PS3='[Input Required][DMS Details]: Please select your migration type: '
     options=( "full-load" "cdc" "full-load-and-cdc")
     select selection in "${options[@]}"; do
@@ -229,6 +244,7 @@ then
             break
         fi   
     done
+    echo
     PS3='[Input Required][DMS DETAILS] What is the engine type: '
     options=( "mysql" "oracle" "postgres" "mariadb" "aurora" "aurora-postgresql" "opensearch" "redshift" "s3" "db2" "azuredb" "sybase" "dynamodb" "mongodb" "kinesis" "kafka" "elasticsearch" "docdb" "sqlserver" "neptune")
     select selection in "${options[@]}"; do
@@ -241,17 +257,22 @@ then
             break
         fi   
     done
-    read -r -p "$coloredQuestion[Input Required][DMS DETAILS] Please provide name of source database to migrate: " source_db
-    read -r -p "$coloredQuestion[Input Required][DMS DETAILS] What is the name of source schema: " source_schema
-    read -r -p "$coloredQuestion[Input Required][DMS DETAILS] What is the name of source host: " source_host
-    read -r -p "$coloredQuestion[Input Required][DMS DETAILS] What is the source user: " source_user
-    read -r -p "$coloredQuestion[Input Required][DMS DETAILS] What is the source port: " source_port
+    echo
+    read -r -p "$coloredQuestion [DMS DETAILS] Please provide name of source database to migrate: " source_db
+    echo
+    read -r -p "$coloredQuestion [DMS DETAILS] What is the name of source schema: " source_schema
+    echo
+    read -r -p "$coloredQuestion [DMS DETAILS] What is the name of source host: " source_host
+    echo
+    read -r -p "$coloredQuestion [DMS DETAILS] What is the source user: " source_user
+    echo
+    read -r -p "$coloredQuestion [DMS DETAILS] What is the source port: " source_port
 fi
-
+echo
 if [ "$dms_migration_to_redshift_target" = "CREATE" ]; 
 then 
 while true; do
-    read -r -p "$coloredQuestion[Input Required] Do you need SCT? (Y/N)" answer
+    read -r -p "$coloredQuestion [SCT DETAILS] Do you need SCT? (Y/N)" answer
     case $answer in
         [Yy]* ) export sct_on_prem_to_redshift_target="CREATE"; break;;
         [Nn]* ) export sct_on_prem_to_redshift_target="N/A"; break;;
@@ -259,7 +280,7 @@ while true; do
     esac
 done
 fi
-
+echo
 if [ "$sct_on_prem_to_redshift_target" = "CREATE" ]; 
 then
     echo "[$coloredLoading]Loading your account keypairs..."
@@ -268,7 +289,7 @@ then
         number=$(wc -l < keypairlist.txt) 
         if [ $number = "0" ]; 
         then 
-            read -p "$coloredQuestion[Input Required] Your selected region has no account keypairs. Please enter a name for one: " key_name
+            read -p "$coloredQuestion Your selected region has no account keypairs. Please enter a name for one: " key_name
         else
             PS3='[Input Required] Please select the keypair for SCT: '
             select selection in "${list[@]}"; do
@@ -279,16 +300,16 @@ then
         
         echo "You have choosen $selection"
 fi
-
+echo
 while true; do
-    read -r -p "$coloredQuestion[Input Required] Would you like to use Jmeter? (Y/N): " answer
+    read -r -p "$coloredQuestion Would you like to use Jmeter? (Y/N): " answer
     case $answer in
         [Yy]* ) export jmeter="CREATE"; break;;
         [Nn]* ) export jmeter="N/A"; break;;
         * ) echo "Please answer Y or N.";;
     esac
 done
-
+echo
 if [ "$jmeter" = "CREATE" ]; 
 then 
     PS3='[Input Required][REGION] Please select your ec2 nodetype for Jmeter: '
@@ -303,6 +324,7 @@ then
             break
         fi     
     done
+    echo
     echo "[$coloredLoading]Loading your account keypairs..."
     ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
     readarray -t list < keypairlist.txt
@@ -310,7 +332,7 @@ then
         PS3='[Input Required] Please select the keypair for Jmeter: '
         if [ $number = "0" ]; 
         then 
-            read -p "$coloredQuestion[Input Required] Your selected region has no account keypairs. Please enter a name for one: " key_name
+            read -p "$coloredQuestion Your selected region has no account keypairs. Please enter a name for one: " key_name
         else
             select selection in "${list[@]}"; do
             key_name=$selection
@@ -319,7 +341,7 @@ then
         fi
         echo "You have choosen $selection"
 fi
-
+echo
 PS3='[Input Required][REGION] Please select your region: '
     options=("us-east-1" "us-east-2" "us-west-1" "us-west-2")
     select selection in "${options[@]}"; do
@@ -332,8 +354,10 @@ PS3='[Input Required][REGION] Please select your region: '
             break
         fi     
     done
-read -p "$coloredQuestion[Input Required] Enter a stack name: " stack
-read -p "$coloredQuestion[Input Required] Enter your on prem CIDR range (format xxx.xxx.xxx.xxx/xx): " onprem_cidr
+echo
+read -p "$coloredQuestion Enter a stack name: " stack
+echo
+read -p "$coloredQuestion Enter your on prem CIDR range (format xxx.xxx.xxx.xxx/xx): " onprem_cidr
 JSON_STRING=$( jq -n \
                   --arg bn "$vpc_id" \
                   --arg on "$redshift_endpoint" \
