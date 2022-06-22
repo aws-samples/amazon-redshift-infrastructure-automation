@@ -13,7 +13,7 @@ aws configure set default.region us-east-1
 source ~/amazon-redshift-infrastructure-automation/scripts/menu-script.sh
 if [ "$metReqs" = "N" ];
 then
-    exit;;
+    exit
 fi
 export STACK_NAME=$stack
 export ONPREM_CIDR=$onprem_cidr
