@@ -39,7 +39,9 @@ jmeter_node_type="c5.9xlarge"
 RESET="\033[0m"
 BOLD="\033[1m"
 YELLOW="\033[38;5;11m"
+BLUE="\033[36;5;11m"
 coloredQuestion="$(echo -e [$BOLD$YELLOW"??"$RESET])"
+coloredLoading="$(echo -e $BOLD$BLUE"..."$RESET)"
 function box_out()
 {
   local s=("$@") b w
@@ -93,7 +95,7 @@ then
 elif [ "$vpc_id" = "N/A" ];
 then
     
-    echo "Loading your VPC's..."
+    echo "[$coloredLoading]Loading your VPC's..."
     ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
     readarray -t list < vpclist.txt
     PS3='[Input Required] Please select your VPC: '
@@ -112,7 +114,7 @@ fi
 
 #REDSHIFT 
 while true; do
-    read -r -p "[Input Required] Do you wish to create a new Redshift? (Y/N): " answer
+    read -r -p "$coloredQuestion[Input Required] Do you wish to create a new Redshift? (Y/N): " answer
     case $answer in
         [Yy]* ) export redshift_endpoint="CREATE"; break;;
         [Nn]* ) export redshift_endpoint="N/A"; break;;
@@ -123,9 +125,9 @@ done
 if [ "$redshift_endpoint" = "CREATE" ]; 
 then 
     echo "[Input Required][REDSHIFT Details]: Please configure Redshift details..."
-    read -r -p "[Input Required][REDSHIFT Details]: Please provide a cluster indentifier: " cluster_identifier
-    read -r -p "[Input Required][REDSHIFT Details]: Please provide a Redshift database name: " database_name
-    read -r -p "[Input Required][REDSHIFT Details]: Please provide a master user name: " master_user_name 
+    read -r -p "$coloredQuestion[Input Required][REDSHIFT Details]: Please provide a cluster indentifier: " cluster_identifier
+    read -r -p "$coloredQuestion[Input Required][REDSHIFT Details]: Please provide a Redshift database name: " database_name
+    read -r -p "$coloredQuestion[Input Required][REDSHIFT Details]: Please provide a master user name: " master_user_name 
 
     PS3='[Input Required][REDSHIFT Details]: Please select your Redshift node type choice: '
     options=("ds2.xlarge" "ds2.8xlarge" "dc1.large" "dc1.8xlarge" "dc2.large" "dc2.8xlarge" "ra3.xlplus" "ra3.4xlarge" "ra3.16xlarge" )
@@ -175,7 +177,7 @@ then
     
 elif [ "$redshift_endpoint" = "N/A" ];
 then
-    echo "Loading your Redshift Clusters..."
+    echo "[$coloredLoading]Loading your Redshift Clusters..."
      ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
             readarray -t list < redshiftlist.txt
             PS3='[Input Required] Please select your Redshift Cluster: '
@@ -260,7 +262,7 @@ fi
 
 if [ "$sct_on_prem_to_redshift_target" = "CREATE" ]; 
 then
-    echo "Loading your account keypairs..."
+    echo "[$coloredLoading]Loading your account keypairs..."
     ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
      readarray -t list < keypairlist.txt
         number=$(wc -l < keypairlist.txt) 
@@ -301,7 +303,7 @@ then
             break
         fi     
     done
-    echo "Loading your account keypairs..."
+    echo "[$coloredLoading]Loading your account keypairs..."
     ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
     readarray -t list < keypairlist.txt
     number=$(wc -l < keypairlist.txt)
