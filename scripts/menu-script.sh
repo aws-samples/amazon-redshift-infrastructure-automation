@@ -35,7 +35,11 @@ sct_key_name=""
 #JMeter KeyName
 key_name=""
 jmeter_node_type="c5.9xlarge"
-
+## Colored input's
+RESET="\033[0m"
+BOLD="\033[1m"
+YELLOW="\033[38;5;11m"
+coloredQuestion="$(echo -e [$BOLD$YELLOW"??"$RESET])"
 function box_out()
 {
   local s=("$@") b w
@@ -54,9 +58,9 @@ function box_out()
 }
 
 box_out "Welcome!" "This utility tool will help you create the required resources for $(whoami)" "Please review the pre-requisites at the following link before proceeding: " "" "https://github.com/aws-samples/amazon-redshift-infrastructure-automation#prerequisites"
-
+echo
 while true; do
-    read -r -p "[Input Required] Are the prerequisites met?(Y/N): " answer
+    read -r -p "$coloredQuestion[Input Required] Are the prerequisites met?(Y/N):" answer
     case $answer in
         [Yy]* ) break;;
         [Nn]* ) 
@@ -67,10 +71,10 @@ while true; do
         * ) echo "Please answer Y or N.";;
     esac
 done
-
+echo
 #VPC
 while true; do
-    read -r -p "[Input Required] Do you wish to create a new VPC (Y/N): " answer
+    read -r -p "$coloredQuestion[Input Required] Do you wish to create a new VPC? (Y/N):" answer
     case $answer in
         [Yy]* ) export vpc_id="CREATE"; 
                  break;;
@@ -78,13 +82,13 @@ while true; do
         * ) echo "Please answer Y or N.";;
     esac
 done
-
+echo
 if [ "$vpc_id" = "CREATE" ]; 
 then 
     echo "Please configure VPC details..."
-    read -r -p "[Input Required][VPC Details]: Please provide a VPC CIDR Range (format xxx.xxx.xxx.xxx/xx): " cidr
-    read -r -p "[Input Required][VPC Details]: How many Availability Zones: " number_of_az
-    read -r -p "[Input Required][VPC Details]: Please provide a CIDR MASK(number only, no /): " cidr_mask
+    read -r -p "$coloredQuestion [Input Required][VPC Details]: Please provide a VPC CIDR Range (format xxx.xxx.xxx.xxx/xx): " cidr
+    read -r -p "$coloredQuestion [Input Required][VPC Details]: How many Availability Zones: " number_of_az
+    read -r -p "$coloredQuestion [Input Required][VPC Details]: Please provide a CIDR MASK(number only, no /): " cidr_mask
 
 elif [ "$vpc_id" = "N/A" ];
 then
@@ -136,7 +140,7 @@ then
         fi   
     done
 
-    read -r -p "[Input Required][REDSHIFT Details]: How many nodes of $node_type? " number_of_nodes
+    read -r -p "$coloredQuestion[Input Required][REDSHIFT Details]: How many nodes of $node_type? " number_of_nodes
     
     PS3='[Input Required][REDSHIFT Details]: Please select subnet type: '
     options=("PUBLIC" "PRIVATE" "ISOLATED")
@@ -152,7 +156,7 @@ then
     done
     
     while true; do
-    read -r -p "[Input Required][REDSHIFT Details]: Would you like to use encryption? (Y/N) " answer
+    read -r -p "$coloredQuestion[Input Required][REDSHIFT Details]: Would you like to use encryption? (Y/N) " answer
     case $answer in
         [Yy]* ) export encryption="Y"; break;;
         [Nn]* ) export encryption="N"; break;;
@@ -160,7 +164,7 @@ then
     esac
     done
     while true; do
-    read -r -p "[Input Required][REDSHIFT Details]: Would you like to load TPC data? (Y/N) " loadTPCdata
+    read -r -p "$coloredQuestion[Input Required][REDSHIFT Details]: Would you like to load TPC data? (Y/N) " loadTPCdata
     case $loadTPCdata in
         [Yy]* ) export loadTPCdata="Y"; break;;
         [Nn]* ) export loadTPCdata="N"; break;;
@@ -189,7 +193,7 @@ fi
 
 #####DMS
 while true; do
-    read -r -p "[Input Required] Do you have an external database that you would like to migrate using DMS? (Y/N): " answer
+    read -r -p "$coloredQuestion[Input Required] Do you have an external database that you would like to migrate using DMS? (Y/N): " answer
     case $answer in
         [Yy]* ) export dms_migration_to_redshift_target="CREATE"; break;;
         [Nn]* ) export dms_migration_to_redshift_target="N/A"; break;;
@@ -235,17 +239,17 @@ then
             break
         fi   
     done
-    read -r -p "[Input Required][DMS DETAILS] Please provide name of source database to migrate: " source_db
-    read -r -p "[Input Required][DMS DETAILS] What is the name of source schema: " source_schema
-    read -r -p "[Input Required][DMS DETAILS] What is the name of source host: " source_host
-    read -r -p "[Input Required][DMS DETAILS] What is the source user: " source_user
-    read -r -p "[Input Required][DMS DETAILS] What is the source port: " source_port
+    read -r -p "$coloredQuestion[Input Required][DMS DETAILS] Please provide name of source database to migrate: " source_db
+    read -r -p "$coloredQuestion[Input Required][DMS DETAILS] What is the name of source schema: " source_schema
+    read -r -p "$coloredQuestion[Input Required][DMS DETAILS] What is the name of source host: " source_host
+    read -r -p "$coloredQuestion[Input Required][DMS DETAILS] What is the source user: " source_user
+    read -r -p "$coloredQuestion[Input Required][DMS DETAILS] What is the source port: " source_port
 fi
 
 if [ "$dms_migration_to_redshift_target" = "CREATE" ]; 
 then 
 while true; do
-    read -r -p "[Input Required] Do you need SCT? (Y/N)" answer
+    read -r -p "$coloredQuestion[Input Required] Do you need SCT? (Y/N)" answer
     case $answer in
         [Yy]* ) export sct_on_prem_to_redshift_target="CREATE"; break;;
         [Nn]* ) export sct_on_prem_to_redshift_target="N/A"; break;;
@@ -262,7 +266,7 @@ then
         number=$(wc -l < keypairlist.txt) 
         if [ $number = "0" ]; 
         then 
-            read -p $'[Input Required] Your selected region has no account keypairs. Please enter a name for one: ' key_name
+            read -p "$coloredQuestion[Input Required] Your selected region has no account keypairs. Please enter a name for one: " key_name
         else
             PS3='[Input Required] Please select the keypair for SCT: '
             select selection in "${list[@]}"; do
@@ -275,7 +279,7 @@ then
 fi
 
 while true; do
-    read -r -p "[Input Required] Would you like to use Jmeter? (Y/N): " answer
+    read -r -p "$coloredQuestion[Input Required] Would you like to use Jmeter? (Y/N): " answer
     case $answer in
         [Yy]* ) export jmeter="CREATE"; break;;
         [Nn]* ) export jmeter="N/A"; break;;
@@ -304,7 +308,7 @@ then
         PS3='[Input Required] Please select the keypair for Jmeter: '
         if [ $number = "0" ]; 
         then 
-            read -p $'[Input Required] Your selected region has no account keypairs. Please enter a name for one: ' key_name
+            read -p "$coloredQuestion[Input Required] Your selected region has no account keypairs. Please enter a name for one: " key_name
         else
             select selection in "${list[@]}"; do
             key_name=$selection
@@ -326,8 +330,8 @@ PS3='[Input Required][REGION] Please select your region: '
             break
         fi     
     done
-read -p $'[Input Required] Enter a stack name: ' stack
-read -p $'[Input Required] Enter your on prem CIDR range (format xxx.xxx.xxx.xxx/xx): ' onprem_cidr
+read -p "$coloredQuestion[Input Required] Enter a stack name: " stack
+read -p "$coloredQuestion[Input Required] Enter your on prem CIDR range (format xxx.xxx.xxx.xxx/xx): " onprem_cidr
 JSON_STRING=$( jq -n \
                   --arg bn "$vpc_id" \
                   --arg on "$redshift_endpoint" \
