@@ -103,6 +103,7 @@ elif [ "$vpc_id" = "N/A" ];
 then
     
     echo "[$coloredLoading]Loading your VPC's..."
+    echo
     ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
     readarray -t list < vpclist.txt
     PS3='[Input Required] Please select your VPC: '
@@ -116,6 +117,7 @@ then
             break
         fi
     done
+    echo
     echo "You have choosen $selection"
 fi
 echo
@@ -134,6 +136,7 @@ echo
 if [ "$redshift_endpoint" = "CREATE" ]; 
 then 
     echo "[Input Required][REDSHIFT Details]: Please configure Redshift details..."
+    echo
     read -r -p "$coloredQuestion [REDSHIFT Details]: Please provide a cluster indentifier: " cluster_identifier
     echo
     read -r -p "$coloredQuestion [REDSHIFT Details]: Please provide a Redshift database name: " database_name
@@ -191,6 +194,7 @@ then
 elif [ "$redshift_endpoint" = "N/A" ];
 then
     echo "[$coloredLoading]Loading your Redshift Clusters..."
+    echo
      ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
             readarray -t list < redshiftlist.txt
             PS3='[Input Required] Please select your Redshift Cluster: '
@@ -203,6 +207,7 @@ then
                     break
                 fi
             done
+            echo
             echo "You have choosen $selection"
 fi
 echo
@@ -284,6 +289,7 @@ echo
 if [ "$sct_on_prem_to_redshift_target" = "CREATE" ]; 
 then
     echo "[$coloredLoading]Loading your account keypairs..."
+    echo
     ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
      readarray -t list < keypairlist.txt
         number=$(wc -l < keypairlist.txt) 
@@ -326,6 +332,7 @@ then
     done
     echo
     echo "[$coloredLoading]Loading your account keypairs..."
+    echo
     ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
     readarray -t list < keypairlist.txt
     number=$(wc -l < keypairlist.txt)
