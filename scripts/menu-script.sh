@@ -1,5 +1,6 @@
 
 #CREATE/NA
+metReqs=""
 vpc_id=""
 redshift_endpoint=""
 dms_migration_to_redshift_target=""
@@ -60,7 +61,9 @@ while true; do
         [Yy]* ) break;;
         [Nn]* ) 
             echo "Please visit the link below"
-            echo "https://github.com/aws-samples/amazon-redshift-infrastructure-automation#prerequisites"; exit;;
+            echo "https://github.com/aws-samples/amazon-redshift-infrastructure-automation#prerequisites"; 
+            metReqs="N"
+            exit;;
         * ) echo "Please answer Y or N.";;
     esac
 done
@@ -79,9 +82,9 @@ done
 if [ "$vpc_id" = "CREATE" ]; 
 then 
     echo "Please configure VPC details..."
-    read -r -p "[Input Required][VPC Details]: Please provide a VPC CIDR Range: " cidr
-    read -r -p "[Input Required][VPC Details]: How many Availability Zones? " number_of_az
-    read -r -p "[Input Required][VPC Details]: Please provide a CIDR MASK: " cidr_mask
+    read -r -p "[Input Required][VPC Details]: Please provide a VPC CIDR Range (format xxx.xxx.xxx.xxx/xx): " cidr
+    read -r -p "[Input Required][VPC Details]: How many Availability Zones: " number_of_az
+    read -r -p "[Input Required][VPC Details]: Please provide a CIDR MASK(number only, no /): " cidr_mask
 
 elif [ "$vpc_id" = "N/A" ];
 then
@@ -220,8 +223,7 @@ then
             break
         fi   
     done
-    read -r -p "[Input Required][DMS DETAILS] Please provide name of source database to migrate: " source_db
-    PS3='[Input Required][DMS DETAILS] What is the engine type? '
+    PS3='[Input Required][DMS DETAILS] What is the engine type: '
     options=( "mysql" "oracle" "postgres" "mariadb" "aurora" "aurora-postgresql" "opensearch" "redshift" "s3" "db2" "azuredb" "sybase" "dynamodb" "mongodb" "kinesis" "kafka" "elasticsearch" "docdb" "sqlserver" "neptune")
     select selection in "${options[@]}"; do
         if [[ $REPLY == "0" ]]; then
@@ -233,10 +235,11 @@ then
             break
         fi   
     done
-    read -r -p "[Input Required][DMS DETAILS] What is the name of source schema? " source_schema
-    read -r -p "[Input Required][DMS DETAILS] What is the name of source host? " source_host
-    read -r -p "[Input Required][DMS DETAILS] What is the source user? " source_user
-    read -r -p "[Input Required][DMS DETAILS] What is the source port? " source_port
+    read -r -p "[Input Required][DMS DETAILS] Please provide name of source database to migrate: " source_db
+    read -r -p "[Input Required][DMS DETAILS] What is the name of source schema: " source_schema
+    read -r -p "[Input Required][DMS DETAILS] What is the name of source host: " source_host
+    read -r -p "[Input Required][DMS DETAILS] What is the source user: " source_user
+    read -r -p "[Input Required][DMS DETAILS] What is the source port: " source_port
 fi
 
 if [ "$dms_migration_to_redshift_target" = "CREATE" ]; 

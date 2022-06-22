@@ -11,6 +11,10 @@ echo "Installing requirements...."; pip install -r requirements.txt > /dev/null;
 #grep -qF -- "$LINE" "$FILE" || echo "$LINE" >> "$FILE"
 aws configure set default.region us-east-1
 source ~/amazon-redshift-infrastructure-automation/scripts/menu-script.sh
+if [ "$metReqs" = "N" ];
+then
+    exit;;
+fi
 export STACK_NAME=$stack
 export ONPREM_CIDR=$onprem_cidr
 #Need more elegant solution for handling exception here:
