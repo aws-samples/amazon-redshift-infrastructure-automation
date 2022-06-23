@@ -78,6 +78,7 @@ done
 echo
 
 #ANYTHING RELATED TO VPC DETAILS
+configureVPCDetails (){
 while true; do
     read -r -p "$coloredQuestion Do you wish to create a new VPC? (Y/N):" answer
     case $answer in
@@ -120,9 +121,13 @@ then
     echo
     echo "You have choosen $selection"
 fi
+}
+##Execute
+configureVPCDetails
 echo
 
 #ANYTHING RELATED TO REDSHIFT DETAILS
+configureRedshiftDetails (){
 while true; do
     read -r -p "$coloredQuestion Do you wish to create a new Redshift? (Y/N): " answer
     case $answer in
@@ -210,8 +215,11 @@ then
             echo
             echo "You have choosen $selection"
 fi
+}
+configureRedshiftDetails
 echo
 ##ANYTHING RELATED TO DMS DETAILS
+configureSCTDMSDetails (){
 while true; do
     read -r -p "$coloredQuestion Do you have an external database that you would like to migrate using DMS? (Y/N): " answer
     case $answer in
@@ -295,7 +303,7 @@ then
         number=$(wc -l < keypairlist.txt) 
         if [ $number = "0" ]; 
         then 
-            read -p "$coloredQuestion Your selected region has no account keypairs. Please enter a name for one: " key_name
+            read -p "$coloredQuestion Your selected region has no account keypairs. Please create one in the AWS Management Console and enter the name here: " key_name
         else
             PS3='[Input Required] Please select the keypair for SCT: '
             select selection in "${list[@]}"; do
@@ -306,7 +314,10 @@ then
         
         echo "You have choosen $selection"
 fi
+}
+configureSCTDMSDetails
 echo
+configureJMeterDetails (){
 while true; do
     read -r -p "$coloredQuestion Would you like to use Jmeter? (Y/N): " answer
     case $answer in
@@ -339,7 +350,7 @@ then
         PS3='[Input Required] Please select the keypair for Jmeter: '
         if [ $number = "0" ]; 
         then 
-            read -p "$coloredQuestion Your selected region has no account keypairs. Please enter a name for one: " key_name
+            read -p "$coloredQuestion Your selected region has no account keypairs. Please create one in the AWS Management Console and enter the name here: " key_name
         else
             select selection in "${list[@]}"; do
             key_name=$selection
@@ -348,7 +359,10 @@ then
         fi
         echo "You have choosen $selection"
 fi
+}
+configureJMeterDetails
 echo
+configureMiscDetails (){
 PS3='[Input Required][REGION] Please select your region: '
     options=("us-east-1" "us-east-2" "us-west-1" "us-west-2")
     select selection in "${options[@]}"; do
@@ -365,6 +379,42 @@ echo
 read -p "$coloredQuestion Enter a stack name: " stack
 echo
 read -p "$coloredQuestion Enter your on prem CIDR range (format xxx.xxx.xxx.xxx/xx): " onprem_cidr
+}
+configureMiscDetails
+confirmationMenu (){
+PS3='Please enter your choice: '
+options=("Reconfigure VPC Details" "Reconfigure Redshift Details" "Reconfigure DMS/SCT Details" "Reconfigure Jmeter Details" "Reconfigure Region/Stack Name/On-Prem CIDR" "Quit")
+select opt in "${options[@]}"
+do
+    case $opt in
+        "Reconfigure VPC Details")
+            configureVPCDetails
+            confirmationMenu
+            ;;
+        "Reconfigure Redshift Details")
+            configureRedshiftDetails
+            confirmationMenu
+            ;;
+        "Reconfigure DMS/SCT Details")
+            configureSCTDMSDetails
+            confirmationMenu
+            ;;
+         "Reconfigure Jmeter Details")
+            configureJMeterDetails
+            confirmationMenu
+            ;;
+         "Reconfigure Region/Stack Name/On-Prem CIDR")
+            configureMiscDetails
+            confirmationMenu
+            ;;
+        "Quit")
+            break
+            ;;
+        *) echo "invalid option $REPLY";;
+    esac
+done
+}
+confirmationMenu
 JSON_STRING=$( jq -n \
                   --arg bn "$vpc_id" \
                   --arg on "$redshift_endpoint" \
@@ -431,6 +481,7 @@ JSON_STRING=$( jq -n \
                         jmeter_node_type: $jnt
                     }
                     }' \ >user-config.json ) 
+
 
 
 
