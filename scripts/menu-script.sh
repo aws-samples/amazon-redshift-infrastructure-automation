@@ -379,10 +379,11 @@ echo
 read -p "$coloredQuestion Enter a stack name: " stack
 echo
 read -p "$coloredQuestion Enter your on prem CIDR range (format xxx.xxx.xxx.xxx/xx): " onprem_cidr
+echo
 }
 configureMiscDetails
 confirmationMenu (){
-PS3='Please enter your choice: '
+PS3='You may change any details here, otherwise input 6 and ENTER to launch the toolkit: '
 options=("Reconfigure VPC Details" "Reconfigure Redshift Details" "Reconfigure DMS/SCT Details" "Reconfigure Jmeter Details" "Reconfigure Region/Stack Name/On-Prem CIDR" "Quit")
 select opt in "${options[@]}"
 do
