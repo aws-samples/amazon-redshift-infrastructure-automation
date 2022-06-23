@@ -42,9 +42,11 @@ class DmsOnPremToRedshiftStack(core.Stack):
         self.dms_vpc_role()
         self.dms_cloudwatch_logs_role()
         self.dms_access_for_endpoint()
-
+        
+        publiclyaccessible = False
         if subnet_type == 'PUBLIC':
             subnets = vpc.get_vpc_public_subnet_ids
+            publiclyaccessible = True
         elif subnet_type == 'PRIVATE':
             subnets = vpc.get_vpc_private_subnet_ids
         elif subnet_type == 'ISOLATED':
@@ -67,7 +69,7 @@ class DmsOnPremToRedshiftStack(core.Stack):
             allow_major_version_upgrade=None,
             auto_minor_version_upgrade=None,
             multi_az=False,
-            publicly_accessible=True,
+            publicly_accessible=publiclyaccessible,
             replication_subnet_group_identifier=dms_subnet_group.ref,
             vpc_security_group_ids=[security_group_id]
         )
