@@ -61,6 +61,27 @@ function box_out()
 
 box_out "Welcome!" "This utility tool will help you create the required resources for $(whoami)" "Please review the pre-requisites at the following link before proceeding: " "" "https://github.com/aws-samples/amazon-redshift-infrastructure-automation#prerequisites"
 echo
+
+##THIS IS WHERE THE MENU STARTS
+configureMiscDetails (){
+PS3='[Input Required][REGION] Please select your region: '
+    options=("us-east-1" "us-east-2" "us-west-1" "us-west-2")
+    select selection in "${options[@]}"; do
+        if [[ $REPLY == "0" ]]; then
+            echo 'Goodbye' >&2
+            exit
+        else
+            echo "You have chosen $selection"
+            current_region=$selection
+            break
+        fi     
+    done
+echo
+read -p "$coloredQuestion Enter a stack name: " stack
+echo
+read -p "$coloredQuestion Enter your on prem CIDR range (format xxx.xxx.xxx.xxx/xx): " onprem_cidr
+echo
+}
 existingConfigFile (){
     while true; do
         read -r -p "$coloredQuestion Would you like to use an existing user-config file? (Y/N): " answer
@@ -68,7 +89,6 @@ existingConfigFile (){
             [Yy]* )
                 read -r -p "Please upload your existing user config file and press ENTER to continue... "
                 configureMiscDetails
-                
                 exit
                 ;;
             [Nn]* ) 
@@ -78,19 +98,7 @@ existingConfigFile (){
     done
 }
 existingConfigFile
-##THIS IS WHERE THE MENU STARTS
-while true; do
-    read -r -p "$coloredQuestion Would you like to use an existing " answer
-    case $answer in
-        [Yy]* ) break;;
-        [Nn]* ) 
-            echo "Please visit the link below"
-            echo "https://github.com/aws-samples/amazon-redshift-infrastructure-automation#prerequisites"; 
-            metReqs="N"
-            exit;;
-        * ) echo "Please answer Y or N.";;
-    esac
-done
+
 while true; do
     read -r -p "$coloredQuestion Are the prerequisites met?(Y/N):" answer
     case $answer in
@@ -391,25 +399,6 @@ fi
 configureJMeterDetails
 echo
 
-configureMiscDetails (){
-PS3='[Input Required][REGION] Please select your region: '
-    options=("us-east-1" "us-east-2" "us-west-1" "us-west-2")
-    select selection in "${options[@]}"; do
-        if [[ $REPLY == "0" ]]; then
-            echo 'Goodbye' >&2
-            exit
-        else
-            echo "You have chosen $selection"
-            current_region=$selection
-            break
-        fi     
-    done
-echo
-read -p "$coloredQuestion Enter a stack name: " stack
-echo
-read -p "$coloredQuestion Enter your on prem CIDR range (format xxx.xxx.xxx.xxx/xx): " onprem_cidr
-echo
-}
 configureMiscDetails
 confirmationMenu (){
 PS3='You may change any details here, otherwise input 6 and ENTER to launch the toolkit: '
