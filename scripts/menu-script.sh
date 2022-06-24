@@ -64,6 +64,18 @@ echo
 
 ##THIS IS WHERE THE MENU STARTS
 while true; do
+    read -r -p "$coloredQuestion Would you like to use an existing " answer
+    case $answer in
+        [Yy]* ) break;;
+        [Nn]* ) 
+            echo "Please visit the link below"
+            echo "https://github.com/aws-samples/amazon-redshift-infrastructure-automation#prerequisites"; 
+            metReqs="N"
+            exit;;
+        * ) echo "Please answer Y or N.";;
+    esac
+done
+while true; do
     read -r -p "$coloredQuestion Are the prerequisites met?(Y/N):" answer
     case $answer in
         [Yy]* ) break;;
@@ -113,7 +125,6 @@ then
             echo 'Goodbye' >&2
             exit
         else
-        
             vpc_id=$selection
             break
         fi
@@ -150,16 +161,17 @@ then
     echo
 
     PS3='[Input Required][REDSHIFT Details]: Please select your Redshift node type choice: '
-    options=("ds2.xlarge" "ds2.8xlarge" "dc1.large" "dc1.8xlarge" "dc2.large" "dc2.8xlarge" "ra3.xlplus" "ra3.4xlarge" "ra3.16xlarge" )
+    options=("dc1.large" "dc1.8xlarge" "dc2.large" "dc2.8xlarge" "ra3.xlplus" "ra3.4xlarge" "ra3.16xlarge" )
     select selection in "${options[@]}"; do
         if [[ $REPLY == "0" ]]; then
             echo 'Goodbye' >&2
             exit
         else
-        echo $REPLY $selection
             node_type=$selection
             break
-        fi   
+        fi 
+        echo
+        echo "You have choosen $selection"  
     done
     echo
     read -r -p "$coloredQuestion [REDSHIFT Details]: How many nodes of $node_type? " number_of_nodes
@@ -171,7 +183,7 @@ then
             echo 'Goodbye' >&2
             exit
         else
-        echo $REPLY $selection
+            echo "You have chosen $selection"
             subnet_type=$selection
             break
         fi     
@@ -239,7 +251,7 @@ then
             echo 'Goodbye' >&2
             exit
         else
-        echo $REPLY $selection
+            echo "You have chosen $selection"
             dms_subnet_type=$selection
             break
         fi     
@@ -252,7 +264,7 @@ then
             echo 'Goodbye' >&2
             exit
         else
-        echo $REPLY $selection
+            echo "You have chosen $selection"
             migration_type=$selection
             break
         fi   
@@ -265,7 +277,7 @@ then
             echo 'Goodbye' >&2
             exit
         else
-        echo $REPLY $selection
+            echo "You have chosen $selection"
             source_engine=$selection
             break
         fi   
@@ -336,7 +348,7 @@ then
             echo 'Goodbye' >&2
             exit
         else
-        echo $REPLY $selection
+            echo "You have chosen $selection"
             jmeter_node_type=$selection
             break
         fi     
@@ -370,7 +382,7 @@ PS3='[Input Required][REGION] Please select your region: '
             echo 'Goodbye' >&2
             exit
         else
-        echo $REPLY $selection
+            echo "You have chosen $selection"
             current_region=$selection
             break
         fi     
@@ -384,7 +396,7 @@ echo
 configureMiscDetails
 confirmationMenu (){
 PS3='You may change any details here, otherwise input 6 and ENTER to launch the toolkit: '
-options=("Reconfigure VPC Details" "Reconfigure Redshift Details" "Reconfigure DMS/SCT Details" "Reconfigure Jmeter Details" "Reconfigure Region/Stack Name/On-Prem CIDR" "Quit")
+options=("Reconfigure VPC Details" "Reconfigure Redshift Details" "Reconfigure DMS/SCT Details" "Reconfigure Jmeter Details" "Reconfigure Region/Stack Name/On-Prem CIDR" "Launch Resources")
 select opt in "${options[@]}"
 do
     case $opt in
@@ -408,7 +420,7 @@ do
             configureMiscDetails
             confirmationMenu
             ;;
-        "Quit")
+        "Launch Resources")
             break
             ;;
         *) echo "invalid option $REPLY";;
