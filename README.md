@@ -55,7 +55,7 @@ If these are complete, continue to [deployment steps](#deployment-steps). If you
 
 	`~/amazon-redshift-infrastructure-automation/scripts/deploy.sh`
 	
-6. Follow the prompts and specify desired resources using Y/N, corresponding numbers and the ENTER key. Towards the end users will also be able to change any inputs.
+6. Follow the prompts and specify desired resources using Y/N or corresponding numbers. Press *Enter* to confirm your selection. Towards the end users will also be able to change any inputs.
 
 ![Menu Start](./images/menustart.png)
 
