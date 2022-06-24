@@ -37,7 +37,9 @@ Prior to deployment, some resources need to be preconfigured:
 	- Amazon EC2
 	- AWS Database Migration Service (DMS)
 	- For a more granular list of permissions, please see [here](./permissionlist.md)
-* [OPTIONAL] If using SCT or JMeter, create a key pair that can be accessed (see [the documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair) on how to create a new one)
+* [OPTIONAL] If using SCT or JMeter:
+	* 	 create a key pair that can be accessed (see [the documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair) on how to create a new one)
+	* 	 ensure your VPC contains subnets which can access outbound internet; via an internet gateway or NAT gateway
 * [OPTIONAL] If using an external database, open source firewalls/ security groups to allow for traffic from AWS
 
 If these are complete, continue to [deployment steps](#deployment-steps). If you come across errors, please refer to the [troubleshooting](#troubleshooting) section -- if the error isn't addressed there, please submit the feedback using the [Issues](https://github.com/aws-samples/amazon-redshift-infrastructure-automation/issues) tab of this repo.
@@ -55,11 +57,11 @@ If these are complete, continue to [deployment steps](#deployment-steps). If you
 
 	`~/amazon-redshift-infrastructure-automation/scripts/deploy.sh`
 	
-6. Follow the prompts and specify desired resources using Y/N or corresponding numbers. Press *Enter* to confirm your selection. Towards the end users will also be able to change any inputs.
+6. Follow the prompts and specify desired resources using Y/y/N/n or corresponding numbers. Press *Enter* to confirm your selection. Towards the end users will also be able to change any inputs.
 
 ![Menu Start](./images/menustart.png)
 
-Example of using Yy/Nn or corresponding as inputs
+Example of using Y/y/N/n or numbers corresponding to inputs
 
 ![Example Inputs](./images/exampleofinputs.png)
 
@@ -83,23 +85,10 @@ Once the script has been run, you can monitor the deployment of CloudFormation s
 
 ## Clean up
 
-1. Open the [CloudFormation console](https://console.aws.amazon.com/cloudformation/home?), and select *Stacks* in the left panel:
-	1. Filter by the stack name used for the deployment
-	1. Select the stacks to be deleted, and select **Delete** at the top
+1. Open [CloudShell](https://aws.amazon.com/cloudshell/)
+2. run the destroy script: `~/amazon-redshift-infrastructure-automation/scripts/destroy.sh`
+3. enter the stackname when prompted, and click Yes when prompted, to destroy the stack.
 
-
-1. To remove secrets produced by the deployment, you can either
-	* Open the [Secrets Manager console](https://console.aws.amazon.com/secretsmanager/home?), and select *Secrets* in the left panel
-		1. Filter by the stack name used for the deployment
-		1. Select each secret, and under *Actions*, select **Delete secret**
-	* Replace `[STACK NAME]` in the below prompts below with the stack name used for the deployment and run them in CloudShell:
-
-
-	`aws secretsmanager delete-secret --secret-id [STACK NAME]-SourceDBPassword --force-delete-without-recovery`
-
-	`aws secretsmanager delete-secret --secret-id [STACK NAME]-RedshiftPassword --force-delete-without-recovery`
-	
-	`aws secretsmanager delete-secret --secret-id [STACK NAME]-RedshiftClusterSecretAA --force-delete-without-recovery`
 
 ## Troubleshooting
 
