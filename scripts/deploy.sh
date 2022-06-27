@@ -14,7 +14,7 @@ echo "Installing requirements...."; pip install -r requirements.txt > /dev/null;
 #grep -qF -- "$LINE" "$FILE" || echo "$LINE" >> "$FILE"
 aws configure set default.region us-east-1
 ~/amazon-redshift-infrastructure-automation/scripts/menu-welcome-message.sh
- read -r -p "Do you have an existing user-config.json file? " answer
+ read -r -p "Do you have an existing user-config.json file? (Yy/Nn): " answer
     case $answer in
         [Yy]* ) read -r -p "Please upload your user-config.json file and press ENTER to continue..." answer;
                  source ~/amazon-redshift-infrastructure-automation/scripts/miscdetails.sh;;
