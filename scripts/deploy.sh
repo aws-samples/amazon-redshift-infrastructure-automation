@@ -2,6 +2,9 @@ echo "Installing dependencies...."; sudo yum -y install gcc gcc-c++ python3 pyth
 echo "Installing aws-cdk...."; sudo npm install -g aws-cdk@1.x > /dev/null; echo " done."
 chmod +x ~/amazon-redshift-infrastructure-automation/scripts/menu-script.sh
 chmod +x ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
+chmod +x ~/amazon-redshift-infrastructure-automation/scripts/menu-welcome-message.sh
+chmod +x ~/amazon-redshift-infrastructure-automation/scripts/miscdetails.sh
+
 cd ~/amazon-redshift-infrastructure-automation
 python3 -m venv .env
 source .env/bin/activate
@@ -10,7 +13,14 @@ echo "Installing requirements...."; pip install -r requirements.txt > /dev/null;
 #FILE=~/.bashrc
 #grep -qF -- "$LINE" "$FILE" || echo "$LINE" >> "$FILE"
 aws configure set default.region us-east-1
-source ~/amazon-redshift-infrastructure-automation/scripts/menu-script.sh
+~/amazon-redshift-infrastructure-automation/scripts/menu-welcome-message.sh
+ read -r -p "Do you have an existing user-config.json file? " answer
+    case $answer in
+        [Yy]* ) read -r -p "Please upload your user-config.json file and press ENTER to continue..." answer;
+                 source ~/amazon-redshift-infrastructure-automation/scripts/miscdetails.sh;;
+        [Nn]* ) source ~/amazon-redshift-infrastructure-automation/scripts/menu-script.sh;;
+        * ) echo "Please answer Y or N.";;
+    esac
 export STACK_NAME=$stack
 export ONPREM_CIDR=$onprem_cidr
 #Need more elegant solution for handling exception here:

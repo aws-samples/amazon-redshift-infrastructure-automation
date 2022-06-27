@@ -42,44 +42,10 @@ YELLOW="\033[38;5;11m"
 BLUE="\033[36;5;11m"
 coloredQuestion="$(echo -e [$BOLD$YELLOW"?? Input Required"$RESET])"
 coloredLoading="$(echo -e $BOLD$BLUE"..."$RESET)"
-function box_out()
-{
-  local s=("$@") b w
-  for l in "${s[@]}"; do
-    ((w<${#l})) && { b="$l"; w="${#l}"; }
-  done
-  tput setaf 3
-  echo " -${b//?/-}-
-| ${b//?/ } |"
-  for l in "${s[@]}"; do
-    printf '| %s%*s%s |\n' "$(tput setaf 4)" "-$w" "$l" "$(tput setaf 3)"
-  done
-  echo "| ${b//?/ } |
- -${b//?/-}-"
-  tput sgr 0
-}
 
-box_out "Welcome!" "This utility tool will help you create the required resources for $(whoami)" "Please review the pre-requisites at the following link before proceeding: " "" "https://github.com/aws-samples/amazon-redshift-infrastructure-automation#prerequisites"
-echo
 
 ##THIS IS WHERE THE MENU STARTS
 
-existingConfigFile (){
-    while true; do
-        read -r -p "$coloredQuestion Would you like to use an existing user-config file? (Y/N): " answer
-        case $answer in
-            [Yy]* )
-                read -r -p "Please upload your existing user config file and press ENTER to continue... "
-                configureMiscDetails
-                exit
-                ;;
-            [Nn]* ) 
-                break;;
-            * ) echo "Please answer Y or N.";;
-        esac
-    done
-}
-existingConfigFile
 
 while true; do
     read -r -p "$coloredQuestion Are the prerequisites met?(Y/N):" answer
