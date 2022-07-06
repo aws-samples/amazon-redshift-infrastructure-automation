@@ -48,7 +48,7 @@ coloredLoading="$(echo -e $BOLD$BLUE"..."$RESET)"
 
 
 while true; do
-    read -r -p "$coloredQuestion Are the prerequisites met?(Y/N):" answer
+    read -r -p "$coloredQuestion Are the prerequisites met?(Y/N): " answer
     case $answer in
         [Yy]* ) break;;
         [Nn]* ) 
@@ -132,7 +132,7 @@ then
     echo
 
     PS3='[Input Required][REDSHIFT Details]: Please select your Redshift node type choice: '
-    options=("dc1.large" "dc1.8xlarge" "dc2.large" "dc2.8xlarge" "ra3.xlplus" "ra3.4xlarge" "ra3.16xlarge" )
+    options=("dc2.large" "dc2.8xlarge" "ra3.xlplus" "ra3.4xlarge" "ra3.16xlarge" )
     select selection in "${options[@]}"; do
         if [[ $REPLY == "0" ]]; then
             echo 'Goodbye' >&2
@@ -365,40 +365,40 @@ PS3='[Input Required][REGION] Please select your region: '
     echo
 }
 configureMiscDetails
-confirmationMenu (){
-PS3='You may change any details here, otherwise input 6 and ENTER to launch the toolkit: '
-options=("Reconfigure VPC Details" "Reconfigure Redshift Details" "Reconfigure DMS/SCT Details" "Reconfigure Jmeter Details" "Reconfigure Region/Stack Name/On-Prem CIDR" "Launch Resources")
-select opt in "${options[@]}"
-do
-    case $opt in
-        "Reconfigure VPC Details")
-            configureVPCDetails
-            confirmationMenu
-            ;;
-        "Reconfigure Redshift Details")
-            configureRedshiftDetails
-            confirmationMenu
-            ;;
-        "Reconfigure DMS/SCT Details")
-            configureSCTDMSDetails
-            confirmationMenu
-            ;;
-         "Reconfigure Jmeter Details")
-            configureJMeterDetails
-            confirmationMenu
-            ;;
-         "Reconfigure Region/Stack Name/On-Prem CIDR")
-            configureMiscDetails
-            confirmationMenu
-            ;;
-        "Launch Resources")
-            break
-            ;;
-        *) echo "invalid option $REPLY";;
-    esac
+while true; do
+    PS3='If you wish to change any inputs. Please enter your choice: '
+    options=("Reconfigure VPC Details" "Reconfigure Redshift Details" "Reconfigure DMS/SCT Details" "Reconfigure Jmeter Details" "Reconfigure Region/Stack Name/On-Prem CIDR" "Launch Resources")
+    select opt in "${options[@]}"
+    do
+        case $opt in
+            "Reconfigure VPC Details")
+                configureVPCDetails;
+                break
+                ;;
+            "Reconfigure Redshift Details")
+                configureRedshiftDetails;
+                break
+                ;;
+            "Reconfigure DMS/SCT Details")
+                configureSCTDMSDetails;
+                break
+                ;;
+            "Reconfigure Jmeter Details")
+                configureJMeterDetails;
+                break
+                ;;
+            "Reconfigure Region/Stack Name/On-Prem CIDR")
+                configureMiscDetails;
+                break
+                ;;
+            "Launch Resources")
+                break 2
+                ;;
+            *) echo "invalid option $REPLY";;
+        esac
+    done
 done
-}
-confirmationMenu
+
 JSON_STRING=$( jq -n \
                   --arg bn "$vpc_id" \
                   --arg on "$redshift_endpoint" \
