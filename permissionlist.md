@@ -138,6 +138,7 @@
             "Sid": "VisualEditor0",
             "Effect": "Allow",
             "Action": [
+                "iam:SimulatePrincipalPolicy",
                 "iam:GetRole",
                 "iam:PassRole",
                 "iam:DetachRolePolicy",

@@ -37,7 +37,8 @@ class DmsOnPremToRedshiftStack(core.Stack):
 
         #--------CREATE DMS INSTANCE--------
         subnet_type = dmsmigration_config.get('subnet_type')
-
+        dms_instance_type = dmsmigration_config.get('dms_instance_type')
+        
         # DMS IAM Role
         self.dms_vpc_role()
         self.dms_cloudwatch_logs_role()
@@ -64,7 +65,7 @@ class DmsOnPremToRedshiftStack(core.Stack):
         self.dms_instance = aws_dms.CfnReplicationInstance(
             self,
             "DMSInstance",
-            replication_instance_class="dms.t3.medium",
+            replication_instance_class=dms_instance_type,
             allocated_storage=50,
             allow_major_version_upgrade=None,
             auto_minor_version_upgrade=None,

@@ -23,6 +23,7 @@ encryption=""
 loadTPCdata=""
 #DMS Details
 migration_type=""
+dms_instance_type=""
 dms_subnet_type=""
 source_db=""
 source_engine=""
@@ -227,6 +228,18 @@ then
             break
         fi     
     done
+    PS3='[Input Required][DMS Details]: Please select your DMS Instance Size: '
+    options=("dms.t3.medium" "dms.t3.large")
+    select selection in "${options[@]}"; do
+        if [[ $REPLY == "0" ]]; then
+            echo 'Goodbye' >&2
+            exit
+        else
+            echo "You have chosen $selection"
+            dms_instance_type=$selection
+            break
+        fi     
+    done
     echo
     PS3='[Input Required][DMS Details]: Please select your migration type: '
     options=( "full-load" "cdc" "full-load-and-cdc")
@@ -417,6 +430,7 @@ JSON_STRING=$( jq -n \
                   --arg en "$encryption" \
                   --arg ltd "$loadTPCdata" \
                   --arg dmsST "$dms_subnet_type" \
+                  --arg dmsIns "$dms_instance_type" \
                   --arg mt "$migration_type" \
                   --arg sdb "$source_db" \
                   --arg se "$source_engine" \
@@ -449,6 +463,7 @@ JSON_STRING=$( jq -n \
                         loadTPCdata: $ltd
                     },
                     dms_migration:{
+                        dms_instance_type: $dmsIns,
                         subnet_type: $dmsST,
                         migration_type: $mt
                     },
