@@ -89,7 +89,7 @@ then
     
     echo "[$coloredLoading]Loading your VPC's..."
     echo
-    ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
+    ~/amazon-redshift-infrastructure-automation/scripts/shell_menu/bash-menu-cli-commands.sh
     readarray -t list < vpclist.txt
     PS3='[Input Required] Please select your VPC: '
     select selection in "${list[@]}"; do
@@ -105,7 +105,8 @@ then
     echo "You have choosen $selection"
 fi
 }
-##Execute
+
+##Call VPC Menu
 configureVPCDetails
 echo
 
@@ -184,7 +185,7 @@ elif [ "$redshift_endpoint" = "N/A" ];
 then
     echo "[$coloredLoading]Loading your Redshift Clusters..."
     echo
-     ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
+     ~/amazon-redshift-infrastructure-automation/scripts/shell_menu/bash-menu-cli-commands.sh
             readarray -t list < redshiftlist.txt
             PS3='[Input Required] Please select your Redshift Cluster: '
             select selection in "${list[@]}"; do
@@ -200,8 +201,11 @@ then
             echo "You have choosen $selection"
 fi
 }
+## CALL REDSHIFT MENU
 configureRedshiftDetails
 echo
+
+
 ##ANYTHING RELATED TO DMS DETAILS
 configureSCTDMSDetails (){
 while true; do
@@ -278,6 +282,7 @@ then
     read -r -p "$coloredQuestion [DMS DETAILS] What is the source port: " source_port
 fi
 echo
+
 if [ "$dms_migration_to_redshift_target" = "CREATE" ]; 
 then 
 while true; do
@@ -290,11 +295,12 @@ while true; do
 done
 fi
 echo
+
 if [ "$sct_on_prem_to_redshift_target" = "CREATE" ]; 
 then
     echo "[$coloredLoading]Loading your account keypairs..."
     echo
-    ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
+    ~/amazon-redshift-infrastructure-automation/scripts/shell_menu/bash-menu-cli-commands.sh
      readarray -t list < keypairlist.txt
         number=$(wc -l < keypairlist.txt) 
         if [ $number = "0" ]; 
@@ -311,8 +317,12 @@ then
         echo "You have choosen $selection"
 fi
 }
+
+## CALL SCT MENU
 configureSCTDMSDetails
 echo
+
+## ANYTHING RELATED TO JMETER
 configureJMeterDetails (){
 while true; do
     read -r -p "$coloredQuestion Would you like to use Jmeter? (Y/N): " answer
@@ -340,7 +350,7 @@ then
     echo
     echo "[$coloredLoading]Loading your account keypairs..."
     echo
-    ~/amazon-redshift-infrastructure-automation/scripts/bash-menu-cli-commands.sh
+    ~/amazon-redshift-infrastructure-automation/scripts/shell_menu/bash-menu-cli-commands.sh
     readarray -t list < keypairlist.txt
     number=$(wc -l < keypairlist.txt)
         PS3='[Input Required] Please select the keypair for Jmeter: '
@@ -356,6 +366,7 @@ then
         echo "You have choosen $selection"
 fi
 }
+## CALL JMETER MENU
 configureJMeterDetails
 echo
 configureMiscDetails (){
@@ -377,6 +388,8 @@ PS3='[Input Required][REGION] Please select your region: '
     read -p "$coloredQuestion Enter your on prem CIDR range (format xxx.xxx.xxx.xxx/xx): " onprem_cidr
     echo
 }
+
+##CALL MISC DETAILS MENU
 configureMiscDetails
 while true; do
     PS3='If you wish to change any inputs. Please enter your choice: '
@@ -412,6 +425,7 @@ while true; do
     done
 done
 
+## TAKE SAVED VARIABLES AND BUILD USER_CONFIG.JSON FILE
 JSON_STRING=$( jq -n \
                   --arg bn "$vpc_id" \
                   --arg on "$redshift_endpoint" \

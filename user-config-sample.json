@@ -21,6 +21,7 @@
     "loadTPCdata": "Y"
   },
   "dms_migration": {
+    "dms_instance_type": "dms.t3.medium",
     "subnet_type": "PUBLIC",
     "migration_type": "full-load"
   },
