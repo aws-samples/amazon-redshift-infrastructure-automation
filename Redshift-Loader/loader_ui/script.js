@@ -1,5 +1,8 @@
 var idToken = null;
 
+// Checks if the user is logged in with a valid token, otherwise they will be redirected to the sign-in page.
+// If the UI webpage times out, they will still be on the webpage but their tables and metrics
+// will not load where the user will have to press the logout button to sign in again.
 function checkLoginAndLoadInfo() {
   idToken = window.location.hash.substr(1).split('&')[0].split('id_token=')[1]
   if (idToken != null) {
@@ -16,6 +19,8 @@ function checkLoginAndLoadInfo() {
   }
 }
 
+// Sets the credentials based on parameter variables pulled from the config.js file that is created from 
+// launching the CloudFormation template.
 function auth() {
   var creds = {};  
   AWS.config.update({
@@ -28,10 +33,14 @@ function auth() {
   AWS.config.credentials = new AWS.CognitoIdentityCredentials(creds);
 }
 
+// Sets the screen to display the Cognito sign-in page.
 function loadLoginPage() {
   window.location.href = cognitoSignInSignUpURL
 }
 
+// Captures the current timestamp and calculates an adjusted timestamp based on the user's
+// selection from the time filter dropdown on the UI webpage. The function returns an array
+// containing both timestamps that were formatted using MomentJS.
 function subtractHoursFromCurrentTimeStamp() {
   let timeSelect = document.getElementById('timeDropdown');
   let timeSelectValue = timeSelect.options[timeSelect.selectedIndex].value;
@@ -61,12 +70,19 @@ function subtractHoursFromCurrentTimeStamp() {
   return [formattedCurrentTimeStamp, formattedAdjustedTimeStamp]
 }
 
+// Calls the populateCopyCommandDetailsAndCountCopyCommands() and populateFileDetails() functions
+// to combine them into one function for populating all the tables in the "Load details overview" pane by
+// using the time filter dropdown.
 function timeDropdownFunctionCalls() {
   
   populateCopyCommandDetailsAndCountCopyCommands()
   populateFileDetails()
 }
 
+// Populates the Copy Command Details table and counts the number of loads by status by calling the countCopyCommands()
+// function. This function works with the timestamp values of the array returned by the subtractHoursFromCurrentTimeStamp()
+// function. If the two timestamp values are equal to each other, this means that the user chose to see the load details
+// over the course of all their time with using the auto loader. The scan filter is dropped if "All Time" was selected.
 function populateCopyCommandDetailsAndCountCopyCommands() {
 
   var docClient = new AWS.DynamoDB.DocumentClient();
@@ -126,6 +142,8 @@ function populateCopyCommandDetailsAndCountCopyCommands() {
   });
 }
 
+// Populates the S3 File Details table and works with the timestamp values of the array returned by 
+// the subtractHoursFromCurrentTimeStamp() function, similar to the populateCopyCommandDetailsAndCountCopyCommands() function.
 function populateFileDetails() {
 
   var docClient = new AWS.DynamoDB.DocumentClient();
@@ -178,6 +196,7 @@ function populateFileDetails() {
   });
 }
 
+// Populates the Redshift Table Details table in the "Loader configuration" pane.
 function populateRedshiftTableDetails() {
 
   var docClient = new AWS.DynamoDB.DocumentClient();
@@ -210,6 +229,7 @@ function populateRedshiftTableDetails() {
   });
 }
 
+// Populates the Loader Parameter Details table in the "Loader configuration" pane.
 function populateLoaderParameterDetails() {
 
   var docClient = new AWS.DynamoDB.DocumentClient();
@@ -241,6 +261,8 @@ function populateLoaderParameterDetails() {
   });
 }
 
+// Counts the number of loads by status directly from the rows returned in the Copy Command Details table 
+// on the UI webpage itself.
 function countCopyCommands() {
 
   let numRowsFinished = $("#copyCommandDetails tr:contains('FINISHED')").length;
