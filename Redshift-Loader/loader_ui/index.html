@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <title>Amazon Redshift S3 Auto Loader UI</title>
+
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="icon" type="image/x-icon" href="/images/aws_logo_favicon.ico">
+
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
+    <script src="js/aws-cognito-sdk.min.js"></script>
+    <script src="js/amazon-cognito-identity.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="script.js"></script>
+    <script src="config.js"></script>
+  </head>
+  
+  <body id="loaderUserInterfaceContent" onload="checkLoginAndLoadInfo()">
+
+    <img id="AWSLogo" src="images/AWS_logo_RGB.png" alt="AWS logo">
+
+    <button id="loginBtn" onclick="loadLoginPage();">Logout</button>
+
+    <div id="welcomeMsg"></div> <br>
+
+    <h1>Amazon Redshift S3 Auto Loader</h1>
+    
+    <br><br><br>
+
+    <div class="sectionBlock">
+
+      <div class="sectionBlockHeadingContent">
+        <select id="timeDropdown" name="lastTimeFrames" onchange="timeDropdownFunctionCalls();">
+          <option value="24">Last 24 Hours</option>
+          <option value="168">Last 7 Days</option>
+          <option value="allTime">All Time</option>
+        </select>
+        <h2>Load details overview</h2>
+        <br>
+        <button class="refreshBtn" onclick="populateCopyCommandDetailsAndCountCopyCommands();"><i class="fa fa-refresh"></i></button>
+      </div>
+
+      <table id="metricsTbl">
+        <thead><tr><th>Executing Loads</th><th>Failed Loads</th><th>Completed Loads</th><th>Attempted Loads</th></tr></thead>
+        <tbody id="metricsTblTBody"><tr><td colspan=4>Please login to read the load metrics.</td></tr></tbody>
+      </table>
+    
+      <br><br>
+
+      <div class="sectionBlockHeadingContent">
+        <br>
+        <h3>Copy Command Details</h3>
+      </div>
+      
+      <div id="copyCommandDetailsWindow">
+        <table class="detailsTbl" id="copyCommandDetails">
+          <thead><tr><th>Copy Command SQL</th><th>Copy Command Status</th><th>Finish Timestamp (UTC)</th><th>Log Timestamp (UTC)</th><th>Redshift Query ID</th><th>Redshift Schema</th><th>Redshift Table Name</th><th>S3 Manifest File Path</th><th>S3 Table Name</th></tr></thead>
+          <tbody><tr><td colspan=9>Please login to read the loader copy command details.</td></tr></tbody>
+        </table>
+      </div>
+
+      <div class="sectionBlockHeadingContent">
+        <br>
+        <button class="refreshBtn" onclick="populateFileDetails();"><i class="fa fa-refresh"></i></button>
+        <h3>S3 File Details</h3>
+      </div>
+
+      <table class="detailsTbl" id="fileDetails">
+        <thead><tr><th>S3 Table Name</th><th>File Created Timestamp (UTC)</th><th>File Content Length</th><th>S3 File Path</th></tr></thead>
+        <tbody><tr><td colspan=4>Please login to read the S3 file details.</td></tr></tbody>
+      </table>
+
+    </div>
+
+    <br><br>
+
+    <div class="sectionBlock">
+
+      <div class="sectionBlockHeadingContent">
+        <h2>Loader configuration</h2>
+        <br>
+        <button class="refreshBtn" onclick="populateRedshiftTableDetails();"><i class="fa fa-refresh"></i></button>
+        <h3>Redshift Table Details</h3>
+      </div>
+
+      <table class="detailsTbl" id="redshiftTableDetails">
+        <thead><tr><th>S3 Table Name</th><th>Additional Copy Options</th><th>IAM Role</th><th>Load Status</th><th>Max File Proccessed Timestamp (UTC)</th><th>Redshift Schema</th><th>Redshift Table Name</th><th>Schema Detection Completed</th><th>Schema Detection Failed</th></tr></thead>
+        <tbody><tr><td colspan=9>Please login to read the loader Redshift table details.</td></tr></tbody>
+      </table>
+    
+      <br><br>
+
+      <div class="sectionBlockHeadingContent">
+        <br>
+        <button class="refreshBtn" onclick="populateLoaderParameterDetails();"><i class="fa fa-refresh"></i></button>
+        <h3>Loader Parameter Details</h3>
+      </div>
+      
+      <table class="detailsTbl" id="loaderParameterDetails">
+        <thead><tr><th>Redshift Cluster Identifier</th><th>Copy Default Options</th><th>Initiate Schema Detection Global Var</th><th>No of Copy Commands</th><th>Redshift Database</th><th>Redshift IAM Role</th><th>Redshift User</th><th>Schedule Frequency</th></tr></thead>
+        <tbody><tr><td colspan=8>Please login to read the loader parameter details.</td></tr></tbody>
+      </table>
+
+    </div>
+    
+  </body>
+    
+</html>
