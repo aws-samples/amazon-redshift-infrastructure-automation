@@ -1,5 +1,5 @@
 echo "Installing dependencies...."; sudo yum -y install gcc gcc-c++ python3 python3-devel unixODBC unixODBC-devel aws-cfn-bootstrap > /dev/null; echo " done."
-echo "Installing aws-cdk...."; sudo npm install -g aws-cdk@1.x > /dev/null; echo " done."
+echo "Installing aws-cdk...."; sudo npm install -g aws-cdk@2.x > /dev/null; echo " done."
 chmod +x ~/amazon-redshift-infrastructure-automation/scripts/shell_menu/menu-script.sh
 chmod +x ~/amazon-redshift-infrastructure-automation/scripts/shell_menu/bash-menu-cli-commands.sh
 chmod +x ~/amazon-redshift-infrastructure-automation/scripts/shell_menu/menu-welcome-message.sh
