@@ -23,6 +23,7 @@
 
   },
   "dms_migration": {
+    "dms_instance_type": "",
     "subnet_type": "__",
     "migration_type": "__"
   },

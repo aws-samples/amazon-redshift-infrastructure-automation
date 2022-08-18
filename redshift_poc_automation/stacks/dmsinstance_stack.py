@@ -50,7 +50,7 @@ class DmsInstanceStack(core.Stack):
         #       role_name = "dms-vpc-role"
         #   )
         subnet_type = dms_config.get('subnet_type')
-
+        dms_instance_type = dms_config.get('dms_instance_type')
         if subnet_type == 'PUBLIC':
             subnets = vpc.get_vpc_public_subnet_ids
         else:
@@ -69,7 +69,7 @@ class DmsInstanceStack(core.Stack):
         self.dms_instance = aws_dms.CfnReplicationInstance(
             self,
             "DMSInstance",
-            replication_instance_class="dms.t3.medium",
+            replication_instance_class=dms_instance_type,
             allocated_storage=50,
             allow_major_version_upgrade=None,
             auto_minor_version_upgrade=None,

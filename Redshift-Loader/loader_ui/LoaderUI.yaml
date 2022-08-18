@@ -1,0 +1,298 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+
+  S3BucketReadPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3Bucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action: 's3:GetObject'
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginAccessIdentity}'
+            Resource: !Join 
+                        - ''
+                        - - 'arn:aws:s3:::'
+                          - !Ref S3Bucket
+                          - /*
+
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: "loader-ui-oai"
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties: 
+      DistributionConfig: 
+        Enabled: True
+        DefaultRootObject: index.html
+        Origins:
+        - S3OriginConfig:
+            OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
+          DomainName: !GetAtt S3Bucket.DomainName
+          Id: LoaderS3Origin
+        DefaultCacheBehavior:
+          TargetOriginId: LoaderS3Origin
+          ViewerProtocolPolicy: "redirect-to-https"
+          ForwardedValues:
+            Cookies:
+              Forward: none
+            QueryString: false
+
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties: 
+      AutoVerifiedAttributes:
+        - email
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      UsernameConfiguration:
+        CaseSensitive: False
+      Schema:
+        - Name: email
+          Required: True
+          AttributeDataType: String
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: True
+
+  CognitoUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      Domain: !Select [ "0", !Split [ ".", !GetAtt CloudFrontDistribution.DomainName ]]
+
+  CognitoAppClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      SupportedIdentityProviders:
+        - "COGNITO"
+      CallbackURLs:
+        - !Join
+            - ''
+            - - 'https://'
+              - !GetAtt CloudFrontDistribution.DomainName
+      DefaultRedirectURI: !Join
+                            - ''
+                            - - 'https://'
+                              - !GetAtt CloudFrontDistribution.DomainName
+      AllowedOAuthFlowsUserPoolClient: True
+      AllowedOAuthFlows:
+        - "code"
+        - "implicit"
+      AllowedOAuthScopes:
+        - "phone"
+        - "email"
+        - "openid"
+        - "aws.cognito.signin.user.admin"
+        - "profile"
+
+  CognitoIdentityPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties:
+      AllowUnauthenticatedIdentities: False
+      CognitoIdentityProviders:
+        - ClientId: 
+            !Ref CognitoAppClient
+          ProviderName:
+            !GetAtt CognitoUserPool.ProviderName
+
+  DynamoDBAuthIAMRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated:
+                - "cognito-identity.amazonaws.com"
+            Action:
+              - sts:AssumeRoleWithWebIdentity
+      Policies:
+        - PolicyName: loader-ui-dynamodb-policy
+          PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - 'dynamodb:GetItem'
+                    - 'dynamodb:Scan'
+                  Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/s3_data_loader*'
+
+  CognitoIdentityPoolRoleAttachment:
+    Type: AWS::Cognito::IdentityPoolRoleAttachment
+    Properties:
+      IdentityPoolId: !Ref CognitoIdentityPool
+      Roles:
+        "authenticated": !GetAtt DynamoDBAuthIAMRole.Arn
+
+  CreateConfigFileAndCopyStaticFiles:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.lambda_handler
+      Role: !GetAtt LambdaAuthIAMRole.Arn
+      Runtime: python3.9
+      Environment:
+        Variables:
+          awsAcctRegion: !Sub '${AWS::Region}'
+          cloudFrontURL: !Join
+                        - ''
+                        - - 'https://'
+                          - !GetAtt CloudFrontDistribution.DomainName
+                          - '/'
+          cognitoIdentityPoolId: !Ref CognitoIdentityPool
+          cognitoSignInSignUpURL: !Join
+                                - ''
+                                - - 'https://'
+                                  - !Ref CognitoUserPoolDomain
+                                  - !Sub '.auth.${AWS::Region}.amazoncognito.com/login?client_id='
+                                  - !Ref CognitoAppClient
+                                  - '&response_type=token&scope='
+                                  - 'aws.cognito.signin.user.admin+email+openid+phone+profile&redirect_uri='
+                                  - 'https://'
+                                  - !GetAtt CloudFrontDistribution.DomainName
+                                  - '/'
+          cognitoUserPoolId: !Ref CognitoUserPool
+          target_bucket: !Ref S3Bucket
+      Timeout: 5
+      MemorySize: 512
+      Code:
+        ZipFile: |
+          import boto3
+          import os
+          import json
+          import cfnresponse
+
+          def lambda_handler(event, context):
+              config_string = """var cloudFrontURL = "{cloudFrontURL}";
+
+          var cloudFrontURLString = cloudFrontURL + "#" + cloudFrontURL + "#id_token=";
+
+          var cognitoIdentityPoolId = "{cognitoIdentityPoolId}";
+
+          var cognitoSignInSignUpURL = "{cognitoSignInSignUpURL}";
+
+          var cognitoUserPoolId = "{cognitoUserPoolId}";
+
+          var awsAcctRegion = "{awsAcctRegion}";
+
+          var loginsKey = "cognito-idp." + awsAcctRegion + ".amazonaws.com/" + cognitoUserPoolId;
+          """.format(cloudFrontURL = os.environ['cloudFrontURL'], cognitoIdentityPoolId = os.environ['cognitoIdentityPoolId'], cognitoSignInSignUpURL = os.environ['cognitoSignInSignUpURL'], cognitoUserPoolId = os.environ['cognitoUserPoolId'], awsAcctRegion = os.environ['awsAcctRegion'])
+
+              # Creating the connection with the resource
+              s3 = boto3.resource('s3')
+
+              bucket = s3.Bucket(os.environ['target_bucket'])
+
+              responseData={}
+              responseValue=100
+              try:
+                if event['RequestType'] == 'Create' or event['RequestType'] == 'Update':
+                  responseValue=101
+
+                  file_name = "config.js"
+                  
+                  s3.Bucket(bucket.name).put_object(Key=file_name, Body=config_string)
+                  
+                  # Declaring the source files to be copied
+                  copy_source_index = {'Bucket': 'redshift-blogs', 'Key': 'redshift-auto-loader-ui/index.html'}
+                  copy_source_script_js = {'Bucket': 'redshift-blogs', 'Key': 'redshift-auto-loader-ui/script.js'}
+                  copy_source_images_aws_logo_favicon = {'Bucket': 'redshift-blogs', 'Key': 'redshift-auto-loader-ui/images/aws_logo_favicon.ico'}
+                  copy_source_images_aws_logo_rgb = {'Bucket': 'redshift-blogs', 'Key': 'redshift-auto-loader-ui/images/AWS_logo_RGB.png'}
+                  copy_source_images_loading = {'Bucket': 'redshift-blogs', 'Key': 'redshift-auto-loader-ui/images/loading.gif'}
+                  copy_source_css = {'Bucket': 'redshift-blogs', 'Key': 'redshift-auto-loader-ui/styles.css'}
+                  copy_source_js_cognito1 = {'Bucket': 'redshift-blogs', 'Key': 'redshift-auto-loader-ui/js/amazon-cognito-identity.min.js'}
+                  copy_source_js_cognito2 = {'Bucket': 'redshift-blogs', 'Key': 'redshift-auto-loader-ui/js/amazon-cognito-identity.min.js.map.txt'}
+                  copy_source_js_sdk1 = {'Bucket': 'redshift-blogs', 'Key': 'redshift-auto-loader-ui/js/aws-cognito-sdk.min.js'}
+                  copy_source_js_sdk2 = {'Bucket': 'redshift-blogs', 'Key': 'redshift-auto-loader-ui/js/aws-cognito-sdk.min.js.map.txt'}
+                  
+                  # Copying the files to target bucket 
+                  bucket.copy(copy_source_index, 'index.html')
+                  bucket.copy(copy_source_script_js, 'script.js')
+                  bucket.copy(copy_source_images_aws_logo_favicon, 'images/aws_logo_favicon.ico')
+                  bucket.copy(copy_source_images_aws_logo_rgb, 'images/AWS_logo_RGB.png')
+                  bucket.copy(copy_source_images_loading, 'images/loading.gif')
+                  bucket.copy(copy_source_css, 'styles.css')
+                  bucket.copy(copy_source_js_cognito1, 'js/amazon-cognito-identity.min.js')
+                  bucket.copy(copy_source_js_cognito2, 'js/amazon-cognito-identity.min.js.map.txt')
+                  bucket.copy(copy_source_js_sdk1, 'js/aws-cognito-sdk.min.js')
+                  bucket.copy(copy_source_js_sdk2, 'js/aws-cognito-sdk.min.js.map.txt')
+                responseStatus = 'SUCCESS'
+              except Exception as e:
+                responseStatus = 'FAILED'
+                responseValue = 102
+              responseData['Data'] = responseValue
+              cfnresponse.send(event, context, responseStatus, responseData)
+
+  LambdaAuthIAMRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: create_config_file_and_copy_static_files_policy
+          PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - 's3:PutObject'
+                  Resource: !Sub 'arn:aws:s3:::${S3Bucket}/*'
+                - Effect: Allow
+                  Action:
+                    - 's3:GetObject'
+                  Resource: !Sub 'arn:aws:s3:::redshift-blogs/*'
+
+  LambdaInvoke:
+    Type: AWS::CloudFormation::CustomResource
+    DependsOn: CreateConfigFileAndCopyStaticFiles
+    Properties:
+      ServiceToken: !GetAtt CreateConfigFileAndCopyStaticFiles.Arn
+
+Outputs:
+  CloudFrontURL:
+    Description: CloudFront URL to access the UI webpage deployed from this template
+    Value: !Join
+          - ''
+          - - 'https://'
+            - !GetAtt CloudFrontDistribution.DomainName
+            - '/'
+  CognitoSignInSignUpURL:
+    Description: Cognito URL to access the sign-in/sign-up page deployed from this template
+    Value: !Join
+          - ''
+          - - 'https://'
+            - !Ref CognitoUserPoolDomain
+            - !Sub '.auth.${AWS::Region}.amazoncognito.com/login?client_id='
+            - !Ref CognitoAppClient
+            - '&response_type=token&scope='
+            - 'aws.cognito.signin.user.admin+email+openid+phone+profile&redirect_uri='
+            - 'https://'
+            - !GetAtt CloudFrontDistribution.DomainName
+            - '/'
+  CognitoIdentityPoolId:
+    Description: Identity pool ID pulled from Cognito to be inputted into the UI code
+    Value: !Ref CognitoIdentityPool
+  CognitoUserPoolId:
+    Description: User pool ID pulled from Cognito to be inputted into the UI code
+    Value: !Ref CognitoUserPool
+  Region:
+    Description: Region pulled from the AWS account launching the loader UI CFN template to be inputted into the UI code
+    Value: !Sub '${AWS::Region}'
