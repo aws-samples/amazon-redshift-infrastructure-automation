@@ -4,8 +4,7 @@ Parameters:
   RedshiftClusterIdentifier:
     Description: Cluster Identifier for your redshift cluster
     Type: String
-    #Default: 'YourRedshiftClusterIdentiifer'
-    Default: 'redshift-cluster-1'
+    Default: 'YourRedshiftClusterIdentiifer'
   DatabaseUserName:
     Description: Redshift database user name which has access to run SQL Script.
     Type: String
@@ -27,8 +26,7 @@ Parameters:
   RedshiftIAMRoleARN:
     Description: AWS IAM Role ARN associated with the Redshift cluster.  If default IAM role is set for cluster and has access to your s3 bucket leave it to default
     Type: String
-    #Default: 'YourClusterRoleARN'
-    Default: 'arn:aws:iam::123456789:role/RedshiftRole'
+    Default: 'YourClusterRoleARN'
   # NotificationEmailId:
   #   Type: String
   #   Description: EmailId to send event notifications through Amazon SNS
@@ -74,7 +72,14 @@ Metadata:
         - CopyCommandOptions
         - CopyCommandSchedule
         - SourceS3Bucket
-
+Mappings:
+  RegionMap:
+    us-east-1: # Virginia
+      "S3BucketMap" : "redshift-blogs"
+      "S3KeyMap" : "redshift-s3-auto-loader/awswrangler-layer-2.15.1-py3.9.zip"
+    us-west-2: # Oregon
+      "S3BucketMap" : "redshift-immersionday-labs"
+      "S3KeyMap" : "awswrangler-layer-2.15.1-py3.9.zip"
 Resources:
   # RedshiftNotificationTopicSNS:
   #   Type: AWS::SNS::Topic
@@ -294,7 +299,7 @@ Resources:
       Role: !GetAtt 's3LoaderLambdaRole.Arn'
       Runtime: python3.9
       Layers:
-        - arn:aws:lambda:us-east-1:336392948345:layer:AWSDataWrangler-Python39:5
+        - !Ref DataWranglerLayer
       EphemeralStorage:
         Size: 5120
       MemorySize: 10240
@@ -314,20 +319,22 @@ Resources:
           import json
           import urllib.parse
           import boto3
-          import time
           import csv
           import os
+          import time
           from pyarrow.parquet import ParquetFile
           import pandas as pd
           import pyarrow as pa
           import pyarrow.parquet as pq
           import awswrangler as wr
-          from datetime import datetime , timedelta
+          from dateutil.parser import parse
+          from datetime import date, datetime, timedelta
 
           dynamodb = boto3.resource('dynamodb')
           global_table_name = ''
           global_schema_name =''
           global_file_type = 'csv'
+          global_additional_copy_parameters = ''
 
           def AddTableMetadata(s3_table_name_config,rs_iam_role ,redshift_schema,copy_default_options):
               status = 0
@@ -377,7 +384,6 @@ Resources:
                   #### schema creation end #########
 
 
-
                   dynamoTable_config.put_item(
                       Item={'s3_table_name': s3_table_name_config, 'redshift_table_name': redshift_tbl_name,'max_file_proccessed_timestamp': file_last_processed_timestamp , 'load_status': 'inactive' , 'iam_role':rs_iam_role ,'additional_copy_options':copy_default_options,'redshift_schema':redshift_schema,'schema_detection_completed': 'No'})
                   status =1
@@ -389,6 +395,9 @@ Resources:
               status = 0
               global global_table_name
               global global_schema_name
+              global global_additional_copy_parameters
+              global global_file_type
+              global global_s3_table_name_config
 
               dynamoTable_config = dynamodb.Table('s3_data_loader_table_config')
               response = dynamoTable_config.get_item(Key={'s3_table_name': s3_table_name_config})
@@ -398,18 +407,27 @@ Resources:
               print('DetectSchemaUpdateMetadata : DynamoDB table info')
               print(response)
 
+              global_s3_table_name_config = s3_table_name_config
+              print('Global S3 global_s3_table_name_config')
+              print(global_s3_table_name_config)
+
               if not full_s3_file_path.endswith('/'):
                   if os.environ['initiate_schema_detection'] == 'No':
                       dynamoTable_config.update_item(Key={ 's3_table_name': s3_table_name_config}, UpdateExpression="set load_status = :label", ExpressionAttributeValues={ ":label": "active" },ReturnValues="UPDATED_NEW")
 
                   elif response[item_key]['schema_detection_completed'] == 'No':
                       copy_command_additional_options = read_file_type_from_dynamodb_source(full_s3_file_path)
-                      dynamoTable_config.update_item(Key={ 's3_table_name': s3_table_name_config}, UpdateExpression="set schema_detection_completed = :label", ExpressionAttributeValues={ ":label": "Yes" },ReturnValues="UPDATED_NEW")
-                      dynamoTable_config.update_item(Key={ 's3_table_name': s3_table_name_config}, UpdateExpression="set additional_copy_options = :label", ExpressionAttributeValues={ ":label": copy_command_additional_options[0] },ReturnValues="UPDATED_NEW")
-                      dynamoTable_config.update_item(Key={ 's3_table_name': s3_table_name_config}, UpdateExpression="set load_status = :label", ExpressionAttributeValues={ ":label": "active" },ReturnValues="UPDATED_NEW")
+                      if copy_command_additional_options[0] != 'format as json \'auto\'':
+                          dynamoTable_config.update_item(Key={ 's3_table_name': s3_table_name_config}, UpdateExpression="set schema_detection_completed = :label", ExpressionAttributeValues={ ":label": "Yes" },ReturnValues="UPDATED_NEW")
+                          dynamoTable_config.update_item(Key={ 's3_table_name': s3_table_name_config}, UpdateExpression="set additional_copy_options = :label", ExpressionAttributeValues={ ":label": copy_command_additional_options[0]},ReturnValues="UPDATED_NEW")
+                          dynamoTable_config.update_item(Key={ 's3_table_name': s3_table_name_config}, UpdateExpression="set load_status = :label", ExpressionAttributeValues={ ":label": "active" },ReturnValues="UPDATED_NEW")
 
-                      if copy_command_additional_options[1] == 'false':
-                          dynamoTable_config.update_item(Key={ 's3_table_name': s3_table_name_config}, UpdateExpression="set schema_detection_failed = :label", ExpressionAttributeValues={ ":label": "Yes" },ReturnValues="UPDATED_NEW")
+                          if copy_command_additional_options[1] == 'false':
+                              dynamoTable_config.update_item(Key={ 's3_table_name': s3_table_name_config}, UpdateExpression="set schema_detection_failed = :label", ExpressionAttributeValues={ ":label": "Yes" } ,ReturnValues="UPDATED_NEW")
+                              dynamoTable_config.update_item(Key={ 's3_table_name': s3_table_name_config}, UpdateExpression="set failed_reason = :label", ExpressionAttributeValues={ ":label": copy_command_additional_options[3] } ,ReturnValues="UPDATED_NEW")
+
+                      #print('schema detection failed')
+                      #dynamoTable_config.update_item(Key={ 's3_table_name': s3_table_name_config}, UpdateExpression="set schema_detection_failed = :label", ExpressionAttributeValues={ ":label": "Yes" },ReturnValues="UPDATED_NEW")
 
               return status
 
@@ -472,8 +490,6 @@ Resources:
               json_flag = False
               file_type='Not Identified'
               is_list = False
-
-              global global_file_type
 
               try:
                   df = wr.s3.read_parquet_metadata(path=table_name_path)
@@ -593,6 +609,8 @@ Resources:
               #             file_type='Not Identified'
 
               print('FILE TYPE: ' + file_type)
+              global global_file_type
+
               if (file_type == 'CSV'):
                   global_file_type='csv'
                   result = csv_parser(table_name_path)
@@ -605,17 +623,17 @@ Resources:
                           parse_csv(True, result[2])
 
                   return result
-              elif (file_type == 'JSON'):
+              elif file_type == 'JSON':
                   global_file_type='json'
                   read_json(is_list)
-                  return 'format as json \'auto\'', 'true'
-              elif (file_type == 'Parquet'):
+                  return 'format as json \'auto\'', 'true', is_list
+              elif file_type == 'Parquet':
                   global_file_type='parquet'
                   read_parquet(table_name_path)
-                  return 'format as parquet', 'true'
+                  return 'format as parquet', 'true', table_name_path
               else:
                   global_file_type='csv'
-                  return os.environ['copy_default_options'], 'false'
+                  return os.environ['copy_default_options'], 'false', '', 'Could not detect file type'
 
           def csv_parser(table_name_path):
               copy_command_additional_options='csv ignoreheader 1'
@@ -654,7 +672,8 @@ Resources:
                   copy_command_additional_options = 'csv delimiter \'|\''
                   return copy_command_additional_options, 'true', delimeter
               else:
-                  return copy_command_additional_options, 'false', ','
+                  print('DELIMIER NOT DETECTED IN CSV FILE - ISSUING STANDARD DELIMITER AS COMMA')
+                  return copy_command_additional_options, 'false', ',', 'delimiter not detected in csv file - issuing standard delimiter as comma'
 
           def split_s3_path(s3_path):
               path_parts=s3_path.replace("s3://","").split("/")
@@ -664,7 +683,12 @@ Resources:
 
           def parse_csv(has_header, delimeter):
 
-              df = pd.read_csv('/tmp/data', sep = delimeter, keep_default_na=False, nrows=200000)
+              try:
+                  df = pd.read_csv('/tmp/data', sep = delimeter, keep_default_na=False, nrows=200000)
+              except:
+                  dynamoTable_config = dynamodb.Table('s3_data_loader_table_config')
+                  dynamoTable_config.update_item(Key={ 's3_table_name': global_s3_table_name_config}, UpdateExpression="set failed_reason = :label", ExpressionAttributeValues={ ":label": 'unsupported delimeter type' } ,ReturnValues="UPDATED_NEW")
+                  dynamoTable_config.update_item(Key={ 's3_table_name': global_s3_table_name_config}, UpdateExpression="set load_status = :label", ExpressionAttributeValues={ ":label": "active" },ReturnValues="UPDATED_NEW")
 
               table_headers = df.columns.values.tolist()
               data_types = df.dtypes.astype(str).values.tolist()
@@ -704,7 +728,8 @@ Resources:
                           result[key] = []
                       result[key].append(val)
 
-              create_csv_ddl(json.loads(json.dumps(result)), df)
+              csv_file_confirmation = 'csv'
+              create_csv_ddl(json.loads(json.dumps(result)), df, csv_file_confirmation)
 
           def read_parquet(table_name_path):
               df = wr.s3.read_parquet_metadata(path=table_name_path)
@@ -715,8 +740,8 @@ Resources:
               cols = df[0].keys()
               datatypes = df[0].values()
               print(df[0])
-
-              create_csv_ddl(df[0], df_table)
+              parquet_file_confirmation = 'parquet'
+              create_csv_ddl(df[0], df_table, parquet_file_confirmation)
 
           def read_json(is_list):
 
@@ -767,23 +792,24 @@ Resources:
                           result[key] = []
                       result[key].append(val)
 
-              create_csv_ddl(json.loads(json.dumps(result)), df)
+              json_file_confirmation = 'json'
+              create_csv_ddl(json.loads(json.dumps(result)), df, json_file_confirmation)
 
-          def create_csv_ddl(keyanddatatypes, df):
+          def create_csv_ddl(keyanddatatypes, df, file_confirmation):
               buf = []
               #buf.append('CREATE TABLE IF NOT EXISTS ' + os.environ['redshift_database'] + '.public.' + global_table_name + ' (')
-              buf.append('CREATE TABLE IF NOT EXISTS ' + os.environ['redshift_database'] + '.' + global_schema_name + '.' + global_table_name + ' (')
+              buf.append('CREATE TABLE IF NOT EXISTS ' + '\"' + os.environ['redshift_database'] + '\"' + '.' + '\"' + global_schema_name + '\"' + '.' + '\"' + global_table_name + '\"' + ' (')
               # Tahir : added the change to remove hard code public schema and use the one which is in dynamoDB metadata table
               sizeof = len(keyanddatatypes)
               count=1;
               for key in keyanddatatypes:
-                value = keyanddatatypes[key] if global_file_type == 'parquet' else keyanddatatypes[key][0]
+                value = keyanddatatypes[key] if file_confirmation == 'parquet' else keyanddatatypes[key][0]
                 if count == sizeof:
-                  value = csv_data_type_mapping(key, value, df)
-                  total = key + ' ' + str(value)
+                  value = csv_data_type_mapping(key, value, df, file_confirmation)
+                  total = '\"' + key + '\"' + ' ' + str(value)
                 else:
-                  value = csv_data_type_mapping(key, value, df)
-                  total = key + ' ' + str(value) + ', '
+                  value = csv_data_type_mapping(key, value, df, file_confirmation)
+                  total = '\"' + key + '\"' + ' ' + str(value) + ', '
                 buf.append(total)
                 count = count + 1
 
@@ -795,13 +821,17 @@ Resources:
               print("---------print definition ---------")
               print(tabledef)
               df = ""
+              global_additional_copy_parameters = ''
               create_redshift_table(tabledef)
 
-          def csv_data_type_mapping(key, value, df):
+          def csv_data_type_mapping(key, value, df, file_confirmation):
+              global global_additional_copy_parameters
+
               if 'FLOAT' in value or 'float' in value or 'double' in value:
                   return 'FLOAT'
               elif 'INT' in value or 'int' in value:
                   if global_file_type == 'parquet':
+                      print('IN THE GLOBAL PARQUET FILE TYPE L')
                       return value
                   col_bytes_len = int(df[key].astype(bytes).str.len().max())
                   if col_bytes_len <= 4:
@@ -811,6 +841,36 @@ Resources:
                   else:
                       return 'INT'
               elif 'string' in value or 'object' in value:
+                  try:
+                      if file_confirmation == 'parquet':
+                          print('FILE CONFIRMATION')
+                          print(file_confirmation)
+                          raise
+                      datekey = str(df[key].iloc[0])
+                      print('PRINTING DATEKEY______')
+                      print(datekey)
+                      #datetime_obj = parse(datekey)
+                      if hasDateTime(datekey)[0] == False:
+                          if global_additional_copy_parameters == ' timeformat \'auto\'':
+                              global_additional_copy_parameters = global_additional_copy_parameters + ' dateformat \'auto\''
+                          else:
+                              global_additional_copy_parameters = ' dateformat \'auto\''
+                          print('PRINTING UPDATED COPY COMMAND')
+                          print(global_additional_copy_parameters)
+                          return 'DATE'
+                      elif hasDateTime(datekey)[0]:
+                          if global_additional_copy_parameters == ' dateformat \'auto\'':
+                              global_additional_copy_parameters = global_additional_copy_parameters + ' timeformat \'auto\''
+                          else:
+                              global_additional_copy_parameters = ' timeformat \'auto\''
+                          print('PRINTING UPDATED COPY COMMAND')
+                          print(global_additional_copy_parameters)
+                          return 'TIMESTAMP'
+                      else:
+                          raise
+                  except:
+                      print(key + ' is NOT a datetime object. value is ' + value)
+
                   try:
                       col_bytes_len = 3 * int(df[key].astype(bytes).str.len().max())
                       if col_bytes_len < 62535:
@@ -827,6 +887,10 @@ Resources:
               redshift_database = os.environ['redshift_database']
               redshift_user = os.environ['redshift_user']
               redshift_cluster_iam_role = os.environ['redshift_iam_role']
+              default_json_copy_parameter = 'format as json \'auto\''
+              global global_additional_copy_parameters
+              global global_table_name
+              global global_file_type
 
               try:
                 response = boto3.client("redshift-data").execute_statement(
@@ -835,9 +899,17 @@ Resources:
                   DbUser = redshift_user,
                   Sql = CREATE
                 )
+                print('redshift_ddl_response: ')
                 print(response)
+
               except Exception as e:
                 print('Invalid response from client')
+
+              if global_file_type == 'json':
+                dynamoTable_config = dynamodb.Table('s3_data_loader_table_config')
+                dynamoTable_config.update_item(Key={ 's3_table_name': global_s3_table_name_config}, UpdateExpression="set schema_detection_completed = :label", ExpressionAttributeValues={ ":label": "Yes" },ReturnValues="UPDATED_NEW")
+                dynamoTable_config.update_item(Key={ 's3_table_name': global_s3_table_name_config}, UpdateExpression="set additional_copy_options = :label", ExpressionAttributeValues={ ":label": default_json_copy_parameter + global_additional_copy_parameters},ReturnValues="UPDATED_NEW")
+                dynamoTable_config.update_item(Key={ 's3_table_name': global_s3_table_name_config}, UpdateExpression="set load_status = :label", ExpressionAttributeValues={ ":label": "active" },ReturnValues="UPDATED_NEW")
 
           def head(filename: str, n: int):
               try:
@@ -854,6 +926,37 @@ Resources:
             except ValueError:  # String is not a number
               return False
 
+          def hasDateTime(s):
+              try:
+                  return False, datetime.combine(date.fromisoformat(s), time.min)
+              except ValueError:
+                  return True, datetime.fromisoformat(s)
+
+          # def is_date(string, fuzzy=False):
+          #     """
+          #     Return whether the string can be interpreted as a date.
+
+          #     :param string: str, string to check for date
+          #     :param fuzzy: bool, ignore unknown tokens in string if True
+          #     """
+          #     try:
+          #         parse(string, fuzzy=fuzzy)
+          #         return True
+
+          #     except ValueError:
+          #         return False
+
+  DataWranglerLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      CompatibleRuntimes:
+        - python3.9
+      Content:
+        S3Bucket: !FindInMap [RegionMap, !Ref "AWS::Region", S3BucketMap]
+        S3Key: !FindInMap [RegionMap, !Ref "AWS::Region", S3KeyMap]
+      Description: Packages in AWS Data Wrangler
+      LayerName: AwsDataWrangler-Python39
+      LicenseInfo: Apache
 
 #step 3 lambda function
   s3LoaderUtilProcessPendingFiles :
@@ -1011,8 +1114,6 @@ Resources:
                     'statusCode': 200,
                     'body': json.dumps('S3 Loader Util Process Files')
                 }
-
-
 
 #step 2 lambda function
   s3LoaderUtilKickoffFileProcessing :
@@ -1431,7 +1532,7 @@ Resources:
                     NotificationConfiguration={}
                 )
                 print("Delete request completed....")
-      Runtime: python3.6
+      Runtime: python3.9
       Timeout: 60
 
   s3LoaderUtilLogFileMetadataLambdaTrigger:
