@@ -3,6 +3,13 @@ AWSTemplateFormatVersion: 2010-09-09
 Resources:
   S3Bucket:
     Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
 
   S3BucketReadPolicy:
     Type: AWS::S3::BucketPolicy
