@@ -22,7 +22,7 @@ Resources:
             Effect: Allow
             Principal:
               AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginAccessIdentity}'
-            Resource: !Join 
+            Resource: !Join
                         - ''
                         - - 'arn:aws:s3:::'
                           - !Ref S3Bucket
@@ -36,8 +36,8 @@ Resources:
 
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
-    Properties: 
-      DistributionConfig: 
+    Properties:
+      DistributionConfig:
         Enabled: True
         DefaultRootObject: index.html
         Origins:
@@ -55,7 +55,7 @@ Resources:
 
   CognitoUserPool:
     Type: AWS::Cognito::UserPool
-    Properties: 
+    Properties:
       AutoVerifiedAttributes:
         - email
       AccountRecoverySetting:
@@ -108,14 +108,14 @@ Resources:
     Properties:
       AllowUnauthenticatedIdentities: False
       CognitoIdentityProviders:
-        - ClientId: 
+        - ClientId:
             !Ref CognitoAppClient
           ProviderName:
             !GetAtt CognitoUserPool.ProviderName
 
   DynamoDBAuthIAMRole:
     Type: AWS::IAM::Role
-    Properties: 
+    Properties:
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -179,8 +179,12 @@ Resources:
           import os
           import json
           import cfnresponse
+          import logging
+          logger = logging.getLogger()
+          logger.setLevel(logging.INFO)
 
           def lambda_handler(event, context):
+              logger.info(event)
               config_string = """var cloudFrontURL = "{cloudFrontURL}";
 
           var cloudFrontURLString = cloudFrontURL + "#" + cloudFrontURL + "#id_token=";
@@ -208,9 +212,9 @@ Resources:
                   responseValue=101
 
                   file_name = "config.js"
-                  
+
                   s3.Bucket(bucket.name).put_object(Key=file_name, Body=config_string)
-                  
+
                   # Declaring the source files to be copied
                   copy_source_index = {'Bucket': 'redshift-blogs', 'Key': 'redshift-auto-loader-ui/index.html'}
                   copy_source_script_js = {'Bucket': 'redshift-blogs', 'Key': 'redshift-auto-loader-ui/script.js'}
@@ -222,8 +226,8 @@ Resources:
                   copy_source_js_cognito2 = {'Bucket': 'redshift-blogs', 'Key': 'redshift-auto-loader-ui/js/amazon-cognito-identity.min.js.map.txt'}
                   copy_source_js_sdk1 = {'Bucket': 'redshift-blogs', 'Key': 'redshift-auto-loader-ui/js/aws-cognito-sdk.min.js'}
                   copy_source_js_sdk2 = {'Bucket': 'redshift-blogs', 'Key': 'redshift-auto-loader-ui/js/aws-cognito-sdk.min.js.map.txt'}
-                  
-                  # Copying the files to target bucket 
+
+                  # Copying the files to target bucket
                   bucket.copy(copy_source_index, 'index.html')
                   bucket.copy(copy_source_script_js, 'script.js')
                   bucket.copy(copy_source_images_aws_logo_favicon, 'images/aws_logo_favicon.ico')
@@ -243,7 +247,7 @@ Resources:
 
   LambdaAuthIAMRole:
     Type: AWS::IAM::Role
-    Properties: 
+    Properties:
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -261,11 +265,34 @@ Resources:
                 - Effect: Allow
                   Action:
                     - 's3:PutObject'
-                  Resource: !Sub 'arn:aws:s3:::${S3Bucket}/*'
+                  Resource:
+                    - !Sub 'arn:aws:s3:::${S3Bucket}/index.html'
+                    - !Sub 'arn:aws:s3:::${S3Bucket}/script.js'
+                    - !Sub 'arn:aws:s3:::${S3Bucket}/images/aws_logo_favicon.ico'
+                    - !Sub 'arn:aws:s3:::${S3Bucket}/images/AWS_logo_RGB.png'
+                    - !Sub 'arn:aws:s3:::${S3Bucket}/images/loading.gif'
+                    - !Sub 'arn:aws:s3:::${S3Bucket}/styles.css'
+                    - !Sub 'arn:aws:s3:::${S3Bucket}/js/amazon-cognito-identity.min.js'
+                    - !Sub 'arn:aws:s3:::${S3Bucket}/js/amazon-cognito-identity.min.js.map.txt'
+                    - !Sub 'arn:aws:s3:::${S3Bucket}/js/aws-cognito-sdk.min.js'
+                    - !Sub 'arn:aws:s3:::${S3Bucket}/js/aws-cognito-sdk.min.js.map.txt'
+                    - !Sub 'arn:aws:s3:::${S3Bucket}/config.js'
                 - Effect: Allow
                   Action:
                     - 's3:GetObject'
-                  Resource: !Sub 'arn:aws:s3:::redshift-blogs/*'
+                  Resource:
+                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/index.html'
+                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/script.js'
+                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/images/aws_logo_favicon.ico'
+                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/images/AWS_logo_RGB.png'
+                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/images/loading.gif'
+                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/styles.css'
+                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/js/amazon-cognito-identity.min.js'
+                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/js/amazon-cognito-identity.min.js.map.txt'
+                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/js/aws-cognito-sdk.min.js'
+                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/js/aws-cognito-sdk.min.js.map.txt'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
 
   LambdaInvoke:
     Type: AWS::CloudFormation::CustomResource
