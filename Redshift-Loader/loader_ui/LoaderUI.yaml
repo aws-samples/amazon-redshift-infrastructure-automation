@@ -171,7 +171,7 @@ Resources:
                                   - '/'
           cognitoUserPoolId: !Ref CognitoUserPool
           target_bucket: !Ref S3Bucket
-      Timeout: 5
+      Timeout: 30
       MemorySize: 512
       Code:
         ZipFile: |
@@ -264,6 +264,17 @@ Resources:
               Statement:
                 - Effect: Allow
                   Action:
+                    - 'logs:CreateLogGroup'
+                  Resource:
+                    - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+                - Effect: Allow
+                  Action:
+                    - 'logs:CreateLogStream'
+                    - 'logs:PutLogEvents'
+                  Resource:
+                    - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*'
+                - Effect: Allow
+                  Action:
                     - 's3:PutObject'
                   Resource:
                     - !Sub 'arn:aws:s3:::${S3Bucket}/index.html'
@@ -281,18 +292,16 @@ Resources:
                   Action:
                     - 's3:GetObject'
                   Resource:
-                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/index.html'
-                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/script.js'
-                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/images/aws_logo_favicon.ico'
-                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/images/AWS_logo_RGB.png'
-                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/images/loading.gif'
-                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/styles.css'
-                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/js/amazon-cognito-identity.min.js'
-                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/js/amazon-cognito-identity.min.js.map.txt'
-                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/js/aws-cognito-sdk.min.js'
-                    - 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/js/aws-cognito-sdk.min.js.map.txt'
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
+                    - !Sub 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/index.html'
+                    - !Sub 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/script.js'
+                    - !Sub 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/images/aws_logo_favicon.ico'
+                    - !Sub 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/images/AWS_logo_RGB.png'
+                    - !Sub 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/images/loading.gif'
+                    - !Sub 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/styles.css'
+                    - !Sub 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/js/amazon-cognito-identity.min.js'
+                    - !Sub 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/js/amazon-cognito-identity.min.js.map.txt'
+                    - !Sub 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/js/aws-cognito-sdk.min.js'
+                    - !Sub 'arn:aws:s3:::redshift-blogs/redshift-auto-loader-ui/js/aws-cognito-sdk.min.js.map.txt'
 
   LambdaInvoke:
     Type: AWS::CloudFormation::CustomResource
