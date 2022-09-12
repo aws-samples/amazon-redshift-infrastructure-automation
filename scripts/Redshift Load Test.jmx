@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.4.1">
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.4.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Redshift Load Test" enabled="true">
       <stringProp name="TestPlan.comments">Load testing for redshift using jmeter</stringProp>
@@ -35,7 +35,7 @@
           </elementProp>
           <elementProp name="baseDir" elementType="Argument">
             <stringProp name="Argument.name">baseDir</stringProp>
-            <stringProp name="Argument.value">C:\JMETER\apache-jmeter-5.4.1</stringProp>
+            <stringProp name="Argument.value">C:\JMETER\output</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -237,28 +237,28 @@
       <hashTree/>
       <kg.apc.jmeter.threads.UltimateThreadGroup guiclass="kg.apc.jmeter.threads.UltimateThreadGroupGui" testclass="kg.apc.jmeter.threads.UltimateThreadGroup" testname="SmallThread Group" enabled="true">
         <collectionProp name="ultimatethreadgroupdata">
-          <collectionProp name="-1377806632">
+          <collectionProp name="690335511">
             <stringProp name="53">5</stringProp>
             <stringProp name="0">0</stringProp>
             <stringProp name="30">30</stringProp>
             <stringProp name="50547">300</stringProp>
             <stringProp name="10">10</stringProp>
           </collectionProp>
-          <collectionProp name="1834884599">
+          <collectionProp name="356190201">
             <stringProp name="1567">10</stringProp>
             <stringProp name="53">5</stringProp>
             <stringProp name="30">30</stringProp>
             <stringProp name="50547">300</stringProp>
             <stringProp name="10">10</stringProp>
           </collectionProp>
-          <collectionProp name="657195434">
+          <collectionProp name="-821498964">
             <stringProp name="1567">10</stringProp>
             <stringProp name="1567">10</stringProp>
             <stringProp name="30">30</stringProp>
             <stringProp name="50547">300</stringProp>
             <stringProp name="10">10</stringProp>
           </collectionProp>
-          <collectionProp name="686003331">
+          <collectionProp name="-792691067">
             <stringProp name="1567">10</stringProp>
             <stringProp name="1572">15</stringProp>
             <stringProp name="30">30</stringProp>
@@ -318,21 +318,21 @@ limit 100;</stringProp>
             <stringProp name="50547">300</stringProp>
             <stringProp name="10">10</stringProp>
           </collectionProp>
-          <collectionProp name="657195434">
+          <collectionProp name="-821498964">
             <stringProp name="1567">10</stringProp>
             <stringProp name="1567">10</stringProp>
             <stringProp name="30">30</stringProp>
             <stringProp name="50547">300</stringProp>
             <stringProp name="10">10</stringProp>
           </collectionProp>
-          <collectionProp name="686003331">
+          <collectionProp name="-792691067">
             <stringProp name="1567">10</stringProp>
             <stringProp name="1572">15</stringProp>
             <stringProp name="30">30</stringProp>
             <stringProp name="50547">300</stringProp>
             <stringProp name="10">10</stringProp>
           </collectionProp>
-          <collectionProp name="761732053">
+          <collectionProp name="-716962345">
             <stringProp name="1567">10</stringProp>
             <stringProp name="1598">20</stringProp>
             <stringProp name="30">30</stringProp>
