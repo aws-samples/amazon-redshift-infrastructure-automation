@@ -10,7 +10,7 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="JdbcUser" elementType="Argument">
             <stringProp name="Argument.name">JdbcUser</stringProp>
-            <stringProp name="Argument.value">dbuser</stringProp>
+            <stringProp name="Argument.value">awsuser</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="TestDurationInSecs" elementType="Argument">
@@ -35,7 +35,7 @@
           </elementProp>
           <elementProp name="baseDir" elementType="Argument">
             <stringProp name="Argument.name">baseDir</stringProp>
-            <stringProp name="Argument.value">C:\JMETER\output</stringProp>
+            <stringProp name="Argument.value">C:\JMETER</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -49,7 +49,7 @@
         <stringProp name="connectionAge">5000</stringProp>
         <stringProp name="connectionProperties"></stringProp>
         <stringProp name="dataSource">RedshiftJDBCConfig</stringProp>
-        <stringProp name="dbUrl">jdbc:redshift://tpcds.cy92uuypmosn.us-east-1.redshift.amazonaws.com:5439/dev</stringProp>
+        <stringProp name="dbUrl">jdbc:redshift://redshift-cluster-wlm.cqi89gynxkcf.us-east-1.redshift.amazonaws.com:5439/dev</stringProp>
         <stringProp name="driver">com.amazon.redshift.jdbc.Driver</stringProp>
         <stringProp name="initQuery">set enable_result_cache_for_session to off;</stringProp>
         <boolProp name="keepAlive">true</boolProp>
@@ -66,22 +66,22 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="ViewResultsInTableIndividualRecordsCSVFilename" elementType="Argument">
             <stringProp name="Argument.name">ViewResultsInTableIndividualRecordsCSVFilename</stringProp>
-            <stringProp name="Argument.value">${baseDir}\SummaryReportIndividualRecords.csv</stringProp>
+            <stringProp name="Argument.value">${baseDir}\output\SummaryReportIndividualRecords.csv</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="SummaryReportindividualRecordsCSVFilename" elementType="Argument">
             <stringProp name="Argument.name">SummaryReportindividualRecordsCSVFilename</stringProp>
-            <stringProp name="Argument.value">${baseDir}\AggregateReportIndividualRecords.csv</stringProp>
+            <stringProp name="Argument.value">${baseDir}\output\AggregateReportIndividualRecords.csv</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="AggregateReportindividualRecordsCSVFilename" elementType="Argument">
             <stringProp name="Argument.name">AggregateReportindividualRecordsCSVFilename</stringProp>
-            <stringProp name="Argument.value">${baseDir}\ViewResultsTreeIndividualRecords.csv</stringProp>
+            <stringProp name="Argument.value">${baseDir}\output\ViewResultsTreeIndividualRecords.csv</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="ViewResultsTreeIndividualRecordsCSVFilename" elementType="Argument">
             <stringProp name="Argument.name">ViewResultsTreeIndividualRecordsCSVFilename</stringProp>
-            <stringProp name="Argument.value">${baseDir}\ViewResultsInTableIndividualRecords.csv</stringProp>
+            <stringProp name="Argument.value">${baseDir}\output\ViewResultsInTableIndividualRecords.csv</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -244,26 +244,12 @@
             <stringProp name="50547">300</stringProp>
             <stringProp name="10">10</stringProp>
           </collectionProp>
-          <collectionProp name="356190201">
+          <collectionProp name="20404162">
             <stringProp name="1567">10</stringProp>
-            <stringProp name="53">5</stringProp>
-            <stringProp name="30">30</stringProp>
-            <stringProp name="50547">300</stringProp>
-            <stringProp name="10">10</stringProp>
-          </collectionProp>
-          <collectionProp name="-821498964">
-            <stringProp name="1567">10</stringProp>
-            <stringProp name="1567">10</stringProp>
-            <stringProp name="30">30</stringProp>
-            <stringProp name="50547">300</stringProp>
-            <stringProp name="10">10</stringProp>
-          </collectionProp>
-          <collectionProp name="-792691067">
-            <stringProp name="1567">10</stringProp>
-            <stringProp name="1572">15</stringProp>
-            <stringProp name="30">30</stringProp>
-            <stringProp name="50547">300</stringProp>
-            <stringProp name="10">10</stringProp>
+            <stringProp reference="../../collectionProp/stringProp[2]"/>
+            <stringProp reference="../../collectionProp/stringProp[3]"/>
+            <stringProp reference="../../collectionProp/stringProp[4]"/>
+            <stringProp reference="../../collectionProp/stringProp[5]"/>
           </collectionProp>
         </collectionProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
@@ -311,33 +297,19 @@ limit 100;</stringProp>
       </hashTree>
       <kg.apc.jmeter.threads.UltimateThreadGroup guiclass="kg.apc.jmeter.threads.UltimateThreadGroupGui" testclass="kg.apc.jmeter.threads.UltimateThreadGroup" testname="MedThread Group" enabled="true">
         <collectionProp name="ultimatethreadgroupdata">
-          <collectionProp name="-1790151348">
+          <collectionProp name="434826763">
+            <stringProp name="51">3</stringProp>
             <stringProp name="53">5</stringProp>
+            <stringProp name="30">30</stringProp>
+            <stringProp name="50547">300</stringProp>
+            <stringProp name="10">10</stringProp>
+          </collectionProp>
+          <collectionProp name="436673805">
             <stringProp name="53">5</stringProp>
-            <stringProp name="30">30</stringProp>
-            <stringProp name="50547">300</stringProp>
-            <stringProp name="10">10</stringProp>
-          </collectionProp>
-          <collectionProp name="-821498964">
-            <stringProp name="1567">10</stringProp>
-            <stringProp name="1567">10</stringProp>
-            <stringProp name="30">30</stringProp>
-            <stringProp name="50547">300</stringProp>
-            <stringProp name="10">10</stringProp>
-          </collectionProp>
-          <collectionProp name="-792691067">
-            <stringProp name="1567">10</stringProp>
-            <stringProp name="1572">15</stringProp>
-            <stringProp name="30">30</stringProp>
-            <stringProp name="50547">300</stringProp>
-            <stringProp name="10">10</stringProp>
-          </collectionProp>
-          <collectionProp name="-716962345">
-            <stringProp name="1567">10</stringProp>
-            <stringProp name="1598">20</stringProp>
-            <stringProp name="30">30</stringProp>
-            <stringProp name="50547">300</stringProp>
-            <stringProp name="10">10</stringProp>
+            <stringProp reference="../../collectionProp/stringProp[2]"/>
+            <stringProp reference="../../collectionProp/stringProp[3]"/>
+            <stringProp reference="../../collectionProp/stringProp[4]"/>
+            <stringProp reference="../../collectionProp/stringProp[5]"/>
           </collectionProp>
         </collectionProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
@@ -497,19 +469,12 @@ order by cs1.product_name
             <stringProp name="50547">300</stringProp>
             <stringProp name="10">10</stringProp>
           </collectionProp>
-          <collectionProp name="-799764297">
+          <collectionProp name="1256939187">
             <stringProp name="51">3</stringProp>
-            <stringProp name="1572">15</stringProp>
-            <stringProp name="1629">30</stringProp>
-            <stringProp name="50547">300</stringProp>
-            <stringProp name="10">10</stringProp>
-          </collectionProp>
-          <collectionProp name="-688941777">
-            <stringProp name="52">4</stringProp>
-            <stringProp name="1598">20</stringProp>
-            <stringProp name="1629">30</stringProp>
-            <stringProp name="50547">300</stringProp>
-            <stringProp name="10">10</stringProp>
+            <stringProp reference="../../collectionProp/stringProp[2]"/>
+            <stringProp reference="../../collectionProp/stringProp[3]"/>
+            <stringProp reference="../../collectionProp/stringProp[4]"/>
+            <stringProp reference="../../collectionProp/stringProp[5]"/>
           </collectionProp>
         </collectionProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
