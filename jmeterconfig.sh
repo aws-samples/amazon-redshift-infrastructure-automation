@@ -26,4 +26,4 @@ curl -o AWSCLIV2.msi https://awscli.amazonaws.com/AWSCLIV2.msi
 msiexec.exe /i "AWSCLIV2.msi" /passive /l logcli.txt
 set PATH=c:\Program Files\Amazon\AWSCLIV2\;%PATH%
 set PATH=c:\Program Files (x86)\Git\bin\;%PATH%
-git clone -b jmeter https://github.com/aws-samples/amazon-redshift-infrastructure-automation.git
+git clone https://github.com/aws-samples/amazon-redshift-infrastructure-automation.git
