@@ -157,13 +157,13 @@ if jmeter == "CREATE":
         env=env,
         cluster=redshift_serverless_stack,
         other_config=other_config,
-        redshift_config=redshift_config,
+        redshift_config=redshift_serverless_config,
         vpc=vpc_stack,
         stack_log_level="INFO",
         onprem_cidr=onprem_cidr,
         description="AWS Analytics Automation: Jmeter install on new EC2 Instance"
         )
-        jmeter_stack.add_dependency(redshift_stack)
+        jmeter_stack.add_dependency(redshift_serverless_stack)
         Tags.of(jmeter_stack).add("project", stackname)
     else:
         jmeter_stack = JmeterStack(
