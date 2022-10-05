@@ -162,7 +162,7 @@ if jmeter == "CREATE":
         onprem_cidr=onprem_cidr,
         description="AWS Analytics Automation: Jmeter install on new EC2 Instance"
     )
-    jmeter_stack.add_dependency(redshift_stack);
+    # jmeter_stack.add_dependency(redshift_stack);
     Tags.of(jmeter_stack).add("project", stackname)
 
 # Glue Crawler Stack to crawl s3 locations
