@@ -8,6 +8,7 @@ from aws_cdk import core
 from aws_cdk.core import Tags
 from redshift_poc_automation.stacks.vpc_stack import VpcStack
 from redshift_poc_automation.stacks.redshift_stack import RedshiftStack
+from redshift_poc_automation.stacks.redshiftserverless_stack import RedshiftServerlessStack
 from redshift_poc_automation.stacks.redshiftrole_stack import RSDefaultRole
 from redshift_poc_automation.stacks.redshiftload_stack import RedshiftLoadStack
 from redshift_poc_automation.stacks.dms_on_prem_to_redshift_stack import DmsOnPremToRedshiftStack
@@ -55,6 +56,23 @@ vpc_stack = VpcStack(
 )
 Tags.of(vpc_stack).add("project", stackname)
 
+redshift_serverless_endpoint = config.get('redshift_serverless_endpoint')
+redshift_serverless_config = config.get('redshift_serverless')
+
+if redshift_serverless_endpoint != "N/A":
+    redshift_serverless_stack = RedshiftServerlessStack(
+        app,
+        f"{stackname}-redshift-serverless-stack",
+        env=env,
+        vpc=vpc_stack,
+        redshift_serverless_endpoint=redshift_serverless_endpoint,
+        redshift_serverless_config=redshift_serverless_config,
+        stack_log_level="INFO",
+        description="AWS Analytics Automation: Deploy Redshift Serverless Endpoint"
+    )
+    redshift_serverless_stack.add_dependency(vpc_stack)
+    Tags.of(redshift_serverless_stack).add("project", stackname)
+
 # Deploy Redshift cluster and load data"
 if redshift_endpoint != "N/A":
 
@@ -68,7 +86,7 @@ if redshift_endpoint != "N/A":
         stack_log_level="INFO",
         description="AWS Analytics Automation: Deploy Redshift cluster"
     )
-    redshift_stack.add_dependency(vpc_stack);
+    redshift_stack.add_dependency(vpc_stack)
     Tags.of(redshift_stack).add("project", stackname)
     
     if redshift_endpoint == "CREATE":

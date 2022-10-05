@@ -1,14 +1,21 @@
 {
   "vpc_id": "vpc-fd5b3880",
   "redshift_endpoint": "CREATE",
+  "redshift_serverless_endpoint": "CREATE",
   "dms_migration_to_redshift_target": "N/A",
   "sct_on_prem_to_redshift_target": "N/A",
   "jmeter": "CREATE",
 
   "vpc": {
     "vpc_cidr": "10.1.0.0/16",
-    "number_of_az": "2",
+    "number_of_az": "3",
     "cidr_mask": "24"
+  },
+  "redshift_serverless": {
+    "namespace_name": "aaa-namespace-1",
+    "workgroup_name": "aaa-workgroup-1",
+    "base_capacity": 48,
+    "database_name": "dev"
   },
   "redshift": {
     "cluster_identifier": "target-cluster",
