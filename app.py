@@ -150,20 +150,36 @@ if sct_on_prem_to_redshift_target == "CREATE":
     Tags.of(sct_on_prem_to_redshift_stack).add("project", stackname)
 
 if jmeter == "CREATE":
-    jmeter_stack = JmeterStack(
+    if redshift_serverless_endpoint == "CREATE":
+        jmeter_stack = JmeterStack(
         app,
         f"{stackname}-jmeter-stack",
         env=env,
-        cluster=redshift_stack,
+        cluster=redshift_serverless_stack,
         other_config=other_config,
         redshift_config=redshift_config,
         vpc=vpc_stack,
         stack_log_level="INFO",
         onprem_cidr=onprem_cidr,
         description="AWS Analytics Automation: Jmeter install on new EC2 Instance"
-    )
-    jmeter_stack.add_dependency(redshift_stack);
-    Tags.of(jmeter_stack).add("project", stackname)
+        )
+        jmeter_stack.add_dependency(redshift_stack)
+        Tags.of(jmeter_stack).add("project", stackname)
+    else:
+        jmeter_stack = JmeterStack(
+            app,
+            f"{stackname}-jmeter-stack",
+            env=env,
+            cluster=redshift_stack,
+            other_config=other_config,
+            redshift_config=redshift_config,
+            vpc=vpc_stack,
+            stack_log_level="INFO",
+            onprem_cidr=onprem_cidr,
+            description="AWS Analytics Automation: Jmeter install on new EC2 Instance"
+        )
+        jmeter_stack.add_dependency(redshift_stack);
+        Tags.of(jmeter_stack).add("project", stackname)
 
 # Glue Crawler Stack to crawl s3 locations
 if glue_crawler_s3_target != "N/A":
