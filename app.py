@@ -171,7 +171,7 @@ if datashare == "CREATE":
         #env=env,
         #cluster=redshift_stack.redshift,
         defaultrole='arn:aws:iam::572911389735:role/aws-service-role/redshift.amazonaws.com/AWSServiceRoleForRedshift',
-        datasharing_config=redshift_config,
+        datasharing_config=datasharing_config,
         stack_log_level="INFO",
         description="AWS Analytics Automation: Data Sharing Producer Stack"
     )
