@@ -29,6 +29,14 @@ master_user_name=""
 subnet_type=""
 encryption=""
 loadTPCdata=""
+#Datasharing
+producer_cluster_identifier=""
+producer_database_name=""
+producer_schema=""
+datashare_name=""
+consumer_cluster_identifier=""
+consumer_database_name=""
+consumer_username=""
 #DMS Details
 migration_type=""
 dms_instance_type=""
@@ -598,7 +606,7 @@ JSON_STRING=$( jq -n \
                     redshift_serverless: {
                         namespace_name: $namespace,
                         workgroup_name: $workgroup,
-                        base_capacity:$baseCapacity,
+                        base_capacity: $baseCapacity,
                         database_name: $databaseName
                     },
                     datashare: {
