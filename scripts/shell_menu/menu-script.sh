@@ -560,7 +560,7 @@ JSON_STRING=$( jq -n \
                   --arg mu "$master_user_name" \
                   --arg st "$subnet_type" \
                   --arg en "$encryption" \
-                  --arg datasharename "$datashare_name"
+                  --arg datasharename "$datashare_name" \
                   --arg prodcluster "$producer_cluster_identifier" \
                   --arg proddatabase "$producer_database_name" \
                   --arg produsername "$producer_username" \
