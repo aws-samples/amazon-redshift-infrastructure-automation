@@ -602,13 +602,13 @@ JSON_STRING=$( jq -n \
                         database_name: $databaseName
                     },
                     datashare: {
-                        datashare_name: $datasharename
-                        producer_cluster_identifier: $prodcluster
-                        producer_database_name: $proddatabase
-                        producer_username: $produsername
-                        producer_schema: $prodschema
-                        consumer_cluster_identifier: $consumercluster
-                        consumer_database_name: $consumerdatabase
+                        datashare_name: $datasharename,
+                        producer_cluster_identifier: $prodcluster,
+                        producer_database_name: $proddatabase,
+                        producer_username: $produsername,
+                        producer_schema: $prodschema,
+                        consumer_cluster_identifier: $consumercluster,
+                        consumer_database_name: $consumerdatabase,
                         consumer_username: $consumerusername
                     },
                     dms_migration:{
