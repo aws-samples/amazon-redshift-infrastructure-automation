@@ -271,7 +271,7 @@ then
     echo "[$coloredLoading]Loading your Redshift Clusters..."
     echo
      ~/amazon-redshift-infrastructure-automation/scripts/shell_menu/bash-menu-cli-commands.sh
-            readarray -t list < redshiftlist.txt
+            readarray -t list < redshiftidentifierlist.txt
             PS3='[Input Required] Please select your Producer Redshift Cluster: '
             select selection in "${list[@]}"; do
                 if [[ $REPLY == "0" ]]; then
@@ -293,7 +293,7 @@ then
     echo "[$coloredLoading]Loading your Redshift Clusters..."
     echo
      ~/amazon-redshift-infrastructure-automation/scripts/shell_menu/bash-menu-cli-commands.sh
-            readarray -t list < redshiftlist.txt
+            readarray -t list < redshiftidentifierlist.txt
             PS3='[Input Required] Please select your Consumer Redshift Cluster: '
             select selection in "${list[@]}"; do
                 if [[ $REPLY == "0" ]]; then
