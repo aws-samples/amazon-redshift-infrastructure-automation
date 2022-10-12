@@ -33,7 +33,7 @@ loadTPCdata=""
 #Datasharing
 producer_cluster_identifier=""
 producer_database_name=""
-producer_schema=""
+producer_schema_name=""
 datashare_name=""
 consumer_cluster_identifier=""
 consumer_database_name=""
@@ -564,7 +564,7 @@ JSON_STRING=$( jq -n \
                   --arg prodcluster "$producer_cluster_identifier" \
                   --arg proddatabase "$producer_database_name" \
                   --arg produsername "$producer_username" \
-                  --arg prodschema "$producer_schema" \
+                  --arg prodschema "$producer_schema_name" \
                   --arg consumercluster "$consumer_cluster_identifier" \
                   --arg consumerdatabase "$consumer_database_name" \
                   --arg consumerusername "$consumer_username" \
@@ -615,7 +615,7 @@ JSON_STRING=$( jq -n \
                         producer_cluster_identifier: $prodcluster,
                         producer_database_name: $proddatabase,
                         producer_username: $produsername,
-                        producer_schema: $prodschema,
+                        producer_schema_name: $prodschema,
                         consumer_cluster_identifier: $consumercluster,
                         consumer_database_name: $consumerdatabase,
                         consumer_username: $consumerusername
