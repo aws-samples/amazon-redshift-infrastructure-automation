@@ -39,7 +39,7 @@ jmeter = config.get('jmeter')
 dms_on_prem_to_redshift_config = config.get('dms_migration')
 external_database_config = config.get('external_database')
 other_config = config.get('other')
-datasharing = config.get('datasharing')
+datashare = config.get('datashare')
 stackname = os.getenv('STACK_NAME')
 onprem_cidr = os.getenv('ONPREM_CIDR')
 
@@ -164,7 +164,7 @@ if glue_crawler_s3_target != "N/A":
     )
     glue_crawler_stack.add_dependency(vpc_stack);
 # Data Sharing 
-if datasharing == "CREATE":
+if datashare == "CREATE":
     ds_producer_stack = DataSharingProducerStack(
         app,
         f"{stackname}-datasharingproducerstack",
