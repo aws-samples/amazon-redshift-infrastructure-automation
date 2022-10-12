@@ -545,7 +545,7 @@ JSON_STRING=$( jq -n \
                   --arg sct "$sct_on_prem_to_redshift_target" \
                   --arg rssv "$redshift_serverless_endpoint" \
                   --arg on "$redshift_endpoint" \
-                  --arg dshare "$datasharing"
+                  --arg dshare "$datasharing" \
                   --arg ll "$cidr" \
                   --arg la "$number_of_az" \
                   --arg lt "$cidr_mask" \
