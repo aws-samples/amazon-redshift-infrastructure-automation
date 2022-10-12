@@ -36,6 +36,7 @@ class DataSharingProducerStack(core.Stack):
         #master_user_name = redshift_config.get('master_user_name')
         
         ProducerCluster = datasharing_config.get('producer_cluster_identifier')
+        DatashareName = datasharing_config.get('datashare_name')
         ProducerClusterDb = datasharing_config.get('producer_database_name')
         ProducerClusterMasterUser = datasharing_config.get('producer_username')
         ProducerSchemaName = datasharing_config.get('producer_schema_name')
