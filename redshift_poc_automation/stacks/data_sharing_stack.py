@@ -60,7 +60,11 @@ class DataSharingProducerStack(core.Stack):
         # lambda_role.add_to_policy(actions=["redshift:GetClusterCredentials"], resources=['*'])
         lambda_role.add_to_policy(iam.PolicyStatement(actions=["redshift:GetClusterCredentials"], resources=['*']))
 
+<<<<<<< HEAD
         producer_statement = "CREATE DATASHARE " + DatashareName + " ;  ALTER DATASHARE " + DatashareName + " ADD SCHEMA " + ProducerSchemaName + "; ALTER DATASHARE " + DatashareName + " ADD ALL TABLES IN SCHEMA " +  ProducerSchemaName + "; ALTER DATASHARE " +  DatashareName + " SET INCLUDENEW = TRUE FOR SCHEMA " + ProducerSchemaName + "; GRANT USAGE ON DATASHARE " +  DatashareName + " TO NAMESPACE '" + consumer_namespace + "';"
+=======
+        producer_statement = "CREATE DATASHARE " + DatashareName + "; ALTER DATASHARE " + DatashareName + " ADD SCHEMA " + ProducerSchemaName + "; ALTER DATASHARE " + DatashareName + " ADD ALL TABLES IN SCHEMA " +  ProducerSchemaName + "; ALTER DATASHARE " +  DatashareName + " SET INCLUDENEW = TRUE FOR SCHEMA " + ProducerSchemaName + "; GRANT USAGE ON DATASHARE " +  DatashareName + " TO NAMESPACE '" + consumer_namespace + "';"
+>>>>>>> 603b24368a00c7c3821c0c946bb60a0a25f4f567
 
         create_params = {
             "Database": ProducerClusterDb,
