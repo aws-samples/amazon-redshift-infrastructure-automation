@@ -588,7 +588,7 @@ JSON_STRING=$( jq -n \
                     sct_on_prem_to_redshift_target: $sct,
                     redshift_serverless_endpoint: $rssv,  
                     jmeter: $jm,
-                    dshare: $datasharing,
+                    datasharing: $dshare,
                     vpc:{
                         vpc_cidr: $ll,
                         number_of_az: $la, 
