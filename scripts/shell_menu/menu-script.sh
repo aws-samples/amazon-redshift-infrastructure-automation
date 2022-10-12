@@ -7,6 +7,7 @@ redshift_serverless_endpoint="N/A"
 dms_migration_to_redshift_target="N/A"
 sct_on_prem_to_redshift_target="N/A"
 jmeter=""
+datasharing=""
 #VPC DETAILS
 cidr=""
 number_of_az=""
@@ -544,7 +545,7 @@ JSON_STRING=$( jq -n \
                   --arg sct "$sct_on_prem_to_redshift_target" \
                   --arg rssv "$redshift_serverless_endpoint" \
                   --arg on "$redshift_endpoint" \
-                  --arg datasharing "$datashare"
+                  --arg dshare "$datasharing"
                   --arg ll "$cidr" \
                   --arg la "$number_of_az" \
                   --arg lt "$cidr_mask" \
@@ -587,7 +588,7 @@ JSON_STRING=$( jq -n \
                     sct_on_prem_to_redshift_target: $sct,
                     redshift_serverless_endpoint: $rssv,  
                     jmeter: $jm,
-                    datashare: $datasharing,
+                    dshare: $datasharing,
                     vpc:{
                         vpc_cidr: $ll,
                         number_of_az: $la, 
@@ -609,7 +610,7 @@ JSON_STRING=$( jq -n \
                         base_capacity: $baseCapacity,
                         database_name: $databaseName
                     },
-                    datashare: {
+                    datashare:{
                         datashare_name: $datasharename,
                         producer_cluster_identifier: $prodcluster,
                         producer_database_name: $proddatabase,
