@@ -62,7 +62,7 @@ class DataSharingConsumerStack(core.Stack):
         # lambda_role.add_to_policy(actions=["redshift:GetClusterCredentials"], resources=['*'])
         lambda_role.add_to_policy(iam.PolicyStatement(actions=["redshift:GetClusterCredentials"], resources=['*']))
 
-        consumer_statement = "CREATE DATABASE myconsumer_db FROM DATASHARE myproducer_share OF NAMESPACE '" + producer_namespace + "'; CREATE EXTERNAL SCHEMA myconsumer_schema FROM REDSHIFT DATABASE 'myconsumer_db' SCHEMA 'myproducer_schema'; CREATE SCHEMA myview_schema;CREATE VIEW myview_schema.tickit_sales AS SELECT * FROM myconsumer_schema.tickit_sales WITH NO SCHEMA BINDING;"
+        consumer_statement = "CREATE DATABASE myconsumer_db FROM DATASHARE " + DatashareName + " OF NAMESPACE '" + producer_namespace + "'; CREATE EXTERNAL SCHEMA myconsumer_schema FROM REDSHIFT DATABASE myconsumer_db SCHEMA " + ProducerSchemaName + "; CREATE SCHEMA myview_schema;CREATE VIEW myview_schema.tickit_sales AS SELECT * FROM myconsumer_schema.tickit_sales WITH NO SCHEMA BINDING;"
 
         create_params = {
             "Database": ConsumerClusterDb,
