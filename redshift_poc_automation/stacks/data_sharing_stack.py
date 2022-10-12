@@ -49,8 +49,8 @@ class DataSharingProducerStack(core.Stack):
         #f = open('./scripts/loadTPcH3TB.txt')
 
         #a = f.read()
-        consumer_namespace = (boto_client.describe_clusters(ClusterIdentifier='consumer-cluster')['Clusters'][0]['ClusterNamespaceArn']).split(":")[6]
-        #producer_namespace = (boto_client.describe_clusters(ClusterIdentifier='producer-cluster')['Clusters'][0]['ClusterNamespaceArn']).split( ":")[6]
+        consumer_namespace = (boto_client.describe_clusters(ClusterIdentifier=ConsumerCluster)['Clusters'][0]['ClusterNamespaceArn']).split(":")[6]
+        #producer_namespace = (boto_client.describe_clusters(ClusterIdentifier=ProducerCluster)['Clusters'][0]['ClusterNamespaceArn']).split( ":")[6]
         default_role = defaultrole
         #cluster_identifier = cluster.ref
 
