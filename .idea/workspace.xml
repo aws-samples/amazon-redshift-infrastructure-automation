@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="6e422591-5f32-4450-a72f-1765b3cd6ba1" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="JupyterTrust" id="ae4677ef-5bc4-42bb-9bd5-026a27dca1e1" />
+  <component name="ProjectId" id="2F66NBMftnKy0DYLKNHXj3i2p9p" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="6e422591-5f32-4450-a72f-1765b3cd6ba1" name="Default Changelist" comment="" />
+      <created>1663800144676</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1663800144676</updated>
+      <workItem from="1663800145916" duration="1409000" />
+      <workItem from="1664329359312" duration="6011000" />
+      <workItem from="1665368299928" duration="16505000" />
+      <workItem from="1665599295560" duration="251000" />
+      <workItem from="1665600266355" duration="3416000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="110" y="258" key="#SQL_Dialects" timestamp="1665541697503">
+      <screen x="0" y="25" width="1440" height="799" />
+    </state>
+    <state x="110" y="258" key="#SQL_Dialects/0.25.1440.799@0.25.1440.799" timestamp="1665541697503" />
+    <state x="320" y="87" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1665541780664">
+      <screen x="0" y="25" width="1440" height="799" />
+    </state>
+    <state x="320" y="87" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.25.1440.799@0.25.1440.799" timestamp="1665541780664" />
+    <state x="308" y="169" key="IDE.errors.dialog" timestamp="1665458361556">
+      <screen x="0" y="25" width="1440" height="794" />
+    </state>
+    <state x="308" y="169" key="IDE.errors.dialog/0.25.1440.794@0.25.1440.794" timestamp="1665458361556" />
+    <state x="229" y="60" key="SettingsEditor" timestamp="1664329459191">
+      <screen x="0" y="25" width="1440" height="799" />
+    </state>
+    <state x="229" y="60" key="SettingsEditor/0.25.1440.799@0.25.1440.799" timestamp="1664329459191" />
+  </component>
+</project>
