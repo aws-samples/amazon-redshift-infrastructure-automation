@@ -119,13 +119,6 @@ configureVPCDetails
 echo
 
 #ANYTHING RELATED TO REDSHIFT DETAILS
-
-
-
-
-
-
-
 configureRedshiftDetails (){
     
 while true; do
@@ -248,6 +241,67 @@ fi
 ## CALL REDSHIFT MENU
 configureRedshiftDetails
 echo
+
+while true; do
+    read -r -p "$coloredQuestion Do you wish to use datasharing? (Y/N): " answer
+    case $answer in
+        [Yy]* ) export datasharing="CREATE"; break;;
+        [Nn]* ) export datasharing="N/A"; break;;
+        * ) echo "Please answer Y or N.";;
+    esac
+done
+echo
+
+#DATASHARING
+
+if [ "$datasharing" = "CREATE" ];
+then
+    read -r -p "$coloredQuestion [DATASHARING] What would you like to name your datashare? " datashare_name
+   
+    #Producer 
+    echo "[$coloredLoading]Loading your Redshift Clusters..."
+    echo
+     ~/amazon-redshift-infrastructure-automation/scripts/shell_menu/bash-menu-cli-commands.sh
+            readarray -t list < redshiftlist.txt
+            PS3='[Input Required] Please select your Producer Redshift Cluster: '
+            select selection in "${list[@]}"; do
+                if [[ $REPLY == "0" ]]; then
+                    echo 'Goodbye' >&2
+                    exit
+                else
+                    producer_cluster_identifier=$selection
+                    break
+                fi
+            done
+            echo
+            echo "You have choosen $selection"
+    read -r -p "$coloredQuestion [DATASHARING PRODUCER] Please provide database name of $producer_cluster_identifier " producer_database_name
+    read -r -p "$coloredQuestion [DATASHARING PRODUCER] Please provide username of $producer_cluster_identifier " producer_username
+    read -r -p "$coloredQuestion [DATASHARING PRODUCER] Please provide schema name of $producer_cluster_identifier " producer_schema_name
+
+
+    #Consumer
+    echo "[$coloredLoading]Loading your Redshift Clusters..."
+    echo
+     ~/amazon-redshift-infrastructure-automation/scripts/shell_menu/bash-menu-cli-commands.sh
+            readarray -t list < redshiftlist.txt
+            PS3='[Input Required] Please select your Consumer Redshift Cluster: '
+            select selection in "${list[@]}"; do
+                if [[ $REPLY == "0" ]]; then
+                    echo 'Goodbye' >&2
+                    exit
+                else
+                    consumer_cluster_identifier=$selection
+                    break
+                fi
+            done
+            echo
+            echo "You have choosen $selection"
+    read -r -p "$coloredQuestion [DATASHARING CONSUMER] Please provide database name of $consumer_cluster_identifier " consumer_database_name
+    read -r -p "$coloredQuestion [DATASHARING CONSUMER] Please provide username of $consumer_cluster_identifier " consumer_username
+    
+fi
+
 
 
 
@@ -482,6 +536,7 @@ JSON_STRING=$( jq -n \
                   --arg sct "$sct_on_prem_to_redshift_target" \
                   --arg rssv "$redshift_serverless_endpoint" \
                   --arg on "$redshift_endpoint" \
+                  --arg datasharing "$datashare"
                   --arg ll "$cidr" \
                   --arg la "$number_of_az" \
                   --arg lt "$cidr_mask" \
@@ -496,6 +551,14 @@ JSON_STRING=$( jq -n \
                   --arg mu "$master_user_name" \
                   --arg st "$subnet_type" \
                   --arg en "$encryption" \
+                  --arg datasharename "$datashare_name"
+                  --arg prodcluster "$producer_cluster_identifier" \
+                  --arg proddatabase "$producer_database_name" \
+                  --arg produsername "$producer_username" \
+                  --arg prodschema "$producer_schema" \
+                  --arg consumercluster "$consumer_cluster_identifier" \
+                  --arg consumerdatabase "$consumer_database_name" \
+                  --arg consumerusername "$consumer_username" \
                   --arg ltd "$loadTPCdata" \
                   --arg dmsST "$dms_subnet_type" \
                   --arg dmsIns "$dms_instance_type" \
@@ -516,6 +579,7 @@ JSON_STRING=$( jq -n \
                     sct_on_prem_to_redshift_target: $sct,
                     redshift_serverless_endpoint: $rssv,  
                     jmeter: $jm,
+                    datashare: $datasharing,
                     vpc:{
                         vpc_cidr: $ll,
                         number_of_az: $la, 
@@ -536,6 +600,16 @@ JSON_STRING=$( jq -n \
                         workgroup_name: $workgroup,
                         base_capacity:$baseCapacity,
                         database_name: $databaseName
+                    },
+                    datashare: {
+                        datashare_name: $datasharename
+                        producer_cluster_identifier: $prodcluster
+                        producer_database_name: $proddatabase
+                        producer_username: $produsername
+                        producer_schema: $prodschema
+                        consumer_cluster_identifier: $consumercluster
+                        consumer_database_name: $consumerdatabase
+                        consumer_username: $consumerusername
                     },
                     dms_migration:{
                         dms_instance_type: $dmsIns,

@@ -172,35 +172,36 @@ class RedshiftServerlessStack(core.Stack):
         #     description=f"Redshift Cluster Identifier"
         # )
 
-    # properties to share with other stacks
+    # properties to share with other stacks 
+    # IMPORTANT: these methods are for Redshift Provisioned only
     @property
     def get_cluster(self):
-        if type(self.redshift) == dict:
+        if type(self.redshift) == dict:  ##needed for dms
             return self.redshift
         return self.redshift
     
     @property
     def get_cluster_type(self):
-        return (type(self.redshift) == dict)
+        return (type(self.redshift) == dict)  #needed dms
 
     @property
-    def get_cluster_dbname(self) -> builtins.str:
+    def get_cluster_dbname(self) -> builtins.str: #needed dms
         if type(self.redshift) == dict:
             return self.redshift['DBName']
-        return self.redshift.db_name
+        return self.redshift.db_name        
 
     @property
-    def get_cluster_user(self) -> builtins.str:
+    def get_cluster_user(self) -> builtins.str: #needed dms
         if type(self.redshift) == dict:
             return self.redshift['MasterUsername']
         return self.redshift.master_username
 
     @property
-    def get_cluster_password(self) -> builtins.str:
+    def get_cluster_password(self) -> builtins.str: #needed dms
         return self.redshift.master_user_password
 
     @property
-    def get_cluster_host(self) -> builtins.str:
+    def get_cluster_host(self) -> builtins.str: #needed dms
         if type(self.redshift) == dict:
             return self.redshift['Endpoint']['Address']
         return self.redshift.attr_endpoint_address
