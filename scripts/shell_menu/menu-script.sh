@@ -588,7 +588,7 @@ JSON_STRING=$( jq -n \
                     sct_on_prem_to_redshift_target: $sct,
                     redshift_serverless_endpoint: $rssv,  
                     jmeter: $jm,
-                    datasharing: $dshare,
+                    datashare: $dshare,
                     vpc:{
                         vpc_cidr: $ll,
                         number_of_az: $la, 
@@ -610,7 +610,7 @@ JSON_STRING=$( jq -n \
                         base_capacity: $baseCapacity,
                         database_name: $databaseName
                     },
-                    datashare:{
+                    datasharing:{
                         datashare_name: $datasharename,
                         producer_cluster_identifier: $prodcluster,
                         producer_database_name: $proddatabase,

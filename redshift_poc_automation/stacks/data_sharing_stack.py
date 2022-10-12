@@ -1,5 +1,6 @@
 import boto3
 from typing import Any
+import json
 #from constructs import Construct
 from aws_cdk import (
     core,
@@ -23,7 +24,7 @@ class DataSharingProducerStack(core.Stack):
             id: str,
             #cluster: aws_redshift.CfnCluster,
             defaultrole: str,
-            #redshift_config: dict,
+            datasharing_config: dict,
             stack_log_level: str,
             log_retention=None,
             **kwargs
@@ -33,13 +34,14 @@ class DataSharingProducerStack(core.Stack):
 
         #database_name = redshift_config.get('database_name')
         #master_user_name = redshift_config.get('master_user_name')
-
-        ProducerCluster = 'producer-cluster'
-        ProducerClusterDb = 'devprod'
-        ProducerClusterMasterUser = 'awsprod'
-        ConsumerCluster = 'consumer-cluster'
-        ConsumerClusterDb = 'devcon'
-        ConsumerClusterMasterUser = 'awscon'
+        
+        ProducerCluster = datasharing_config.get('producer_cluster_identifier')
+        ProducerClusterDb = datasharing_config.get('producer_database_name')
+        ProducerClusterMasterUser = datasharing_config.get('producer_username')
+        ProducerSchemaName = datasharing_config.get('producer_schema_name')
+        ConsumerCluster = datasharing_config.get('consumer_cluster_identifier')
+        ConsumerClusterDb = datasharing_config.get('consumer_database_name')
+        ConsumerClusterMasterUser = datasharing_config.get('consumer_username')
 
         client = boto3.client('redshift-data')
         boto_client = boto3.client('redshift')

@@ -31,6 +31,7 @@ vpc_config = config.get('vpc')
 redshift_endpoint = config.get('redshift_endpoint')
 redshift_config = config.get('redshift')
 loadtpc = redshift_config.get('loadTPCdata')
+datasharing_config=config.get('datasharing')
 
 dms_on_prem_to_redshift_target = config.get('dms_migration_to_redshift_target')
 sct_on_prem_to_redshift_target = config.get('sct_on_prem_to_redshift_target')
@@ -38,7 +39,7 @@ jmeter = config.get('jmeter')
 dms_on_prem_to_redshift_config = config.get('dms_migration')
 external_database_config = config.get('external_database')
 other_config = config.get('other')
-
+datasharing = config.get('datasharing')
 stackname = os.getenv('STACK_NAME')
 onprem_cidr = os.getenv('ONPREM_CIDR')
 
@@ -162,30 +163,30 @@ if glue_crawler_s3_target != "N/A":
         description="AWS Analytics Automation: Deploy Glue Crawler for S3 data lake"
     )
     glue_crawler_stack.add_dependency(vpc_stack);
+# Data Sharing 
+if datasharing == "CREATE":
+    ds_producer_stack = DataSharingProducerStack(
+        app,
+        f"{stackname}-datasharingproducerstack",
+        #env=env,
+        #cluster=redshift_stack.redshift,
+        defaultrole='arn:aws:iam::572911389735:role/aws-service-role/redshift.amazonaws.com/AWSServiceRoleForRedshift',
+        datasharing_config=redshift_config,
+        stack_log_level="INFO",
+        description="AWS Analytics Automation: Data Sharing Producer Stack"
+    )
 
-ds_producer_stack = DataSharingProducerStack(
-    app,
-    f"{stackname}-datasharingproducerstack",
-    #env=env,
-    #cluster=redshift_stack.redshift,
-    defaultrole='arn:aws:iam::572911389735:role/aws-service-role/redshift.amazonaws.com/AWSServiceRoleForRedshift',
-    #redshift_config=redshift_config,
-    stack_log_level="INFO",
-    description="AWS Analytics Automation: Data Sharing Producer Stack"
-)
-
-ds_consumer_stack = DataSharingConsumerStack(
-    app,
-    f"{stackname}-datasharingconsumerstack",
-    #env=env,
-    #cluster=redshift_stack.redshift,
-    defaultrole='arn:aws:iam::572911389735:role/aws-service-role/redshift.amazonaws.com/AWSServiceRoleForRedshift',
-    #redshift_config=redshift_config,
-    stack_log_level="INFO",
-    description="AWS Analytics Automation: Data Sharing Consumer Stack"
-)
-
-ds_consumer_stack.add_dependency(ds_producer_stack);
+    ds_consumer_stack = DataSharingConsumerStack(
+        app,
+        f"{stackname}-datasharingconsumerstack",
+        #env=env,
+        #cluster=redshift_stack.redshift,
+        defaultrole='arn:aws:iam::572911389735:role/aws-service-role/redshift.amazonaws.com/AWSServiceRoleForRedshift',
+        #redshift_config=redshift_config,
+        stack_log_level="INFO",
+        description="AWS Analytics Automation: Data Sharing Consumer Stack"
+    )
+    ds_consumer_stack.add_dependency(ds_producer_stack);
 
 # Stack Level Tagging
 _tags_lst = app.node.try_get_context("tags")

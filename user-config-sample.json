@@ -5,7 +5,7 @@
   "dms_migration_to_redshift_target": "N/A",
   "sct_on_prem_to_redshift_target": "N/A",
   "jmeter": "CREATE",
-  "datasharing": "y",
+  "datashare": "",
   "vpc": {
     "vpc_cidr": "10.1.0.0/16",
     "number_of_az": "3",
@@ -26,6 +26,16 @@
     "subnet_type": "PUBLIC",
     "encryption": "Y",
     "loadTPCdata": "Y"
+  },
+  "datasharing":{
+    "datashare_name":"",
+    "producer_cluster_identifier": "",
+    "producer_database_name": "",
+    "producer_username": "",
+    "producer_schema_name": "",
+    "consumer_cluster_identifier":"", 
+    "consumer_database_name": "",
+    "consumer_username":""
   },
   "dms_migration": {
     "dms_instance_type": "dms.t3.medium",
