@@ -30,6 +30,8 @@ master_user_name=""
 subnet_type=""
 encryption=""
 loadTPCdata=""
+
+
 #Datasharing
 producer_cluster_identifier=""
 producer_database_name=""
@@ -38,6 +40,8 @@ datashare_name=""
 consumer_cluster_identifier=""
 consumer_database_name=""
 consumer_username=""
+
+
 #DMS Details
 migration_type=""
 dms_instance_type=""

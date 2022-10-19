@@ -8,6 +8,7 @@ from aws_cdk import core
 from aws_cdk.core import Tags
 from redshift_poc_automation.stacks.vpc_stack import VpcStack
 from redshift_poc_automation.stacks.redshift_stack import RedshiftStack
+from redshift_poc_automation.stacks.redshiftserverless_stack import RedshiftServerlessStack
 from redshift_poc_automation.stacks.redshiftrole_stack import RSDefaultRole
 from redshift_poc_automation.stacks.redshiftload_stack import RedshiftLoadStack
 from redshift_poc_automation.stacks.dms_on_prem_to_redshift_stack import DmsOnPremToRedshiftStack
@@ -59,6 +60,22 @@ vpc_stack = VpcStack(
 )
 Tags.of(vpc_stack).add("project", stackname)
 
+redshift_serverless_endpoint = config.get('redshift_serverless_endpoint')
+redshift_serverless_config = config.get('redshift_serverless')
+
+if redshift_serverless_endpoint != "N/A":
+    redshift_serverless_stack = RedshiftServerlessStack(
+        app,
+        f"{stackname}-redshift-serverless-stack",
+        env=env,
+        vpc=vpc_stack,
+        redshift_serverless_endpoint=redshift_serverless_endpoint,
+        redshift_serverless_config=redshift_serverless_config,
+        stack_log_level="INFO",
+        description="AWS Analytics Automation: Deploy Redshift Serverless Endpoint"
+    )
+    redshift_serverless_stack.add_dependency(vpc_stack)
+    Tags.of(redshift_serverless_stack).add("project", stackname)
 
 # Deploy Redshift cluster and load data"
 if redshift_endpoint != "N/A":
@@ -141,15 +158,15 @@ if jmeter == "CREATE":
         app,
         f"{stackname}-jmeter-stack",
         env=env,
-        cluster=redshift_stack,
+        # cluster=redshift_stack,
         other_config=other_config,
-        redshift_config=redshift_config,
+        # redshift_config=redshift_config,
         vpc=vpc_stack,
         stack_log_level="INFO",
         onprem_cidr=onprem_cidr,
         description="AWS Analytics Automation: Jmeter install on new EC2 Instance"
     )
-    jmeter_stack.add_dependency(redshift_stack);
+    # jmeter_stack.add_dependency(redshift_stack);
     Tags.of(jmeter_stack).add("project", stackname)
 
 # Glue Crawler Stack to crawl s3 locations
