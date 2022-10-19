@@ -11,9 +11,9 @@ class JmeterStack(core.Stack):
     def __init__(
             self,
             scope: core.Construct, id: str,
-            cluster,
+            # cluster,
             other_config: dict,
-            redshift_config: dict,
+            # redshift_config: dict,
             vpc,
             stack_log_level: str,
             onprem_cidr: str,
@@ -24,9 +24,9 @@ class JmeterStack(core.Stack):
 
         keyname = other_config.get('key_name')
         jmeter_node_type = other_config.get('jmeter_node_type')
-        redshift_host = cluster.get_cluster_host
-        redshift_db = cluster.get_cluster_dbname
-        redshift_user = cluster.get_cluster_user
+        # redshift_host = cluster.get_cluster_host
+        # redshift_db = cluster.get_cluster_dbname
+        # redshift_user = cluster.get_cluster_user
         secret_arn = 'RedshiftClusterSecretAA'
         amiID = 'ami-042e0580ee1b9e2af'
 

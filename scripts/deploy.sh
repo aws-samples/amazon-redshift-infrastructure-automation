@@ -26,5 +26,8 @@ export ONPREM_CIDR=$onprem_cidr
 #Need more elegant solution for handling exception here:
 [ -f ~/user-config.json ] && mv ~/user-config.json ~/amazon-redshift-infrastructure-automation/user-config.json
 export account_id=`aws sts get-caller-identity --query "Account" --output text`
+if [ "$loadTPCdata" = "Y" ];
+then
 cdk bootstrap aws://$account_id/$current_region
+fi
 cdk deploy --all --require-approval never

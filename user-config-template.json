@@ -1,15 +1,21 @@
 {
   "vpc_id": "CREATE",
   "redshift_endpoint": "CREATE",
+  "redshift_serverless_endpoint": "CREATE or N/A",
   "dms_migration_to_redshift_target": "CREATE",
   "sct_on_prem_to_redshift_target": "CREATE",
   "jmeter": "CREATE",
-
 
   "vpc": {
     "vpc_cidr": "__",
     "number_of_az": "__",
     "cidr_mask": "__"
+  },
+  "redshift_serverless": {
+    "namespace_name": "aaa-namespace-1",
+    "workgroup_name": "aaa-workgroup-1",
+    "base_capacity": 48,
+    "database_name": "dev"
   },
   "redshift": {
     "cluster_identifier": "__",
@@ -21,6 +27,16 @@
     "encryption": "__",
     "loadTPCdata": "__"
 
+  },
+  "datasharing":{
+    "datashare_name":"",
+    "producer_cluster_identifier": "",
+    "producer_database_name": "",
+    "producer_username": "",
+    "producer_schema_name": "",
+    "consumer_cluster_identifier":"", 
+    "consumer_database_name": "",
+    "consumer_username":""
   },
   "dms_migration": {
     "dms_instance_type": "",

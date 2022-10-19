@@ -2,4 +2,6 @@ aws ec2 --output text --query 'Vpcs[*].{VpcId:VpcId}' describe-vpcs > vpclist.tx
 
 aws redshift --output text --query 'Clusters[*].{Endpoint:Endpoint.Address}' describe-clusters > redshiftlist.txt
 
+aws redshift --output text --query 'Clusters[*].{ClusterIdentifier:ClusterIdentifier}' describe-clusters > redshiftidentifierlist.txt
+
 aws ec2 --output text describe-key-pairs --query 'KeyPairs[*].{KeyName:KeyName}' > keypairlist.txt
