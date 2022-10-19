@@ -41,7 +41,7 @@ Prior to deployment, some resources need to be preconfigured:
 	* 	 create a key pair that can be accessed (see [the documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair) on how to create a new one)
 	* 	 ensure your VPC contains subnets which can access outbound internet; via an internet gateway or NAT gateway
 * [OPTIONAL] If using an external database, open source firewalls/ security groups to allow for traffic from AWS
-
+* [OPTIONAL] If using Datasharing please ensure both producer and consumer cluster are in the same region/account. Publically enabled clusters are supported. For all other considerations please refer to the [Datasharing Considerations](https://docs.aws.amazon.com/redshift/latest/dg/considerations.html) documentation. 
 If these are complete, continue to [deployment steps](#deployment-steps). If you come across errors, please refer to the [troubleshooting](#troubleshooting) section -- if the error isn't addressed there, please submit the feedback using the [Issues](https://github.com/aws-samples/amazon-redshift-infrastructure-automation/issues) tab of this repo.
 
 
