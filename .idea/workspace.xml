@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="6e422591-5f32-4450-a72f-1765b3cd6ba1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/redshift_poc_automation/stacks/data_sharing_stack.py" beforeDir="false" afterPath="$PROJECT_DIR$/redshift_poc_automation/stacks/data_sharing_stack.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,6 +46,8 @@
       <workItem from="1665368299928" duration="16505000" />
       <workItem from="1665599295560" duration="251000" />
       <workItem from="1665600266355" duration="7207000" />
+      <workItem from="1665697000702" duration="577000" />
+      <workItem from="1666147415361" duration="665000" />
     </task>
     <servers />
   </component>
