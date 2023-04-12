@@ -125,6 +125,12 @@ Resources:
                 - "cognito-identity.amazonaws.com"
             Action:
               - sts:AssumeRoleWithWebIdentity
+            Condition:
+                  StringEquals:
+                      "cognito-identity.amazonaws.com:aud": !Ref CognitoIdentityPool
+                  "ForAnyValue:StringLike":
+                      "cognito-identity.amazonaws.com:amr": "authenticated"
+                         
       Policies:
         - PolicyName: loader-ui-dynamodb-policy
           PolicyDocument:
