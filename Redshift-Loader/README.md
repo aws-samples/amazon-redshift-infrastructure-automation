@@ -152,6 +152,7 @@ Following parameters have to be set for successful creation of resources.  Make 
 |DatabaseSchemaName|	public	|Redshift Schema name|
 |DatabaseUserName|	demo|	Redshift user name who has access to run copy commands on redshift db/schema. |
 |RedshiftClusterIdentifier|	democluster|	Redshift Cluster Name|
+|RedshiftServerlessWorkgroup|Seerverless Workgroup name |	Redshift wwrkgroup Name, if you plan to use provisioned cluster keep this value to default e.g. N/A|
 |RedshiftIAMRoleARN	|arn:aws:iam::7000000000:role/RedshiftDemoRole|	Redshift Cluster attached role which has access to s3 bucket. This role is used in Copy commands|
 |SourceS3Bucket	|Your-bucket-name	|S3 bucket where data is located|
 |CopyCommandOptions	|delimiter '\|' gzip|Provide the additional COPY command data format parameters|
@@ -161,7 +162,7 @@ Following parameters have to be set for successful creation of resources.  Make 
 #### Installation 
 
 
-This repository includes a CloudFormation template [RedshiftAutoLoader.yaml](link) which will create much of what is needed to set up the Auto Loader. This section details the setup and use of the template.
+This repository includes a CloudFormation template [RedshiftAutoLoader.yaml](https://redshift-demos.s3.amazonaws.com/redshift-loader/redshift-s3-data-autoloader.yaml) which will create much of what is needed to set up the Auto Loader. This section details the setup and use of the template.
 
 This is a visual architecture of the CloudFormation installer:
 
@@ -180,6 +181,7 @@ Click on below **Launch Button** to launch the Cloud Formation:
 
 
 #### CloudFormation Output Tabs
+
 ### Naming Standards
 - #### Table Names
 - #### S3 Prefixes
