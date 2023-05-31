@@ -152,15 +152,13 @@ Following parameters have to be set for successful creation of resources.  Make 
 |DatabaseSchemaName|	public	|Redshift Schema name|
 |DatabaseUserName|	demo|	Redshift user name who has access to run copy commands on redshift db/schema. |
 |RedshiftClusterIdentifier|	democluster|	Redshift Cluster Name|
-|RedshiftServerlessWorkgroup|Seerverless Workgroup name |	Redshift wwrkgroup Name, if you plan to use provisioned cluster keep this value to default e.g. N/A|
+|RedshiftServerlessWorkgroup|N/A|	Redshift wwrkgroup Name, if you plan to use provisioned cluster keep this value to default e.g. N/A|
 |RedshiftIAMRoleARN	|arn:aws:iam::7000000000:role/RedshiftDemoRole|	Redshift Cluster attached role which has access to s3 bucket. This role is used in Copy commands|
 |SourceS3Bucket	|Your-bucket-name	|S3 bucket where data is located|
 |CopyCommandOptions	|delimiter '\|' gzip|Provide the additional COPY command data format parameters|
 
 
-
 #### Installation 
-
 
 This repository includes a CloudFormation template [RedshiftAutoLoader.yaml](https://redshift-demos.s3.amazonaws.com/redshift-loader/redshift-s3-data-autoloader.yaml) which will create much of what is needed to set up the Auto Loader. This section details the setup and use of the template.
 
@@ -173,11 +171,23 @@ Click on below **Launch Button** to launch the Cloud Formation:
 [<img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png" target=\”_blank\”>](https://console.aws.amazon.com/cloudformation/home?#/stacks/new?stackName=RedshiftLoader&templateURL=https://redshift-demos.s3.amazonaws.com/redshift-loader/redshift-s3-data-autoloader.yaml
 )
 
+#### Additional Configuration for Redshift Serverless
+
+Once cloud formation is succesful , go to the **output** tab and note the IAM role name. Auto loader uses IAM authentication when connecting to Redshift serverless and a user with IAMR:<lambda_iam_role_name> is created in Redshift serverless. 
+
+![CFN output](/Redshift-Loader/Images/cfn_lambda_role.png)
+
+
+- Login to Amazon Redshift Serverless as a SUPER User and run the following GRANT 
+   
+   **grant create on database <db_name> to "IAMR:<lamda_iam_role_name>";**
+
 **Notes**
 
 - This stack will be created in the same region where you invoke the template.
 - The input parameters are not cross-checked at template creation time, so make sure that they are correct
 - The stack creates the Lambda functions, Lambda trigger as well as the execution role - so they will be managed as part of the stack. 
+- For Redshift serverless IAMR:<lambda_iam_role_name> should have the database privillages on the schema and tables used for auto loader
 
 
 #### CloudFormation Output Tabs
