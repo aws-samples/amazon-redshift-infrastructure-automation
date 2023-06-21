@@ -14,13 +14,7 @@ echo "Installing requirements...."; pip install -r requirements.txt > /dev/null;
 #grep -qF -- "$LINE" "$FILE" || echo "$LINE" >> "$FILE"
 aws configure set default.region us-east-1
 ~/amazon-redshift-infrastructure-automation/scripts/shell_menu/menu-welcome-message.sh
- read -r -p "Do you have an existing user-config.json file? (Yy/Nn): " answer
-    case $answer in
-        [Yy]* ) read -r -p "Please upload your user-config.json file and press ENTER to continue..." answer;
-                 source ~/amazon-redshift-infrastructure-automation/scripts/shell_menu/miscdetails.sh;;
-        [Nn]* ) source ~/amazon-redshift-infrastructure-automation/scripts/shell_menu/menu-script.sh;;
-        * ) echo "Please answer Y or N.";;
-    esac
+source ~/amazon-redshift-infrastructure-automation/scripts/shell_menu/menu-script.sh
 export STACK_NAME=$stack
 export ONPREM_CIDR=$onprem_cidr
 #Need more elegant solution for handling exception here:
