@@ -1,16 +1,20 @@
 from aws_cdk import aws_iam
 from aws_cdk import aws_ec2
-from aws_cdk import core
+# from aws_cdk import core
 from aws_cdk import aws_secretsmanager
 import boto3
 import json
 
+from aws_cdk import Stack
+from constructs import Construct
 
-class SctOnPremToRedshiftStack(core.Stack):
+# class SctOnPremToRedshiftStack(core.Stack):
+class SctOnPremToRedshiftStack(Stack):
 
     def __init__(
             self,
-            scope: core.Construct, id: str,
+            # scope: core.Construct, id: str,
+            scope: Construct, id: str,
             other_config: dict,
             vpc,
             stack_log_level: str,
