@@ -1,7 +1,7 @@
 from aws_cdk import aws_redshiftserverless
 from aws_cdk import aws_iam
 from aws_cdk import aws_secretsmanager
-from aws_cdk import core
+# from aws_cdk import core
 from aws_cdk import aws_ec2
 import json
 import boto3
@@ -10,12 +10,16 @@ from redshift_poc_automation.stacks.redshiftload_stack import RedshiftLoadStack
 import builtins
 import getpass
 
+from aws_cdk import Stack
+from constructs import Construct
 
-class RedshiftServerlessStack(core.Stack):
+# class RedshiftServerlessStack(core.Stack):
+class RedshiftServerlessStack(Stack):
 
     def __init__(
             self,
-            scope: core.Construct, id: str,
+            # scope: core.Construct, id: str,
+            scope: Construct, id: str,
             vpc,
             redshift_serverless_endpoint: str,
             redshift_serverless_config: dict,
