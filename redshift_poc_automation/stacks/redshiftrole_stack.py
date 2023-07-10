@@ -1,6 +1,6 @@
 from typing import Any
 from aws_cdk import (
-    core,
+    # core,
     aws_iam as iam,
     aws_redshift as aws_redshift
 )
@@ -12,12 +12,16 @@ from aws_cdk.custom_resources import (
     PhysicalResourceId,
 )
 
+from aws_cdk import Stack 
+from constructs import Construct
 
-class RSDefaultRole(core.Stack):
+# class RSDefaultRole(core.Stack):
+class RSDefaultRole(Stack):
 
     def __init__(
             self,
-            scope: core.Construct, id: str,
+            # scope: core.Construct, id: str,
+            scope: Construct, id: str,
             cluster: aws_redshift.CfnCluster,
             defaultrole: str,
             stack_log_level: str,
