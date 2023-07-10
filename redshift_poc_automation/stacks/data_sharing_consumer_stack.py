@@ -3,7 +3,7 @@ from typing import Any
 import json
 # from constructs import Construct
 from aws_cdk import (
-    core,
+    # core,
     aws_iam as iam,
     aws_redshift as aws_redshift
 )
@@ -15,12 +15,16 @@ from aws_cdk.custom_resources import (
     PhysicalResourceId,
 )
 
+from aws_cdk import Stack
+from constructs import Construct
 
-class DataSharingConsumerStack(core.Stack):
+# class DataSharingConsumerStack(core.Stack):
+class DataSharingConsumerStack(Stack):
 
     def __init__(
             self,
-            scope: core.Construct,
+            # scope: core.Construct,
+            scope: Construct,
             id: str,
             # cluster: aws_redshift.CfnCluster,
             defaultrole: str,
