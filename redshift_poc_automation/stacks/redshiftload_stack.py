@@ -1,7 +1,7 @@
 import boto3
 from typing import Any
 from aws_cdk import (
-    core,
+    # core,
     aws_iam as iam,
     aws_redshift as aws_redshift
 )
@@ -13,11 +13,16 @@ from aws_cdk.custom_resources import (
     PhysicalResourceId,
 )
 
-class RedshiftLoadStack(core.Stack):
+from aws_cdk import Stack
+from constructs import Construct
+
+# class RedshiftLoadStack(core.Stack):
+class RedshiftLoadStack(Stack):
 
     def __init__(
             self,
-            scope: core.Construct, id: str,
+            # scope: core.Construct, id: str,
+            scope: Construct, id: str,
             cluster: aws_redshift.CfnCluster,
             defaultrole: str,
             redshift_config: dict,
