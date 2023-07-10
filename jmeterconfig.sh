@@ -4,7 +4,7 @@ echo %DATE% %TIME% >> %SystemRoot%\Temp\test.log
 cd c:\
 mkdir JMETER
 cd JMETER
-curl -o apache-jmeter-5.4.3.zip  https://dlcdn.apache.org//jmeter/binaries/apache-jmeter-5.6.1.zip
+curl -o apache-jmeter-5.6.1.zip  https://dlcdn.apache.org//jmeter/binaries/apache-jmeter-5.6.1.zip
 Curl -L https://github.com/git-for-windows/git/releases/download/v2.35.1.windows.2/Git-2.35.1.2-32-bit.exe > Git-2.35.1.2-32-bit.exe
 
 echo [Setup] > "gitparameter.cnf"
