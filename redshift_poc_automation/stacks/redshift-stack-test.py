@@ -1,7 +1,7 @@
 from aws_cdk import aws_redshift
 from aws_cdk import aws_iam
 from aws_cdk import aws_secretsmanager
-from aws_cdk import core
+# from aws_cdk import core
 import json
 import boto3
 from aws_cdk import aws_ec2
@@ -10,12 +10,16 @@ from redshift_poc_automation.stacks.redshiftload_stack import RedshiftLoadStack
 import builtins
 import getpass
 
+from aws_cdk import Stack
+from constructs import Construct
 
-class RedshiftStack(core.Stack):
+# class RedshiftStack(core.Stack):
+class RedshiftStack(Stack):
 
     def __init__(
             self,
-            scope: core.Construct, id: str,
+            # scope: core.Construct, id: str,
+            scope: Construct, id: str,
             vpc,
             redshift_endpoint: str,
             redshift_config: dict,
@@ -79,7 +83,8 @@ class RedshiftStack(core.Stack):
                 secret_name=stackname+'-RedshiftClusterSecretAA',
                 generate_secret_string=aws_secretsmanager.SecretStringGenerator(
                     exclude_punctuation=True, password_length=10),
-                removal_policy=core.RemovalPolicy.DESTROY
+                # removal_policy=core.RemovalPolicy.DESTROY
+                removal_policy=RemovalPolicy.DESTROY
             )
 
             # IAM Role for Cluster
