@@ -1,7 +1,6 @@
 from aws_cdk import aws_redshift
 from aws_cdk import aws_iam
 from aws_cdk import aws_secretsmanager
-# from aws_cdk import core
 import json
 import boto3
 from aws_cdk import aws_ec2
@@ -13,12 +12,10 @@ import getpass
 from aws_cdk import Stack
 from constructs import Construct
 
-# class RedshiftStack(core.Stack):
 class RedshiftStack(Stack):
 
     def __init__(
             self,
-            # scope: core.Construct, id: str,
             scope: Construct, id: str,
             vpc,
             redshift_endpoint: str,
