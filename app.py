@@ -4,9 +4,7 @@
 import json
 import boto3
 import os
-# from aws_cdk import core
 from aws_cdk import App
-# from aws_cdk.core import Tags
 from aws_cdk import Tags
 from redshift_poc_automation.stacks.vpc_stack import VpcStack
 from redshift_poc_automation.stacks.redshift_stack import RedshiftStack
@@ -20,7 +18,6 @@ from redshift_poc_automation.stacks.data_sharing_stack import DataSharingProduce
 from redshift_poc_automation.stacks.data_sharing_consumer_stack import DataSharingConsumerStack
 
 
-# app = core.App()
 app = App()
 
 my_region = boto3.session.Session().region_name
