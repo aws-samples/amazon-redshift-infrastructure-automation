@@ -1,5 +1,4 @@
 from aws_cdk import aws_dms
-# from aws_cdk import core
 from aws_cdk import aws_iam
 import boto3
 import getpass
@@ -25,7 +24,6 @@ class DmsOnPremToRedshiftStack(Stack):
     
     def __init__(
         self,
-        # scope: core.Construct, id: str,
         scope: Construct, id: str,
         vpc,
         dmsmigration_config: dict,
