@@ -1,6 +1,5 @@
 from aws_cdk import aws_iam
 from aws_cdk import aws_ec2
-# from aws_cdk import core
 from aws_cdk import aws_secretsmanager
 import boto3
 import json
@@ -8,12 +7,10 @@ import json
 from aws_cdk import Stack
 from constructs import Construct
 
-# class JmeterStack(core.Stack):
 class JmeterStack(Stack):
 
     def __init__(
             self,
-            # scope: core.Construct, id: str,
             scope: Construct, id: str,
             # cluster,
             other_config: dict,
