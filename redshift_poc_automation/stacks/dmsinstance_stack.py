@@ -1,8 +1,10 @@
 from aws_cdk import aws_dms
 from aws_cdk import aws_iam
-from aws_cdk import core
 import boto3
 import json
+
+from aws_cdk import Stack
+from constructs import Construct
 
 class GlobalArgs():
     """
@@ -16,11 +18,11 @@ class GlobalArgs():
     VERSION = "2021_03_15"
     SUPPORT_EMAIL = ["aws-redshift-poc-sa-amer@amazon.com"]
 
-class DmsInstanceStack(core.Stack):
+class DmsInstanceStack(Stack):
 
     def __init__(
         self,
-        scope: core.Construct, id: str,
+        scope: Construct, id: str,
         vpc,
         stack_log_level: str,
         dms_config: dict,
