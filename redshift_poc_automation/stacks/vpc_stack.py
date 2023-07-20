@@ -1,8 +1,10 @@
 from aws_cdk import aws_ec2
-from aws_cdk import core
 import random
 import string
 
+from aws_cdk import Stack
+from constructs import Construct
+from aws_cdk import CfnOutput
 
 class GlobalArgs():
     """
@@ -14,11 +16,11 @@ class GlobalArgs():
     REPO_NAME = "redshift-demo"
     VERSION = "2021_03_15"
 
-class VpcStack(core.Stack):
+class VpcStack(Stack):
 
     def __init__(
         self,
-        scope: core.Construct,
+        scope: Construct,
         id: str,
         stack_log_level: str,
         vpc_id: str,
@@ -52,7 +54,7 @@ class VpcStack(core.Stack):
                         name="public_subnet", cidr_mask=cidr_mask, subnet_type=aws_ec2.SubnetType.PUBLIC
                     ),
                     aws_ec2.SubnetConfiguration(
-                        name="private_subnet", cidr_mask=cidr_mask, subnet_type=aws_ec2.SubnetType.PRIVATE
+                        name="private_subnet", cidr_mask=cidr_mask, subnet_type=aws_ec2.SubnetType.PRIVATE_ISOLATED
                     )
                 ]
             )
@@ -71,7 +73,7 @@ class VpcStack(core.Stack):
         self.dms_security_group.add_ingress_rule(peer=aws_ec2.Peer.ipv4(onprem_cidr), connection=aws_ec2.Port.tcp(22), description="SSH from anywhere")
 
 
-        output_1 = core.CfnOutput(
+        output_1 = CfnOutput(
             self,
             "New SG",
             value=f"{self.dms_security_group.security_group_id}",
