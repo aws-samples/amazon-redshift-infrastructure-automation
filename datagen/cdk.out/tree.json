@@ -1,0 +1,336 @@
+{
+  "version": "tree-0.1",
+  "tree": {
+    "id": "App",
+    "path": "",
+    "children": {
+      "datagencodebase": {
+        "id": "datagencodebase",
+        "path": "datagencodebase",
+        "children": {
+          "DatagencodebaseQueue": {
+            "id": "DatagencodebaseQueue",
+            "path": "datagencodebase/DatagencodebaseQueue",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "datagencodebase/DatagencodebaseQueue/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::SQS::Queue",
+                  "aws:cdk:cloudformation:props": {
+                    "visibilityTimeout": 300
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_sqs.CfnQueue",
+                  "version": "2.82.0"
+                }
+              },
+              "Policy": {
+                "id": "Policy",
+                "path": "datagencodebase/DatagencodebaseQueue/Policy",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "datagencodebase/DatagencodebaseQueue/Policy/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::SQS::QueuePolicy",
+                      "aws:cdk:cloudformation:props": {
+                        "policyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "sqs:SendMessage",
+                              "Condition": {
+                                "ArnEquals": {
+                                  "aws:SourceArn": {
+                                    "Ref": "DatagencodebaseTopic93CAFE71"
+                                  }
+                                }
+                              },
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": "sns.amazonaws.com"
+                              },
+                              "Resource": {
+                                "Fn::GetAtt": [
+                                  "DatagencodebaseQueue303E8425",
+                                  "Arn"
+                                ]
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "queues": [
+                          {
+                            "Ref": "DatagencodebaseQueue303E8425"
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_sqs.CfnQueuePolicy",
+                      "version": "2.82.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_sqs.QueuePolicy",
+                  "version": "2.82.0"
+                }
+              },
+              "datagencodebaseDatagencodebaseTopic5719C40D": {
+                "id": "datagencodebaseDatagencodebaseTopic5719C40D",
+                "path": "datagencodebase/DatagencodebaseQueue/datagencodebaseDatagencodebaseTopic5719C40D",
+                "children": {
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "datagencodebase/DatagencodebaseQueue/datagencodebaseDatagencodebaseTopic5719C40D/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::SNS::Subscription",
+                      "aws:cdk:cloudformation:props": {
+                        "protocol": "sqs",
+                        "topicArn": {
+                          "Ref": "DatagencodebaseTopic93CAFE71"
+                        },
+                        "endpoint": {
+                          "Fn::GetAtt": [
+                            "DatagencodebaseQueue303E8425",
+                            "Arn"
+                          ]
+                        }
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_sns.CfnSubscription",
+                      "version": "2.82.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_sns.Subscription",
+                  "version": "2.82.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_sqs.Queue",
+              "version": "2.82.0"
+            }
+          },
+          "DatagencodebaseTopic": {
+            "id": "DatagencodebaseTopic",
+            "path": "datagencodebase/DatagencodebaseTopic",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "datagencodebase/DatagencodebaseTopic/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::SNS::Topic",
+                  "aws:cdk:cloudformation:props": {}
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_sns.CfnTopic",
+                  "version": "2.82.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_sns.Topic",
+              "version": "2.82.0"
+            }
+          },
+          "DataGenHandler": {
+            "id": "DataGenHandler",
+            "path": "datagencodebase/DataGenHandler",
+            "children": {
+              "ServiceRole": {
+                "id": "ServiceRole",
+                "path": "datagencodebase/DataGenHandler/ServiceRole",
+                "children": {
+                  "ImportServiceRole": {
+                    "id": "ImportServiceRole",
+                    "path": "datagencodebase/DataGenHandler/ServiceRole/ImportServiceRole",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.Resource",
+                      "version": "2.82.0"
+                    }
+                  },
+                  "Resource": {
+                    "id": "Resource",
+                    "path": "datagencodebase/DataGenHandler/ServiceRole/Resource",
+                    "attributes": {
+                      "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+                      "aws:cdk:cloudformation:props": {
+                        "assumeRolePolicyDocument": {
+                          "Statement": [
+                            {
+                              "Action": "sts:AssumeRole",
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": "lambda.amazonaws.com"
+                              }
+                            }
+                          ],
+                          "Version": "2012-10-17"
+                        },
+                        "managedPolicyArns": [
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+                      "version": "2.82.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_iam.Role",
+                  "version": "2.82.0"
+                }
+              },
+              "Code": {
+                "id": "Code",
+                "path": "datagencodebase/DataGenHandler/Code",
+                "children": {
+                  "Stage": {
+                    "id": "Stage",
+                    "path": "datagencodebase/DataGenHandler/Code/Stage",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.AssetStaging",
+                      "version": "2.82.0"
+                    }
+                  },
+                  "AssetBucket": {
+                    "id": "AssetBucket",
+                    "path": "datagencodebase/DataGenHandler/Code/AssetBucket",
+                    "constructInfo": {
+                      "fqn": "aws-cdk-lib.aws_s3.BucketBase",
+                      "version": "2.82.0"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_s3_assets.Asset",
+                  "version": "2.82.0"
+                }
+              },
+              "Resource": {
+                "id": "Resource",
+                "path": "datagencodebase/DataGenHandler/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::Lambda::Function",
+                  "aws:cdk:cloudformation:props": {
+                    "code": {
+                      "s3Bucket": {
+                        "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+                      },
+                      "s3Key": "93bb64038ba3931579e2a11007b42bfc87332cadbc30f319a80ee54111d2d1b2.zip"
+                    },
+                    "role": {
+                      "Fn::GetAtt": [
+                        "DataGenHandlerServiceRoleBFF0EA79",
+                        "Arn"
+                      ]
+                    },
+                    "environment": {
+                      "variables": {
+                        "batchSize": "1000",
+                        "key": "testschema.json",
+                        "outputBucket": "faker-data-generation",
+                        "schemaBucket": "aarete-poc",
+                        "data_request_type": "iot",
+                        "in_schema": "Y",
+                        "data_request_size": "100000"
+                      }
+                    },
+                    "handler": "DataGenCore.handler",
+                    "runtime": "python3.7"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_lambda.CfnFunction",
+                  "version": "2.82.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_lambda.Function",
+              "version": "2.82.0"
+            }
+          },
+          "CDKMetadata": {
+            "id": "CDKMetadata",
+            "path": "datagencodebase/CDKMetadata",
+            "children": {
+              "Default": {
+                "id": "Default",
+                "path": "datagencodebase/CDKMetadata/Default",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnResource",
+                  "version": "2.82.0"
+                }
+              },
+              "Condition": {
+                "id": "Condition",
+                "path": "datagencodebase/CDKMetadata/Condition",
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.CfnCondition",
+                  "version": "2.82.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "constructs.Construct",
+              "version": "10.2.69"
+            }
+          },
+          "BootstrapVersion": {
+            "id": "BootstrapVersion",
+            "path": "datagencodebase/BootstrapVersion",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnParameter",
+              "version": "2.82.0"
+            }
+          },
+          "CheckBootstrapVersion": {
+            "id": "CheckBootstrapVersion",
+            "path": "datagencodebase/CheckBootstrapVersion",
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.CfnRule",
+              "version": "2.82.0"
+            }
+          }
+        },
+        "constructInfo": {
+          "fqn": "aws-cdk-lib.Stack",
+          "version": "2.82.0"
+        }
+      },
+      "Tree": {
+        "id": "Tree",
+        "path": "Tree",
+        "constructInfo": {
+          "fqn": "constructs.Construct",
+          "version": "10.2.69"
+        }
+      }
+    },
+    "constructInfo": {
+      "fqn": "aws-cdk-lib.App",
+      "version": "2.82.0"
+    }
+  }
+}

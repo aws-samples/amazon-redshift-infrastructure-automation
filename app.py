@@ -4,8 +4,8 @@
 import json
 import boto3
 import os
-from aws_cdk import core
-from aws_cdk.core import Tags
+from aws_cdk import App
+from aws_cdk import Tags
 from redshift_poc_automation.stacks.vpc_stack import VpcStack
 from redshift_poc_automation.stacks.redshift_stack import RedshiftStack
 from redshift_poc_automation.stacks.redshiftserverless_stack import RedshiftServerlessStack
@@ -18,7 +18,7 @@ from redshift_poc_automation.stacks.data_sharing_stack import DataSharingProduce
 from redshift_poc_automation.stacks.data_sharing_consumer_stack import DataSharingConsumerStack
 
 
-app = core.App()
+app = App()
 
 my_region = boto3.session.Session().region_name
 account_id = boto3.client('sts').get_caller_identity().get('Account')
@@ -211,7 +211,8 @@ _tags_lst = app.node.try_get_context("tags")
 if _tags_lst:
     for _t in _tags_lst:
         for k, v in _t.items():
-            core.Tags.of(app).add(k, v, apply_to_launched_instances=True)
+            # core.Tags.of(app).add(k, v, apply_to_launched_instances=True)
+            Tags.of(app).add(k, v, apply_to_launched_instances=True)
 
 
 app.synth()

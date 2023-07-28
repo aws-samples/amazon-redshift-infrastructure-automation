@@ -1,0 +1,106 @@
+{
+  "version": "32.0.0",
+  "artifacts": {
+    "datagencodebase.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "datagencodebase.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "datagencodebase": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://unknown-account/unknown-region",
+      "properties": {
+        "templateFile": "datagencodebase.template.json",
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/0546a4c801341e38c16cc91f547d9e366a1b6ade041af5e4dc3ef70ede72d510.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "datagencodebase.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-${AWS::Region}",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "datagencodebase.assets"
+      ],
+      "metadata": {
+        "/datagencodebase/DatagencodebaseQueue/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DatagencodebaseQueue303E8425"
+          }
+        ],
+        "/datagencodebase/DatagencodebaseQueue/Policy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DatagencodebaseQueuePolicyB206A36B"
+          }
+        ],
+        "/datagencodebase/DatagencodebaseQueue/datagencodebaseDatagencodebaseTopic5719C40D/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DatagencodebaseQueuedatagencodebaseDatagencodebaseTopic5719C40DF7A7A5F8"
+          }
+        ],
+        "/datagencodebase/DatagencodebaseTopic/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DatagencodebaseTopic93CAFE71"
+          }
+        ],
+        "/datagencodebase/DataGenHandler/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DataGenHandlerServiceRoleBFF0EA79"
+          }
+        ],
+        "/datagencodebase/DataGenHandler/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DataGenHandler3B999085"
+          }
+        ],
+        "/datagencodebase/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/datagencodebase/CDKMetadata/Condition": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadataAvailable"
+          }
+        ],
+        "/datagencodebase/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/datagencodebase/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "datagencodebase"
+    },
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    }
+  }
+}
