@@ -5,6 +5,8 @@ output_file_type=""
 num_records=""
 s3_bucket_name=""
 
+
+existingSchemaDetails (){
 read -r -p "Do you have an existing schema? (Yy/Nn): " schema_exists
     case $schema_exists in
         [Yy]* ) read -r -p "What is the existing schema bucket's name? " schema_bucket;;
@@ -15,20 +17,28 @@ read -r -p "Do you have an existing schema? (Yy/Nn): " schema_exists
 
 echo
 
-PS3='[Schema Details]: Please select a predefined schema: '
-    options=("IoT" "Finance")
-    select selection in "${options[@]}"; do
-        if [[ $REPLY == "0" ]]; then
-            echo 'Goodbye' >&2
-            exit
-        else
-            echo
-            echo "You have chosen $selection"
-            schema_type=$selection
-            echo
-            break
-        fi     
-    done
+if [ "$schema_exists" == "n" ] || [ "$schema_exists" == "N" ];
+then 
+	PS3='[Schema Details]: Please select a predefined schema: '
+		options=("IoT" "Finance")
+		select selection in "${options[@]}"; do
+			if [[ $REPLY == "0" ]]; then
+				echo 'Goodbye' >&2
+				exit
+			else
+				echo
+				echo "You have chosen $selection"
+				schema_type=$selection
+				echo
+				break
+			fi
+		done
+fi
+}
+
+existingSchemaDetails
+echo
+
 
 PS3='[Output File Details]: Please select an output file type: '
     options=("JSON")
@@ -49,8 +59,6 @@ read -r -p "[Number of Records Details]: How many records do you want to generat
 echo
 read -r -p "[S3 Bucket Details]: Please provide the name of the S3 bucket where you want to upload the generated data files: " s3_bucket_name
 
-echo "ADDING TO JSON"
-
 JSON_STRING=$( jq -n \
                   --arg se "$schema_exists" \
                   --arg sb "$schema_bucket" \
@@ -67,4 +75,3 @@ JSON_STRING=$( jq -n \
                     s3_bucket_name: $bn
                     }' \ >user-config.json )
 
-echo "FINISHED ADDING TO JSON"
