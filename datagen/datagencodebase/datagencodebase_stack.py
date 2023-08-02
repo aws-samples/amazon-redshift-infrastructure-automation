@@ -9,7 +9,7 @@ from aws_cdk import (
     aws_lambda as _lambda,
     Size,
 )
-from aws_cdk.aws_lambda_python_alpha import PythonLayerVersion
+# from aws_cdk.aws_lambda_python_alpha import PythonLayerVersion
 
 class DatagencodebaseStack(Stack):
 
@@ -45,19 +45,19 @@ class DatagencodebaseStack(Stack):
                 iam.ManagedPolicy.from_aws_managed_policy_name(managed_policy_name=('AmazonS3FullAccess'))
             ],
         )
-        faker_lambda_layer = PythonLayerVersion(
-            self, 'FakerLambdaLayer',
-            entry='python',
-            compatible_runtimes=[_lambda.Runtime.PYTHON_3_9],
-            description='Faker Library',
-            layer_version_name='FakerLambdaLayer'
-        )
+        # faker_lambda_layer = PythonLayerVersion(
+            # self, 'FakerLambdaLayer',
+            # entry='python',
+            # compatible_runtimes=[_lambda.Runtime.PYTHON_3_9],
+            # description='Faker Library',
+            # layer_version_name='FakerLambdaLayer'
+       # )
 
         # Defines an AWS Lambda resource
         my_lambda = _lambda.Function(
             self, 'DataGenHandler',
             runtime=_lambda.Runtime.PYTHON_3_9,
-            layers=[faker_lambda_layer],
+            # layers=[faker_lambda_layer],
             code=_lambda.Code.from_asset('lambda'),
             timeout=Duration.minutes(15),
             memory_size=5000,
