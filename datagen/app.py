@@ -27,7 +27,7 @@ app = cdk.App()
 # inschema = 'Y'
 # datarequestsize = "100000"
 
-config = json.load(open("user-config.json"))
+config = json.load(open("/home/cloudshell-user/amazon-redshift-infrastructure-automation/datagen/user-config.json"))
 
 outputbucket = config.get('s3_bucket_name')
 schemabucket = config.get('schema_bucket')
