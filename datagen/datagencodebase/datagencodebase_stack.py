@@ -23,6 +23,7 @@ class DatagencodebaseStack(Stack):
                  datarequesttype: str,
                  inschema: str,
                  datarequestsize: str,
+                 batchsize: str,
 
                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -65,7 +66,7 @@ class DatagencodebaseStack(Stack):
             role=role,
             # memory_size=Size.mebibytes(5000),
             environment={
-                "BatchSize": "1000",
+                "BatchSize": batchsize,
                 "Key": key,
                 "OutputBucket": outputbucket,
                 "SchemaBucket": schemabucket,
