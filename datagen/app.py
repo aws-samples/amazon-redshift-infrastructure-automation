@@ -31,7 +31,9 @@ config = json.load(open("/home/cloudshell-user/amazon-redshift-infrastructure-au
 
 outputbucket = config.get('s3_bucket_name')
 schemabucket = config.get('schema_bucket')
-key = config.get('output_file_type')
+outputfiletype = config.get('output_file_type')
+key = config.get('key')
+batchsize = config.get('batch_size')
 datarequesttype = config.get('schema_type')
 inschema = config.get('schema_exists')
 datarequestsize = config.get('num_records')
@@ -45,6 +47,7 @@ DatagencodebaseStack(app,
                      outputbucket=outputbucket,
                      schemabucket=schemabucket,
                      key=key,
+                     batchsize=batchsize,
                      datarequesttype=datarequesttype,
                      inschema=inschema,
                      datarequestsize=datarequestsize)
