@@ -55,7 +55,6 @@ fi
 }
 
 existingSchemaDetails
-# echo 
 
 PS3='[Output File Details]: Please select an output file type: '
     options=("JSON")
@@ -71,12 +70,10 @@ PS3='[Output File Details]: Please select an output file type: '
         fi     
     done
 
-# echo
-# read -r -p "[Key Details]: Please provide the key path: " key
-echo
-read -r -p "[Batch Size Details]: What is the size of your batch? " batch_size
 echo
 read -r -p "[Number of Records Details]: How many records do you want to generate? " num_records
+echo
+read -r -p "[Records per File Details]: How many records per file do you want? " batch_size
 echo
 
 outputBucketDetails (){
@@ -90,7 +87,7 @@ PS3='[Output S3 Bucket Details]: Would you like to create a new S3 bucket or use
 			echo
 			echo "You have chosen $selection"
 			echo
-			read -r -p  "Enter the name of the new S3 bucket:" s3_bucket_name
+			read -r -p  "Enter the name of the new S3 bucket: " s3_bucket_name
 			aws s3api  create-bucket --bucket $s3_bucket_name --region us-east-1
 			break
 		elif [[ $REPLY == "2" ]]; then
@@ -108,15 +105,14 @@ PS3='[Output S3 Bucket Details]: Would you like to create a new S3 bucket or use
 					echo "The bucket provided does not exist. Please provide a valid bucket name."
 					echo
 					set -e
-					# exit
 				fi
 		fi
 	done
 }
 
 outputBucketDetails
-echo
 
+echo "Deploying..."
 
 JSON_STRING=$( jq -n \
                   --arg se "$schema_exists" \
