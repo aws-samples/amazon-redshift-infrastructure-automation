@@ -23,6 +23,7 @@ aws configure set default.region us-east-1
     esac
 export STACK_NAME=$stack
 export ONPREM_CIDR=$onprem_cidr
+export JSII_SILENCE_WARNING_DEPRECATED_NODE_VERSION=true
 #Need more elegant solution for handling exception here:
 [ -f ~/user-config.json ] && mv ~/user-config.json ~/amazon-redshift-infrastructure-automation/user-config.json
 export account_id=`aws sts get-caller-identity --query "Account" --output text`
