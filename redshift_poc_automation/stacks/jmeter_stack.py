@@ -100,7 +100,7 @@ class JmeterStack(core.Stack):
         my_security_group.add_ingress_rule(peer=aws_ec2.Peer.ipv4(onprem_cidr), connection=aws_ec2.Port.tcp(3389),
                                            description="RDP from anywhere")
 
-        custom_ami = aws_ec2.WindowsImage(aws_ec2.WindowsVersion.WINDOWS_SERVER_2019_ENGLISH_FULL_BASE);
+        custom_ami = aws_ec2.WindowsImage(aws_ec2.WindowsVersion.WINDOWS_SERVER_2022_ENGLISH_FULL_BASE);
         # Instance
         firstcommand = "\naws configure set role_arn arn:aws:iam::" + account_id + ":role/windows-cli-role\n"
         input_data = user_data + firstcommand + user_data_2
