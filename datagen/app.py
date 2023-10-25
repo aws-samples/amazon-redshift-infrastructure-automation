@@ -16,11 +16,12 @@ config = json.load(open("user-config.json"))
 
 outputbucket = config.get('s3_bucket_name')
 schemabucket = config.get('schema_bucket')
-key = config.get('schema_key')
+key = config.get('key')
 outputfiletype = config.get('output_file_type')
 datarequesttype = config.get('schema_type')
 inschema = config.get('schema_exists')
 datarequestsize = config.get('num_records')
+batchsize = config.get('batch_size')
 
 DatagencodebaseStack(app,
                      "datagencodebase",
