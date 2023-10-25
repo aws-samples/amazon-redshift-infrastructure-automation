@@ -12,7 +12,7 @@ account_id = boto3.client('sts').get_caller_identity().get('Account')
 env = {'account': account_id, 'region': my_region}
 # print(env)
 
-config = json.load(open("user-config.json"))
+config = json.load(open("/home/cloudshell-user/amazon-redshift-infrastructure-automation/datagen/user-config.json"))
 
 outputbucket = config.get('s3_bucket_name')
 schemabucket = config.get('schema_bucket')
@@ -29,6 +29,7 @@ DatagencodebaseStack(app,
                      outputbucket=outputbucket,
                      schemabucket=schemabucket,
                      key=key,
+                     batchsize=batchsize,
                      datarequesttype=datarequesttype,
                      inschema=inschema,
                      datarequestsize=datarequestsize,
