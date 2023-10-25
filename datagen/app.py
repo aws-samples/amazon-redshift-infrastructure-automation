@@ -32,8 +32,8 @@ DatagencodebaseStack(app,
                      batchsize=batchsize,
                      datarequesttype=datarequesttype,
                      inschema=inschema,
-                     datarequestsize=datarequestsize,
-                     outputfiletype=outputfiletype
+                     datarequestsize=datarequestsize
+                    #  outputfiletype=outputfiletype
                      )
 
 app.synth()
