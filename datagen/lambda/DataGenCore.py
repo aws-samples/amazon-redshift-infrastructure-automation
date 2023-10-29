@@ -30,11 +30,17 @@ Department_provider = DynamicProvider(
     elements=["HR", "Analytics", "Finance", "Marketing", "Quality Assurance"],
 )
 
+Description_provider = DynamicProvider(
+    provider_name="Description",
+    elements=["HR", "Analytics", "Finance", "Marketing", "Quality Assurance"],
+)
+
 Department_list = ["HR", "Analytics", "Finance", "Marketing", "Quality Assurance"]
 
 fake = Faker('en_US')
 fake.add_provider(skill_provider)
 fake.add_provider(Department_provider)
+fake.add_provider(Description_provider)
 
 
 def generate_random_data(lat, lon, num_rows):
@@ -45,74 +51,13 @@ def generate_random_data(lat, lon, num_rows):
         dec_lon = random.random() / 100
         return ('%s %.1f %.6f %.6f \n' % (hex1.lower(), flt, lon + dec_lon, lat + dec_lat))
 
-
-def f_schema_less(records, request_type):
-    iot = []
-
-    # Batching logic start
-    batchsize = int(os.environ['BatchSize'])
-    loop = records // batchsize
-    last_loop = records % batchsize
-    l = []
-
-    for i in range(loop):
-        l.append(batchsize)
-
-    l.append(last_loop)
-    if 0 in l: l.remove(0)
-    # Batching logic end
-
-    if request_type == 'iot':
-        for j in l:
-            iot = []
-            for i in range(j):
-                sensor_id = str(uuid.uuid4())
-                sensor_name = fake.name()
-                sensor_description = fake.last_name()
-                table_name = 'iot'
-                v_latitude = float(random.randint(0, 100))
-                v_longitude = float(random.randint(0, 100))
-
-                iot.append({
-                    "Sensor Id": sensor_id,
-                    "Sensor Name": sensor_name,
-                    "Sensor Description": sensor_description,
-                    "Sensor Installed Date": fake.date(pattern="%Y-%m-%d", end_datetime=date(today.year, 1, 1)),
-                    "Lattitude": generate_random_data(v_latitude, v_longitude, 1)[3],
-                    "Longitude": generate_random_data(v_latitude, v_longitude, 1)[2],
-                    "Location Name": fake.address(),
-                    "Sensor Captured Date": fake.date(pattern="%Y-%m-%d", end_datetime=date(today.year, 1, 1)),
-                    "Sensor 1": sensor_flag_true,
-                    "Sensor 2": sensor_flag_false,
-                    "Sensor 3": sensor_flag_true,
-                    "Sensor 4": sensor_flag_false,
-                    "Sensor 5": sensor_flag_true,
-                    "Sensor 6": sensor_flag_false,
-                    "Sensor 7": sensor_flag_true,
-                    "Sensor 8": sensor_flag_false,
-                    "Sensor 9": sensor_flag_true,
-                    "Sensor 10": sensor_flag_false,
-                    "Sensor 11": sensor_flag_true,
-                    "Sensor 12": sensor_flag_false
-                })
-
-            js = json.dumps(iot, indent=4, separators=(',', ': '), sort_keys=False)
-            fileName = table_name + '_noschema/' + datetime.today().strftime('%Y-%m-%d %H:%M:%S') + '/' + str(
-                uuid.uuid4()) + '.json '
-            s3.put_object(Bucket=output_bucket, Key=fileName, Body=js)
-
-    # elif request_type=='finance':
-    # elif request_type=='hr':
-    # elif request_type=='hr-personal':
-    # elif request_type=='banking':
-    # elif request_type=='automotive':
-    # elif request_type=='sales':
-
-
-def f_schema(records):
+def f_schema(records, requesttype, inschema):
     fake = Faker('en_US')
     schema_bucket = os.environ['SchemaBucket']
     key = os.environ['Key']
+    if inschema == 'N':
+        key = requesttype + '-' + 'metadata.json'
+        print(key)
 
     response = s3.get_object(Bucket=schema_bucket, Key=key)
     schema_file = response['Body']
@@ -137,68 +82,102 @@ def f_schema(records):
     temp_pd = pd.DataFrame()
     final_pd = pd.DataFrame()
 
+    Description_provider = DynamicProvider(
+        provider_name="Description",
+        elements=["HR", "Analytics", "Finance", "Marketing", "Quality Assurance"],
+    )
+
+    fake.add_provider(Description_provider)
+
     for j in l:
         for i in range(j):
             # print(i)
             for each_col in column_list:
                 column_name = each_col['ColumnName']
                 column_type = each_col['Type']
-                if column_name.lower() == "id":
+                if column_name.lower().startswith('id') or column_name.lower().endswith('id'):
                     temp_pd[column_name] = [fake.uuid4()]
 
                 elif column_type.lower() == "varchar":
-                    if column_name == 'Department':
+                    if 'department' in column_name.lower():
                         temp_pd[column_name] = [random.choice(Department_list)]
-                    elif column_name == 'Name':
+                    elif 'name' in column_name.lower():
                         temp_pd[column_name] = [fake.name()]
-                    elif column_name == 'Location':
+                    elif 'location' in column_name.lower():
                         temp_pd[column_name] = [fake.address()]
+                    elif 'description' in column_name.lower():
+                        temp_pd[column_name] = [fake.text()[slice(30)]]
 
                 elif column_type.lower() == "date":
-                    temp_pd[column_name] = [
-                        fake.date(pattern="%Y-%m-%d", end_datetime=date(today.year, 1, 1))]
+                    if 'century' in column_name.lower():
+                        temp_pd[column_name] = [fake.century()]
+                    elif 'year' in column_name.lower():
+                        temp_pd[column_name] = [fake.year()]
+                    elif 'monthname' in column_name.lower():
+                        temp_pd[column_name] = [fake.month_name()]
+                    elif 'month name' in column_name.lower():
+                        temp_pd[column_name] = [fake.month_name()]
+                    elif 'day of week' in column_name.lower():
+                        temp_pd[column_name] = [fake.day_of_week()]
+                    elif 'dayofweek' in column_name.lower():
+                        temp_pd[column_name] = [fake.day_of_week()]
+                    elif 'day of month' in column_name.lower():
+                        temp_pd[column_name] = [fake.day_of_month()]
+                    elif 'dayofmonth' in column_name.lower():
+                        temp_pd[column_name] = [fake.day_of_month()]
+                    elif 'timezone' in column_name.lower():
+                        temp_pd[column_name] = [fake.timezone()]
+                    elif 'time zone' in column_name.lower():
+                        temp_pd[column_name] = [fake.timezone()]
+                    elif 'date of birth' in column_name.lower():
+                        temp_pd[column_name] = [fake.date_of_birth()]
+                    elif 'dateofbirth' in column_name.lower():
+                        temp_pd[column_name] = [fake.date_of_birth()]
+                    else:
+                        temp_pd[column_name] = [
+                            fake.date(pattern="%Y-%m-%d", end_datetime=date(today.year, 1, 1))]
 
                 elif column_type.lower() == "double":
                     temp_pd[column_name] = [float(Decimal(random.randrange(5000, 20000)) / 100)]
+
+                elif column_type.lower() == "boolean":
+                    temp_pd[column_name] = random.randint(0, 1)
 
             final_pd = pd.concat([temp_pd, final_pd], ignore_index=True)
 
         ## parameterize this list
         # dfs=pd.DataFrame(final_output_list, columns=c_name)
         js = final_pd.to_json(orient="records")
-        fileName = table_name + '_schema/' + datetime.today().strftime('%Y-%m-%d %H:%M:%S') + '/' + str(
-            uuid.uuid4()) + '.json '
+        # fileName = table_name + '/' + datetime.today().strftime('%Y-%m-%d %H:%M:%S') + '/' + str(uuid.uuid4()) + '.json '
+        fileName = table_name + '/' + datetime.today().strftime('%Y-%m-%d %H:%M:%S') + '.json '
         s3.put_object(Bucket=output_bucket, Key=fileName, Body=js)
         final_output_list = []
 
     return (final_pd)
 
-def handler(event, context):
-    # DataRequestType = event['DataRequestType'].lower()
-    # InSchema = event['InSchema']
-    # DataRequestSize = int(event['DataRequestSize'])
 
+def handler(event, context):
     DataRequestType = os.environ['DataRequestType']
     InSchema = os.environ['InSchema']
     DataRequestSize = int(os.environ['DataRequestSize'])
     try:
         start = time.time()
         if DataRequestType == 'iot' and InSchema == 'N':
-            f_schema_less(DataRequestSize, DataRequestType)
+            f_schema(DataRequestSize, DataRequestType, InSchema)
         elif DataRequestType.lower() == 'finance' and InSchema == 'N':
-            f_schema_less(DataRequestSize, DataRequestType)
+            f_schema(DataRequestSize, DataRequestType, InSchema)
         elif DataRequestType.lower() == 'hr' and InSchema == 'N':
-            f_schema_less(DataRequestSize, DataRequestType)
+            f_schema(DataRequestSize, DataRequestType, InSchema)
         elif DataRequestType.lower() == 'hr-personal' and InSchema == 'N':
-            f_schema_less(DataRequestSize, DataRequestType)
+            f_schema(DataRequestSize, DataRequestType, InSchema)
         elif DataRequestType.lower() == 'banking' and InSchema == 'N':
-            f_schema_less(DataRequestSize, DataRequestType)
+            f_schema(DataRequestSize, DataRequestType, InSchema)
         elif DataRequestType.lower() == 'automotive' and InSchema == 'N':
-            f_schema_less(DataRequestSize, DataRequestType)
+            f_schema(DataRequestSize, DataRequestType, InSchema)
         elif DataRequestType.lower() == 'sales' and InSchema == 'N':
-            f_schema_less(DataRequestSize, DataRequestType)
-        elif InSchema == 'Y':
-            dfs1 = f_schema(DataRequestSize)
+            f_schema(DataRequestSize, DataRequestType, InSchema)
+        elif InSchema.upper() == 'Y':
+            dfs1 = f_schema(DataRequestSize, DataRequestType, InSchema)
             print(dfs1)
         end = time.time()
         print('Time taken to generate ' + DataRequestType + ' is ' + str(end - start) + ' seconds')

@@ -6,7 +6,6 @@ import boto3
 from datagencodebase.datagencodebase_stack import DatagencodebaseStack
 
 app = cdk.App()
-
 my_region = boto3.session.Session().region_name
 account_id = boto3.client('sts').get_caller_identity().get('Account')
 env = {'account': account_id, 'region': my_region}
