@@ -1,7 +1,7 @@
 aws configure set credential_source Ec2InstanceMetadata
 move "amazon-redshift-infrastructure-automation\scripts\Redshift Load Test.jmx" "C:\JMETER\Redshift Load Test.jmx"
-move amazon-redshift-infrastructure-automation\scripts\jmeter.bat "C:\JMETER\apache-jmeter-5.6.1\bin\jmeter.bat"
-move amazon-redshift-infrastructure-automation\scripts\redshift-jdbc42-2.0.0.4.jar "C:\JMETER\apache-jmeter-5.6.1\lib\redshift-jdbc42-2.0.0.4.jar"
+move amazon-redshift-infrastructure-automation\scripts\jmeter.bat "C:\JMETER\apache-jmeter-5.6.3\bin\jmeter.bat"
+move amazon-redshift-infrastructure-automation\scripts\redshift-jdbc42-2.0.0.4.jar "C:\JMETER\apache-jmeter-5.6.3\lib\redshift-jdbc42-2.0.0.4.jar"
 
 cd apache-jmeter-5.6.3
 
