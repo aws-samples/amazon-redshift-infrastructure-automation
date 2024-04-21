@@ -197,7 +197,7 @@ if "%JM_START%" == "start" (
     set JM_START=start "Apache_JMeter"
 )
 
-%JM_START% "%JM_LAUNCH%" %ARGS% %JVM_ARGS% -jar "C:\JMETER\apache-jmeter-5.6.1\bin\ApacheJMeter.jar" %JMETER_CMD_LINE_ARGS%
+%JM_START% "%JM_LAUNCH%" %ARGS% %JVM_ARGS% -jar "C:\JMETER\apache-jmeter-5.6.3\bin\ApacheJMeter.jar" %JMETER_CMD_LINE_ARGS%
 
 rem If the errorlevel is not zero, then display it and pause
 
