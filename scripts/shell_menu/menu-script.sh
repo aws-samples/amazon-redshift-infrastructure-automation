@@ -68,20 +68,6 @@ coloredLoading="$(echo -e $BOLD$BLUE"..."$RESET)"
 
 ##THIS IS WHERE THE MENU STARTS
 
-
-while true; do
-    read -r -p "$coloredQuestion Are the prerequisites met?(Y/N): " answer
-    case $answer in
-        [Yy]* ) break;;
-        [Nn]* ) 
-            echo "Please visit the link below"
-            echo "https://github.com/aws-samples/amazon-redshift-infrastructure-automation#prerequisites"; 
-            exit;;
-        * ) echo "Please answer Y or N.";;
-    esac
-done
-echo
-
 #ANYTHING RELATED TO VPC DETAILS
 configureVPCDetails (){
 while true; do
